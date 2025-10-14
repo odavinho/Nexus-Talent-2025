@@ -18,6 +18,7 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import type { Vacancy, CourseCategory } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 
 const toDate = (date: Timestamp | Date | undefined): Date | null => {
