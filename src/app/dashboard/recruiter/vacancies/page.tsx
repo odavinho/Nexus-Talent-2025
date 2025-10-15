@@ -194,9 +194,6 @@ export default function RecruiterVacanciesPage() {
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href={`/recruitment/${vacancy.id}`} target="_blank"><Eye className='mr-2 h-4 w-4'/>Ver Vaga</Link>
                                     </Button>
-                                    <Button variant="outline" size="sm" onClick={() => handleDuplicate(vacancy)}>
-                                        <Copy className='mr-2 h-4 w-4'/>Duplicar
-                                    </Button>
                                      <Button variant="outline" size="sm" asChild>
                                         <Link href={`/dashboard/recruiter/vacancies/${vacancy.id}/triage`}><Sparkles className='mr-2 h-4 w-4'/>Triagem com IA</Link>
                                     </Button>

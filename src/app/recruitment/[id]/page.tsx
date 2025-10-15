@@ -136,24 +136,30 @@ export default function VacancyDetailPage() {
                               </div>
                               <div className="flex items-center gap-3">
                                   <Briefcase className="w-5 h-5 text-muted-foreground" />
-                                  <span><strong>Tipo:</strong> {vacancy.type}</span>
+                                  <span><strong>Tipo de Contrato:</strong> {vacancy.type}</span>
                               </div>
+                              {vacancy.salaryRange && vacancy.showSalary && (
+                                <div className="flex items-center gap-3">
+                                    <Briefcase className="w-5 h-5 text-muted-foreground" />
+                                    <span><strong>Salário:</strong> {vacancy.salaryRange}</span>
+                                </div>
+                              )}
                                {vacancy.minExperience && (
                                 <div className="flex items-center gap-3">
                                     <Award className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Experiência:</strong> {vacancy.minExperience}</span>
+                                    <span><strong>Experiência Mínima:</strong> {vacancy.minExperience}</span>
                                 </div>
                               )}
                               {vacancy.minEducationLevel && (
                                 <div className="flex items-center gap-3">
                                     <GraduationCap className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Habilitações:</strong> {vacancy.minEducationLevel}</span>
+                                    <span><strong>Habilitações Mínimas:</strong> {vacancy.minEducationLevel}</span>
                                 </div>
                               )}
                               {closingDate && (
                                 <div className="flex items-center gap-3">
                                     <Calendar className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Prazo:</strong> {format(closingDate, "d 'de' MMMM, yyyy", { locale: pt })}</span>
+                                    <span><strong>Prazo de Candidatura:</strong> {format(closingDate, "d 'de' MMMM, yyyy", { locale: pt })}</span>
                                 </div>
                               )}
                           </div>
