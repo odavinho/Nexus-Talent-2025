@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: true, // Allow data URLs and other external images without optimization
     remotePatterns: [
       {
         protocol: 'https',
@@ -32,10 +32,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'data',
-        hostname: '',
-      }
     ],
   },
 };
