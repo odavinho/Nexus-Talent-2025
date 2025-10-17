@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Target, Users, GraduationCap } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import { LocationsSection } from '@/components/home/locations-section';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -35,7 +35,8 @@ const testimonials = [
 ];
 
 export default function AboutPage() {
-    const aboutHeroImage = PlaceHolderImages.find(p => p.id === 'about-hero');
+    const images = getImages();
+    const aboutHeroImage = images.find(p => p.id === 'about-hero');
 
     return (
         <>
@@ -98,7 +99,7 @@ export default function AboutPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {testimonials.map((testimonial, index) => {
-                                const avatar = PlaceHolderImages.find(p => p.id === testimonial.avatarId);
+                                const avatar = images.find(p => p.id === testimonial.avatarId);
                                 return (
                                     <Card key={index} className="bg-background">
                                         <CardContent className="pt-6">

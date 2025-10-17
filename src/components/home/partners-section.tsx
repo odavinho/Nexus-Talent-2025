@@ -1,3 +1,5 @@
+'use client';
+
 import {
     Carousel,
     CarouselContent,
@@ -5,19 +7,22 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { getSiteData } from "@/lib/site-data";
 import Image from "next/image";
-
-const partners = [
-    { name: "Partner 1", imageId: "partner-logo-1" },
-    { name: "Partner 2", imageId: "partner-logo-2" },
-    { name: "Partner 3", imageId: "partner-logo-3" },
-    { name: "Partner 4", imageId: "partner-logo-4" },
-    { name: "Partner 5", imageId: "partner-logo-5" },
-    { name: "Partner 6", imageId: "partner-logo-6" },
-];
+import { useEffect, useState } from "react";
+import type { ImagePlaceholder } from "@/lib/site-data";
 
 export function PartnersSection() {
+    const [partners, setPartners] = useState<ImagePlaceholder[]>([]);
+
+    useEffect(() => {
+        async function loadData() {
+            const data = await getSiteData();
+            setPartners(data.images.filter(p => p.id.startsWith('partner-')));
+        }
+        loadData();
+    }, []);
+
     return (
         <section className="py-16 sm:py-24 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,24 +42,21 @@ export function PartnersSection() {
                     className="w-full max-w-5xl mx-auto"
                 >
                     <CarouselContent className="-ml-4">
-                        {partners.map((partner, index) => {
-                            const image = PlaceHolderImages.find(p => p.id === partner.imageId);
-                            return image ? (
-                                <CarouselItem key={index} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
-                                    <div className="p-4 bg-card rounded-lg flex items-center justify-center h-32">
-                                        <div className="relative w-full h-full">
-                                            <Image
-                                                src={image.imageUrl}
-                                                alt={partner.name}
-                                                fill
-                                                className="object-contain"
-                                                data-ai-hint={image.imageHint}
-                                            />
-                                        </div>
+                        {partners.map((partner, index) => (
+                            <CarouselItem key={index} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                                <div className="p-4 bg-card rounded-lg flex items-center justify-center h-32">
+                                    <div className="relative w-full h-full">
+                                        <Image
+                                            src={partner.imageUrl}
+                                            alt={partner.description}
+                                            fill
+                                            className="object-contain"
+                                            data-ai-hint={partner.imageHint}
+                                        />
                                     </div>
-                                </CarouselItem>
-                            ) : null;
-                        })}
+                                </div>
+                            </CarouselItem>
+                        ))}
                     </CarouselContent>
                     <CarouselPrevious className="hidden sm:flex" />
                     <CarouselNext className="hidden sm:flex" />

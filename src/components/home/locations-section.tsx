@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import { MapPin } from 'lucide-react';
 import Image from 'next/image';
 
@@ -10,6 +10,7 @@ const locations = [
 ];
 
 export function LocationsSection() {
+    const images = getImages();
     return (
         <section className="py-16 sm:py-24 bg-background">
             <div className="container mx-auto px-4">
@@ -19,7 +20,7 @@ export function LocationsSection() {
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {locations.map(location => {
-                        const image = PlaceHolderImages.find(p => p.id === location.imageId);
+                        const image = images.find(p => p.id === location.imageId);
                         return (
                             <Card key={location.name} className="overflow-hidden group">
                                 <div className="relative h-64">

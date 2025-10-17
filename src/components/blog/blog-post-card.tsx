@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { BlogPost } from '@/lib/blog-posts';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar } from 'lucide-react';
@@ -15,8 +15,9 @@ interface BlogPostCardProps {
 }
 
 export function BlogPostCard({ post }: BlogPostCardProps) {
-  const image = PlaceHolderImages.find(p => p.id === post.imageId);
-  const authorAvatar = PlaceHolderImages.find(p => p.id === post.authorAvatarId);
+  const images = getImages();
+  const image = images.find(p => p.id === post.imageId);
+  const authorAvatar = images.find(p => p.id === post.authorAvatarId);
 
   const getInitials = (name: string) => {
     if (!name) return '';

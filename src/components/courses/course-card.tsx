@@ -3,7 +3,7 @@ import Image from 'next/image';
 import type { Course } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { getCourseCategories } from '@/lib/course-service';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight } from 'lucide-react';
 
@@ -14,7 +14,8 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   const courseCategories = getCourseCategories();
   const category = courseCategories.find(c => c.id === course.category);
-  const image = PlaceHolderImages.find(p => p.id === course.imageId);
+  const images = getImages();
+  const image = images.find(p => p.id === course.imageId);
   const imageSrc = course.imageDataUri || image?.imageUrl;
 
   return (

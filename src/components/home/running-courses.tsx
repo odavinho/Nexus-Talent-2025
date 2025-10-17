@@ -6,7 +6,7 @@ import {
     CarouselContent,
     CarouselItem,
 } from "@/components/ui/carousel"
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { getImages } from "@/lib/site-data";
 import { getCourses } from '@/lib/course-service';
 import Image from 'next/image';
 import { Card } from '../ui/card';
@@ -25,6 +25,8 @@ export function RunningCourses() {
         const runningCourseIds = ['TA-001', 'LMP-006', 'EN-427', 'NE-74', 'GC-002', 'GE-003'];
         setRunningCourses(allCourses.filter(course => runningCourseIds.includes(course.id)));
     }, []);
+
+    const images = getImages();
 
     return (
         <section className="py-16 sm:py-24 bg-card">
@@ -49,7 +51,7 @@ export function RunningCourses() {
                 >
                     <CarouselContent>
                         {runningCourses.map((course, index) => {
-                             const image = PlaceHolderImages.find(p => p.id === course.imageId);
+                             const image = images.find(p => p.id === course.imageId);
                              return (
                                 <CarouselItem key={index} className="md:basis-1/3">
                                     <div className="p-1">

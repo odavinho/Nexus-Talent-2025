@@ -1,5 +1,5 @@
 import { blogPosts } from '@/lib/blog-posts';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/layout/header';
@@ -11,7 +11,8 @@ import { BlogPostCard } from '@/components/blog/blog-post-card';
 
 export default function BlogPage() {
   const [featuredPost, ...otherPosts] = blogPosts;
-  const featuredImage = PlaceHolderImages.find(p => p.id === featuredPost.imageId);
+  const images = getImages();
+  const featuredImage = images.find(p => p.id === featuredPost.imageId);
 
   return (
     <>

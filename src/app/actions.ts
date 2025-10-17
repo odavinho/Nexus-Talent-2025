@@ -8,9 +8,9 @@ import { extractProfileFromResume, ExtractProfileFromResumeInput, ExtractProfile
 import { generateAssessmentTest, GenerateAssessmentTestInput, GenerateAssessmentTestOutput } from "@/ai/flows/generate-assessment-test";
 import { generateModuleAssessment, GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput } from "@/ai/flows/generate-module-assessment";
 import type { Course } from "@/lib/types";
+import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 
 import { revalidatePath } from "next/cache";
-import type { ImagePlaceholder } from "@/lib/placeholder-images";
 import { promises as fs } from 'fs';
 import path from 'path';
 import { addCourse } from "@/lib/course-service";
@@ -108,34 +108,42 @@ export async function generateAssessmentTestAction(input: GenerateAssessmentTest
 
 
 // JSON file actions
-const getPlaceholderFilePath = () => path.join(process.cwd(), 'src', 'lib', 'placeholder-images.json');
+const getSiteDataFilePath = () => path.join(process.cwd(), 'src', 'lib', 'site-data.json');
 
-async function readPlaceholderFile(): Promise<{ placeholderImages: ImagePlaceholder[] }> {
+export async function getSiteData(): Promise<SiteData> {
     try {
-        const filePath = getPlaceholderFilePath();
+        const filePath = getSiteDataFilePath();
         const fileContent = await fs.readFile(filePath, 'utf-8');
         return JSON.parse(fileContent);
     } catch (error) {
-        console.error('Error reading placeholder file:', error);
-        return { placeholderImages: [] };
+        console.error('Error reading site data file:', error);
+        // Return a default structure on error
+        return { stats: [], images: [] };
     }
 }
 
-async function writePlaceholderFile(data: { placeholderImages: ImagePlaceholder[] }): Promise<void> {
-    const filePath = getPlaceholderFilePath();
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+export async function updateSiteData(newData: SiteData): Promise<{ success: boolean; message: string }> {
+    try {
+        const filePath = getSiteDataFilePath();
+        await fs.writeFile(filePath, JSON.stringify(newData, null, 2), 'utf-8');
+        revalidatePath('/dashboard/settings');
+        revalidatePath('/'); // Revalidate home page as well
+        return { success: true, message: 'Dados do site atualizados com sucesso!' };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Falha ao atualizar dados do site.';
+        return { success: false, message };
+    }
 }
 
 
 export async function addImageAction(image: ImagePlaceholder): Promise<{ success: boolean; message: string }> {
     try {
-        const data = await readPlaceholderFile();
-        if (data.placeholderImages.some(p => p.id === image.id)) {
+        const data = await getSiteData();
+        if (data.images.some(p => p.id === image.id)) {
             return { success: false, message: 'Já existe um item com este ID.' };
         }
-        data.placeholderImages.push(image);
-        await writePlaceholderFile(data);
-        revalidatePath('/dashboard/settings');
+        data.images.push(image);
+        await updateSiteData(data);
         return { success: true, message: 'Item adicionado com sucesso!' };
     } catch (error) {
         return { success: false, message: error instanceof Error ? error.message : 'Falha ao adicionar item.' };
@@ -144,14 +152,13 @@ export async function addImageAction(image: ImagePlaceholder): Promise<{ success
 
 export async function updateImageAction(image: ImagePlaceholder): Promise<{ success: boolean; message: string }> {
     try {
-        const data = await readPlaceholderFile();
-        const index = data.placeholderImages.findIndex(p => p.id === image.id);
+        const data = await getSiteData();
+        const index = data.images.findIndex(p => p.id === image.id);
         if (index === -1) {
             return { success: false, message: 'Item não encontrado.' };
         }
-        data.placeholderImages[index] = image;
-        await writePlaceholderFile(data);
-        revalidatePath('/dashboard/settings');
+        data.images[index] = image;
+        await updateSiteData(data);
         return { success: true, message: 'Item atualizado com sucesso!' };
     } catch (error) {
         return { success: false, message: error instanceof Error ? error.message : 'Falha ao atualizar item.' };
@@ -160,14 +167,13 @@ export async function updateImageAction(image: ImagePlaceholder): Promise<{ succ
 
 export async function deleteImageAction(id: string): Promise<{ success: boolean; message: string }> {
     try {
-        const data = await readPlaceholderFile();
-        const initialLength = data.placeholderImages.length;
-        data.placeholderImages = data.placeholderImages.filter(p => p.id !== id);
-        if (data.placeholderImages.length === initialLength) {
+        const data = await getSiteData();
+        const initialLength = data.images.length;
+        data.images = data.images.filter(p => p.id !== id);
+        if (data.images.length === initialLength) {
             return { success: false, message: 'Item não encontrado para exclusão.' };
         }
-        await writePlaceholderFile(data);
-        revalidatePath('/dashboard/settings');
+        await updateSiteData(data);
         return { success: true, message: 'Item excluído com sucesso!' };
     } catch (error) {
         return { success: false, message: error instanceof Error ? error.message : 'Falha ao excluir item.' };

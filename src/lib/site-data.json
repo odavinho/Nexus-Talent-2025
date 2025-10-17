@@ -1,0 +1,250 @@
+{
+  "stats": [
+    {
+      "value": "150+",
+      "label": "Cursos Disponíveis"
+    },
+    {
+      "value": "10K+",
+      "label": "Alunos Formados"
+    },
+    {
+      "value": "95%",
+      "label": "Taxa de Satisfação"
+    },
+    {
+      "value": "8+",
+      "label": "Áreas de Especialização"
+    }
+  ],
+  "images": [
+    {
+      "id": "recruitment-hero",
+      "description": "A professional handshake closing a deal.",
+      "imageUrl": "https://images.unsplash.com/photo-1521791136064-7986c2920216?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGhhbmRzaGFrZXxlbnwwfHx8fDE3NTk3Mzg2ODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "business handshake"
+    },
+    {
+      "id": "home-hero",
+      "description": "An inspiring image of a person looking towards a bright future.",
+      "imageUrl": "https://images.unsplash.com/photo-1758682602646-06eb9179a35c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3VjY2VzcyUyMGZ1dHVyZXxlbnwwfHx8fDE3NTk3NjEzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "success future"
+    },
+    {
+      "id": "about-hero",
+      "description": "Diverse group of professionals in a modern office.",
+      "imageUrl": "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0ZWFtJTIwb2ZmaWNlfGVufDB8fHx8MTc1OTcwMjY0M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team office"
+    },
+    {
+      "id": "location-angola",
+      "description": "Skyline of Luanda, Angola.",
+      "imageUrl": "https://images.unsplash.com/photo-1721840992615-ece406c5c534?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxMdWFuZGElMjBjaXR5fGVufDB8fHx8MTc1OTc3NDk0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Luanda city"
+    },
+    {
+      "id": "location-brasil",
+      "description": "Beach in Santa Catarina, Brazil.",
+      "imageUrl": "https://images.unsplash.com/photo-1511225771260-3767ac2414fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8QnJhemlsJTIwYmVhY2h8ZW58MHx8fHwxNzU5Nzc0OTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Brazil beach"
+    },
+    {
+      "id": "location-portugal",
+      "description": "View of Setúbal, Portugal.",
+      "imageUrl": "https://images.unsplash.com/photo-1714218950675-83526ef5ad1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxQb3J0dWdhbCUyMGNpdHl8ZW58MHx8fHwxNzU5Nzc0OTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Portugal city"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Avatar image for a user testimonial.",
+      "imageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk3NDM1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Avatar image for a user testimonial.",
+      "imageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk3NDM1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Avatar image for a user testimonial.",
+      "imageUrl": "https://images.unsplash.com/photo-1535643302794-19c3804b874b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk3NDM1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar-4",
+      "description": "Avatar image for a user testimonial.",
+      "imageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk3NDM1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "blog-leadership",
+      "description": "A person leading a team in a modern office.",
+      "imageUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNDE5ODJ8MHwxfHNlYXJjaHwxfHxyZW1vdGUlMjBsZWFkZXJzaGlwfGVufDB8fHx8MTc1OTg4MDMyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "remote leadership"
+    },
+    {
+      "id": "blog-ai-recruitment",
+      "description": "A robot hand shaking a human hand.",
+      "imageUrl": "https://images.unsplash.com/photo-1581092921448-42f4c2f613c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNDE5ODJ8MHwxfHNlYXJjaHwxfHxhaSUyMHJlY3J1aXRtZW50fGVufDB8fHx8MTc1OTg4MDMyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ai recruitment"
+    },
+    {
+      "id": "blog-soft-skills",
+      "description": "People collaborating with sticky notes on a board.",
+      "imageUrl": "https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNDE5ODJ8MHwxfHNlYXJjaHwxfHxzb2Z0JTIwc2tpbGxzfGVufDB8fHx8MTc1OTg4MDMyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soft skills"
+    },
+    {
+      "id": "blog-interview",
+      "description": "Two people in a job interview.",
+      "imageUrl": "https://images.unsplash.com/photo-1573497491208-6b1acb260507?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzNDE5ODJ8MHwxfHNlYXJjaHwxfHxpbnRlcnZpZXd8ZW58MHx8fHwxNzU5ODgwMzI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "interview"
+    },
+    {
+      "id": "course-presentation",
+      "description": "A person giving a presentation.",
+      "imageUrl": "https://images.unsplash.com/photo-1758691736664-0b83e4f1215e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwcmVzZW50YXRpb24lMjBza2lsbHxlbnwwfHx8fDE3NTk3NzQ5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "presentation skill"
+    },
+    {
+      "id": "course-conflict",
+      "description": "Two people having a discussion.",
+      "imageUrl": "https://images.unsplash.com/photo-1632858265907-961f1454ccf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxkaXNjdXNzaW9uJTIwbWVldGluZ3xlbnwwfHx8fDE3NTk3NzQ5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "discussion meeting"
+    },
+    {
+      "id": "course-emotional",
+      "description": "A person meditating.",
+      "imageUrl": "https://images.unsplash.com/photo-1443059309078-bced073a51c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjYWxtJTIwbWVkaXRhdGlvbnxlbnwwfHx8fDE3NTk2NjcwNjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calm meditation"
+    },
+    {
+      "id": "course-service",
+      "description": "A smiling customer service representative.",
+      "imageUrl": "https://images.unsplash.com/photo-1560264418-c4445382edbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjdXN0b21lciUyMHNlcnZpY2V8ZW58MHx8fHwxNzU5Nzc0OTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "customer service"
+    },
+    {
+      "id": "course-complaint",
+      "description": "A person writing on a notepad.",
+      "imageUrl": "https://images.unsplash.com/photo-1648412498608-fa20000ccbc8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3cml0aW5nJTIwbm90ZXN8ZW58MHx8fHwxNzU5NjY2MzczfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "writing notes"
+    },
+    {
+      "id": "course-leadership",
+      "description": "A group of people looking at a leader.",
+      "imageUrl": "https://images.unsplash.com/photo-1646066490199-a395f7194f9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0ZWFtJTIwbGVhZGVyfGVufDB8fHx8MTc1OTc3NDk0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team leader"
+    },
+    {
+      "id": "course-time",
+      "description": "A clock and a calendar.",
+      "imageUrl": "https://images.unsplash.com/photo-1518281361980-b26bfd556770?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0aW1lJTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3NTk3NzQ5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "time management"
+    },
+    {
+      "id": "course-creative",
+      "description": "Lightbulbs and sketches.",
+      "imageUrl": "https://images.unsplash.com/photo-1594377157609-5c996118ac7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjcmVhdGl2ZSUyMGlkZWFzfGVufDB8fHx8MTc1OTc3NDk0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "creative ideas"
+    },
+    {
+      "id": "course-performance",
+      "description": "A graph showing upward trend.",
+      "imageUrl": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Z3Jvd3RoJTIwY2hhcnR8ZW58MHx8fHwxNzU5NzQyNTE4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "growth chart"
+    },
+    {
+      "id": "course-project-management",
+      "description": "Gantt chart on a screen.",
+      "imageUrl": "https://images.unsplash.com/photo-1527219525722-f9767a7f2884?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwcm9qZWN0JTIwcGxhbnxlbnwwfHx8fDE3NTk3NzQ5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "project plan"
+    },
+    {
+      "id": "course-power-bi",
+      "description": "An interactive data visualization dashboard in Power BI.",
+      "imageUrl": "https://images.unsplash.com/photo-1666875753105-c63a6f3bdc86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxkYXRhJTIwZGFzaGJvYXJkfGVufDB8fHx8MTc1OTcxOTI0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data dashboard"
+    },
+    {
+      "id": "partner-logo-1",
+      "description": "Partner client logo 1",
+      "imageUrl": "https://images.unsplash.com/photo-1620288627223-53302f4e8c74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NTk3MjQ2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "partner-logo-2",
+      "description": "Partner client logo 2",
+      "imageUrl": "https://images.unsplash.com/photo-1620288627223-53302f4e8c74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NTk3MjQ2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "partner-logo-3",
+      "description": "Partner client logo 3",
+      "imageUrl": "https://images.unsplash.com/photo-1622465911368-72162f8da3e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NTk3MjQ2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "partner-logo-4",
+      "description": "Partner client logo 4",
+      "imageUrl": "https://images.unsplash.com/photo-1627843563095-f6e94676cfe0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29tcGFueSUyMGxvZ298ZW58MHx8fHwxNzU5NzI0NjkxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "partner-logo-5",
+      "description": "Partner client logo 5",
+      "imageUrl": "https://images.unsplash.com/photo-1687523327554-fa9f50423489?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NTk3MjQ2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "partner-logo-6",
+      "description": "Partner client logo 6",
+      "imageUrl": "https://images.unsplash.com/photo-1622465911368-72162f8da3e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb21wYW55JTIwbG9nb3xlbnwwfHx8fDE3NTk3MjQ2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "company logo"
+    },
+    {
+      "id": "cert-iso-9001",
+      "description": "ISO 9001 Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1611532888531-70d461df0f59?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-iso-14001",
+      "description": "ISO 14001 Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1676822167427-9b9a4f3aa58e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-iso-45001",
+      "description": "ISO 45001 Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1568137225575-9f082ee9bb67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-nebosh",
+      "description": "NEBOSH Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1745970649913-2edb9dca4f74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-irata",
+      "description": "IRATA Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1669217541257-f46f1d24712a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-inefop",
+      "description": "INEFOP Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1568137225575-9f082ee9bb67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    },
+    {
+      "id": "cert-mec",
+      "description": "MEC Certification Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1669217541257-f46f1d24712a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjZXJ0aWZpY2F0aW9uJTIwbG9nb3xlbnwwfHx8fDE3NTk3MTY4NDl8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageHint": "certification logo"
+    }
+  ]
+}

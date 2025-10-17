@@ -1,6 +1,6 @@
 'use client';
 import { getCourseById, getCourseCategories, getCourses } from "@/lib/course-service";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { getImages } from "@/lib/site-data";
 import { notFound, useParams } from "next/navigation";
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,8 @@ export default function CourseDetailPage() {
               .slice(0, 4);
             setRelatedCourses(related);
 
-            const foundImage = PlaceHolderImages.find(p => p.id === foundCourse.imageId);
+            const images = getImages();
+            const foundImage = images.find(p => p.id === foundCourse.imageId);
             setImage(foundImage || null);
         }
     }
@@ -52,6 +53,8 @@ export default function CourseDetailPage() {
   if (!course) {
     return <div>Loading...</div>; // Or a proper skeleton loader
   }
+  
+  const imageSrc = course.imageDataUri || image?.imageUrl;
 
   return (
     <>
@@ -118,9 +121,9 @@ export default function CourseDetailPage() {
             </div>
             <div className="lg:col-span-1">
               <div className="sticky top-24">
-                  {image && (
+                  {imageSrc && (
                       <div className="relative w-full h-56 rounded-lg overflow-hidden mb-6 shadow-lg">
-                          <Image src={image.imageUrl} alt={image.description} fill className="object-cover" data-ai-hint={image.imageHint} />
+                          <Image src={imageSrc} alt={image?.description || course.name} fill className="object-cover" data-ai-hint={image?.imageHint} />
                       </div>
                   )}
                   <div className="border rounded-lg p-6 bg-background">

@@ -1,18 +1,21 @@
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+'use client';
+import { getSiteData } from "@/lib/site-data";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import type { ImagePlaceholder } from "@/lib/site-data";
 
-const certifications = [
-    { name: "ISO 9001", imageId: "cert-iso-9001" },
-    { name: "ISO 14001", imageId: "cert-iso-14001" },
-    { name: "ISO 45001", imageId: "cert-iso-45001" },
-    { name: "NEBOSH", imageId: "cert-nebosh" },
-    { name: "IRATA", imageId: "cert-irata" },
-    { name: "Liberian", imageId: "cert-liberian" },
-    { name: "INEFOP", imageId: "cert-inefop" },
-    { name: "MEC", imageId: "cert-mec" },
-];
 
 export function CertificationsSection() {
+    const [certifications, setCertifications] = useState<ImagePlaceholder[]>([]);
+
+    useEffect(() => {
+        async function loadData() {
+            const data = await getSiteData();
+            setCertifications(data.images.filter(p => p.id.startsWith('cert-')));
+        }
+        loadData();
+    }, []);
+
     return (
         <section className="py-16 sm:py-24 bg-card">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,22 +28,19 @@ export function CertificationsSection() {
                     </p>
                 </div>
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-                    {certifications.map(cert => {
-                        const image = PlaceHolderImages.find(p => p.id === cert.imageId);
-                        return image ? (
-                            <div key={cert.name} className="flex flex-col items-center gap-2" title={cert.name}>
-                                <div className="relative w-36 h-24">
-                                    <Image
-                                        src={image.imageUrl}
-                                        alt={`${cert.name} logo`}
-                                        fill
-                                        className="object-contain"
-                                        data-ai-hint={image.imageHint}
-                                    />
-                                </div>
+                    {certifications.map(cert => (
+                        <div key={cert.id} className="flex flex-col items-center gap-2" title={cert.description}>
+                            <div className="relative w-36 h-24">
+                                <Image
+                                    src={cert.imageUrl}
+                                    alt={cert.description}
+                                    fill
+                                    className="object-contain"
+                                    data-ai-hint={cert.imageHint}
+                                />
                             </div>
-                        ) : null;
-                    })}
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

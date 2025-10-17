@@ -1,11 +1,12 @@
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { getImages } from "@/lib/site-data";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users } from "lucide-react";
 
 export function RecruitmentSection() {
-    const recruitmentImage = PlaceHolderImages.find(p => p.id === 'recruitment-hero');
+    const images = getImages();
+    const recruitmentImage = images.find(p => p.id === 'recruitment-hero');
 
     return (
         <section className="py-16 sm:py-24 bg-card">

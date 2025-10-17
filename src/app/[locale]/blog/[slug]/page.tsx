@@ -3,7 +3,7 @@ import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { blogPosts, type BlogPost } from '@/lib/blog-posts';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
@@ -33,8 +33,9 @@ export default function BlogPostPage() {
     return null; // Or a loading indicator
   }
   
-  const image = PlaceHolderImages.find(p => p.id === post.imageId);
-  const authorAvatar = PlaceHolderImages.find(p => p.id === post.authorAvatarId);
+  const images = getImages();
+  const image = images.find(p => p.id === post.imageId);
+  const authorAvatar = images.find(p => p.id === post.authorAvatarId);
   const relatedPosts = blogPosts.filter(p => p.category === post.category && p.id !== post.id).slice(0, 3);
 
 

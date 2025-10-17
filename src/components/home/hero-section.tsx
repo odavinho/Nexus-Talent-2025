@@ -1,11 +1,12 @@
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImages } from '@/lib/site-data';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export function HeroSection() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'home-hero');
+  const images = getImages();
+  const heroImage = images.find(p => p.id === 'home-hero');
 
   return (
     <section className="relative w-full h-auto min-h-[70vh] flex items-center justify-center text-center py-20">
