@@ -432,7 +432,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ],
     "claims": {
       "admin": {

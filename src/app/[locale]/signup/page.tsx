@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/shared/logo";
 import Link from "next/link";
 import { useAuth, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, UserCredential } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,16 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { UserProfile } from '@/lib/types';
+import { Separator } from '@/components/ui/separator';
+
+const GoogleIcon = () => (
+  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56,12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26,1.37-.97,2.53-2.09,3.31v2.77h3.57c2.08-1.92,3.28-4.74,3.28-8.09Z"/>
+    <path fill="#34A853" d="M12,23c2.97,0,5.46-.98,7.28-2.66l-3.57-2.77c-.98,.66-2.23,1.06-3.71,1.06-2.86,0-5.29-1.93-6.16-4.53H2.18v2.84C3.99,20.53,7.7,23,12,23Z"/>
+    <path fill="#FBBC05" d="M5.84,14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43,.35-2.09V7.07H2.18C1.43,8.55,1,10.22,1,12s.43,3.45,1.18,4.93l3.66-2.84Z"/>
+    <path fill="#EA4335" d="M12,5.16c1.58,0,2.99,.54,4.1,1.62l3.15-3.15C17.46,1.99,14.97,1,12,1,7.7,1,3.99,3.47,2.18,7.07l3.66,2.84C6.71,7.09,9.14,5.16,12,5.16Z"/>
+  </svg>
+);
 
 
 const formSchema = z.object({
@@ -74,39 +84,23 @@ export default function SignupPage() {
 
   const selectedRole = form.watch('userType');
 
-  const handleSignup: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-    if (!firestore || !auth) {
-        toast({
-            variant: "destructive",
-            title: "Erro de Configuração",
-            description: "Os serviços da Firebase não estão disponíveis.",
-        });
-        setIsLoading(false);
-        return;
-    }
-    try {
-      // 1. Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
-      
-      // 2. Update Auth user profile (displayName)
-      await updateProfile(user, { displayName: `${data.firstName} ${data.lastName}` });
+  const createFirestoreUser = (userCredential: UserCredential, userType: 'student' | 'instructor' | 'recruiter', additionalData?: Partial<UserProfile>) => {
+    if (!firestore) return;
+    const user = userCredential.user;
+    const [firstName, ...lastNameParts] = user.displayName?.split(' ') || [additionalData?.firstName || '', ''];
+    
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const newUserProfile: UserProfile = {
+      id: user.uid,
+      email: user.email!,
+      firstName: firstName,
+      lastName: lastNameParts.join(' '),
+      userType: userType,
+      profilePictureUrl: user.photoURL || undefined,
+      ...additionalData,
+    };
 
-      // 3. Create user document in Firestore
-      const userDocRef = doc(firestore, 'users', user.uid);
-      
-      const newUserProfile: UserProfile = {
-        id: user.uid,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        userType: data.userType,
-        academicTitle: data.userType === 'instructor' ? data.specialization : undefined,
-      };
-
-      // Set document in Firestore and handle potential permission errors
-      setDoc(userDocRef, newUserProfile)
+    setDoc(userDocRef, newUserProfile)
         .then(() => {
           toast({
             title: 'Conta criada com sucesso!',
@@ -123,6 +117,27 @@ export default function SignupPage() {
             errorEmitter.emit('permission-error', permissionError);
             setIsLoading(false);
         });
+  };
+
+  const handleSignup: SubmitHandler<FormValues> = async (data) => {
+    setIsLoading(true);
+    if (!firestore || !auth) {
+        toast({
+            variant: "destructive",
+            title: "Erro de Configuração",
+            description: "Os serviços da Firebase não estão disponíveis.",
+        });
+        setIsLoading(false);
+        return;
+    }
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      await updateProfile(userCredential.user, { displayName: `${data.firstName} ${data.lastName}` });
+      createFirestoreUser(userCredential, data.userType, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        academicTitle: data.userType === 'instructor' ? data.specialization : undefined,
+      });
 
     } catch (error: any) {
         console.error("Signup Error (Auth):", error);
@@ -138,6 +153,38 @@ export default function SignupPage() {
         setIsLoading(false);
     } 
   };
+
+  const handleGoogleSignUp = async () => {
+    const userType = form.getValues('userType');
+    // Validação manual para campos condicionais antes de abrir o popup
+    if (userType === 'recruiter' && !form.getValues('companyName')) {
+        form.setError('companyName', { type: 'manual', message: 'O nome da empresa é obrigatório.' });
+        return;
+    }
+     if (userType === 'instructor' && !form.getValues('specialization')) {
+        form.setError('specialization', { type: 'manual', message: 'A área de especialização é obrigatória.' });
+        return;
+    }
+
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+        const userCredential = await signInWithPopup(auth, provider);
+        createFirestoreUser(userCredential, userType, {
+            // Os nomes são obtidos do perfil Google, mas podemos passar os dados do formulário como fallback
+            academicTitle: userType === 'instructor' ? form.getValues('specialization') : undefined,
+        });
+    } catch (error: any) {
+        console.error("Google Sign-Up Error:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Erro ao registar com Google',
+            description: error.message || 'Não foi possível registar com o Google.',
+        });
+        setIsLoading(false);
+    }
+  }
+
 
   return (
     <>
@@ -203,6 +250,50 @@ export default function SignupPage() {
                             />
                         )}
 
+                        {selectedRole === 'instructor' && (
+                             <FormField
+                                control={form.control}
+                                name="specialization"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Área de Especialização</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Ex: Finanças, Gestão de Projetos" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+                        
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">
+                                Ou registe-se com
+                                </span>
+                            </div>
+                        </div>
+
+                         <Button variant="outline" type="button" className="w-full" onClick={handleGoogleSignUp} disabled={isLoading}>
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                            Registar com Google
+                        </Button>
+
+                         <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">
+                                Ou com o seu e-mail
+                                </span>
+                            </div>
+                        </div>
+
+
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -231,23 +322,6 @@ export default function SignupPage() {
                                 )}
                             />
                         </div>
-
-
-                        {selectedRole === 'instructor' && (
-                             <FormField
-                                control={form.control}
-                                name="specialization"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Área de Especialização</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Ex: Finanças, Gestão de Projetos" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
 
                         <FormField
                             control={form.control}
@@ -278,7 +352,7 @@ export default function SignupPage() {
                         />
                         
                         <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
-                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Criar Conta'}
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Criar Conta com E-mail'}
                         </Button>
                     </form>
                 </Form>
