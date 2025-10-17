@@ -1,6 +1,6 @@
 'use client';
 
-import { getVacancyById } from "@/lib/vacancy-service";
+import { getVacancyById, getVacancies } from "@/lib/vacancy-service";
 import { notFound, useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, Clock, MapPin, Share2, Loader2, HelpCircle, GraduationCap, Calendar, Award } from "lucide-react";
@@ -19,39 +19,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
-
-export default function VacancyDetailPage() {
-  const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const [vacancy, setVacancy] = useState<Vacancy | null | undefined>(undefined);
-  const [category, setCategory] = useState<CourseCategory | null>(null);
+import { type Metadata } from 'next';
 
 
-  useEffect(() => {
-    if (id) {
-        const foundVacancy = getVacancyById(id);
-        setVacancy(foundVacancy);
-        if(foundVacancy){
-            const categories = getCourseCategories();
-            setCategory(categories.find(c => c.name === foundVacancy.category) || null);
-        }
-    }
-  }, [id]);
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const vacancy = getVacancyById(params.id);
+
+  if (!vacancy) {
+    return {
+      title: 'Vaga não encontrada',
+      description: 'A vaga de emprego que você está procurando não existe.',
+    };
+  }
+
+  return {
+    title: `${vacancy.title} | Vagas NexusTalent`,
+    description: vacancy.description.substring(0, 160), // Use first 160 chars for meta description
+  };
+}
+
+export function generateStaticParams() {
+    const vacancies = getVacancies(); // Get only active vacancies
+    return vacancies.map((vacancy) => ({
+      id: vacancy.id,
+    }));
+}
 
 
+function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   const [isApplying, setIsApplying] = useState(false);
-  
-  if (vacancy === undefined) {
-    // Still loading
-    return <div>Loading...</div>;
-  }
-  
-  if (!vacancy) {
-    notFound();
-  }
+  const category = getCourseCategories().find(c => c.name === vacancy.category) || null;
 
   const handleApply = async () => {
     if (!user) {
@@ -64,7 +64,6 @@ export default function VacancyDetailPage() {
       return;
     }
     
-    // This is now a mock application process
     setIsApplying(true);
     setTimeout(() => {
         toast({
@@ -73,7 +72,6 @@ export default function VacancyDetailPage() {
         });
         setIsApplying(false);
     }, 1500);
-
   };
 
   const toDate = (date: Timestamp | Date | undefined): Date | null => {
@@ -170,7 +168,7 @@ export default function VacancyDetailPage() {
                                 <div className="space-y-4">
                                 {vacancy.screeningQuestions.map((question, index) => (
                                     <div key={index} className="space-y-2">
-                                        <Label htmlFor={`question-${index}`}>{question}</Label>
+                                        <Label htmlFor={`question-${index}`}>{question.question}</Label>
                                         <Textarea id={`question-${index}`} placeholder="Sua resposta..." rows={3} />
                                     </div>
                                 ))}
@@ -204,4 +202,16 @@ export default function VacancyDetailPage() {
       <Footer />
     </>
   );
+}
+
+
+export default function VacancyDetailPage({ params }: { params: { id: string } }) {
+  const id = params.id;
+  const vacancy = getVacancyById(id);
+
+  if (!vacancy) {
+    notFound();
+  }
+
+  return <VacancyClientPage vacancy={vacancy} />;
 }

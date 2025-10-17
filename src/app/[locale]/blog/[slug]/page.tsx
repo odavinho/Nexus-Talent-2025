@@ -13,24 +13,38 @@ import { format, parseISO } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { BlogPostCard } from '@/components/blog/blog-post-card';
 import { useEffect, useState } from 'react';
+import { type Metadata } from 'next';
 
-export default function BlogPostPage() {
-  const params = useParams();
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const [post, setPost] = useState<BlogPost | null>(null);
-
-  useEffect(() => {
-    if (slug) {
-        const foundPost = blogPosts.find((p) => p.id === slug);
-        if (!foundPost) {
-            notFound();
-        }
-        setPost(foundPost || null);
-    }
-  }, [slug]);
+// This function now runs on the server
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = blogPosts.find((p) => p.id === params.slug);
 
   if (!post) {
-    return null; // Or a loading indicator
+    return {
+      title: 'Artigo não encontrado',
+      description: 'O artigo que você está procurando não existe.',
+    };
+  }
+
+  return {
+    title: `${post.title} | Blog NexusTalent`,
+    description: post.excerpt,
+  };
+}
+
+export function generateStaticParams() {
+  return blogPosts.map((post) => ({
+    slug: post.id,
+  }));
+}
+
+
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug;
+  const post = blogPosts.find((p) => p.id === slug);
+
+  if (!post) {
+    notFound();
   }
   
   const images = getImages();

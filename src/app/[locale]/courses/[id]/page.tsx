@@ -1,58 +1,48 @@
-'use client';
 import { getCourseById, getCourseCategories, getCourses } from "@/lib/course-service";
 import { getImages } from "@/lib/site-data";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, Book, List, Video } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video } from "lucide-react";
 import Link from "next/link";
 import { CourseCard } from "@/components/courses/course-card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import React, { useState, useEffect } from "react";
-import type { Course, CourseCategory } from "@/lib/types";
+import React from "react";
+import { type Metadata } from 'next';
+import type { Course } from "@/lib/types";
 
-
-export default function CourseDetailPage() {
-  const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const [course, setCourse] = useState<Course | null>(null);
-  const [category, setCategory] = useState<CourseCategory | null>(null);
-  const [relatedCourses, setRelatedCourses] = useState<Course[]>([]);
-  const [image, setImage] = useState<any>(null);
-
-  useEffect(() => {
-    if (id) {
-        const foundCourse = getCourseById(id);
-        if (!foundCourse) {
-          notFound();
-        }
-        setCourse(foundCourse);
-
-        if (foundCourse) {
-            const categories = getCourseCategories();
-            const foundCategory = categories.find(c => c.id === foundCourse.category);
-            setCategory(foundCategory || null);
-
-            const allCourses = getCourses();
-            const related = allCourses
-              .filter(c => c.category === foundCourse.category && c.id !== foundCourse.id)
-              .slice(0, 4);
-            setRelatedCourses(related);
-
-            const images = getImages();
-            const foundImage = images.find(p => p.id === foundCourse.imageId);
-            setImage(foundImage || null);
-        }
-    }
-  }, [id]);
-
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const course = getCourseById(params.id);
 
   if (!course) {
-    return <div>Loading...</div>; // Or a proper skeleton loader
+    return {
+      title: 'Curso não encontrado',
+      description: 'O curso que você está procurando não existe.',
+    };
   }
+
+  return {
+    title: `${course.name} | Cursos NexusTalent`,
+    description: course.generalObjective,
+  };
+}
+
+export function generateStaticParams() {
+  const courses = getCourses();
+  return courses.map((course) => ({
+    id: course.id,
+  }));
+}
+
+function CourseClientPage({ course }: { course: Course }) {
+  const category = getCourseCategories().find(c => c.id === course.category) || null;
+  const relatedCourses = getCourses()
+      .filter(c => c.category === course.category && c.id !== course.id)
+      .slice(0, 4);
+  const image = getImages().find(p => p.id === course.imageId) || null;
   
   const imageSrc = course.imageDataUri || image?.imageUrl;
 
@@ -163,4 +153,15 @@ export default function CourseDetailPage() {
       <Footer />
     </>
   );
+}
+
+
+export default function CourseDetailPage({ params }: { params: { id: string }}) {
+  const course = getCourseById(params.id);
+
+  if (!course) {
+    notFound();
+  }
+  
+  return <CourseClientPage course={course} />;
 }
