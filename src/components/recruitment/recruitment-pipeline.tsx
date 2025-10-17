@@ -3,10 +3,11 @@
 import { type Application, type UserProfile, type ApplicationStatus } from "@/lib/types";
 import { PipelineCandidateCard } from "./pipeline-candidate-card";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useState } from "react";
 
 interface RecruitmentPipelineProps {
     applications: (Application & { candidate: UserProfile; score?: number })[];
-    onStatusChange: (applicationId: string, newStatus: ApplicationStatus) => void;
+    onStatusChange: (applicationId: string, newStatus: ApplicationStatus, notes?: string) => void;
 }
 
 const pipelineStages: { title: string, statuses: ApplicationStatus[], description: string }[] = [
@@ -20,6 +21,15 @@ const pipelineStages: { title: string, statuses: ApplicationStatus[], descriptio
 ];
 
 export function RecruitmentPipeline({ applications, onStatusChange }: RecruitmentPipelineProps) {
+    
+    const handleNotesChange = (applicationId: string, notes: string) => {
+        // Find the current status to pass it along, as notes change doesn't change status
+        const app = applications.find(a => a.id === applicationId);
+        if (app) {
+            onStatusChange(applicationId, app.status, notes);
+        }
+    };
+    
     return (
         <ScrollArea className="flex-grow w-full">
             <div className="flex gap-6 p-4 sm:p-6 lg:p-8 pt-0">
@@ -29,7 +39,7 @@ export function RecruitmentPipeline({ applications, onStatusChange }: Recruitmen
                     }).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
                     
                     return (
-                        <div key={stage.title} className="w-80 flex-shrink-0">
+                        <div key={stage.title} className="w-full sm:w-80 flex-shrink-0">
                             <div className="flex items-baseline gap-2 mb-4">
                                 <h2 className="text-lg font-semibold font-headline">{stage.title}</h2>
                                 <span className="text-sm font-medium text-muted-foreground">({stageApplications.length})</span>
@@ -42,6 +52,7 @@ export function RecruitmentPipeline({ applications, onStatusChange }: Recruitmen
                                             application={app} 
                                             candidate={app.candidate} 
                                             onStatusChange={onStatusChange}
+                                            onNotesChange={handleNotesChange}
                                         />
                                     ))}
                                 </div>
@@ -54,4 +65,3 @@ export function RecruitmentPipeline({ applications, onStatusChange }: Recruitmen
         </ScrollArea>
     );
 }
-    

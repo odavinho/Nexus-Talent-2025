@@ -56,7 +56,9 @@ export default function VacancyApplicationsPage() {
                         const triagedData = JSON.parse(decodeURIComponent(analysisParam)) as { id: string, name: string, score: number }[];
                         
                         triagedData.forEach(triagedItem => {
-                            const candidateProfile = allUsers.find(u => u.firstName.toLowerCase() === triagedItem.name.split('.')[0].toLowerCase());
+                            // Find candidate by name from the file, less reliable but works for mock
+                            const candidateName = triagedItem.name.split('.')[0].replace(/_/g, ' ');
+                            const candidateProfile = allUsers.find(u => `${u.firstName} ${u.lastName}`.toLowerCase() === candidateName.toLowerCase());
                             
                             if (candidateProfile) {
                                 const existingAppIndex = combinedApps.findIndex(app => app.userId === candidateProfile.id);
@@ -66,7 +68,7 @@ export default function VacancyApplicationsPage() {
                                     combinedApps[existingAppIndex] = {
                                         ...combinedApps[existingAppIndex],
                                         score: triagedItem.score,
-                                        status: 'Triagem' // Move to Triagem if they were just 'Recebida'
+                                        status: combinedApps[existingAppIndex].status === 'Recebida' ? 'Triagem' : combinedApps[existingAppIndex].status
                                     };
                                 } else {
                                     // New candidate from analysis, add them
@@ -95,8 +97,12 @@ export default function VacancyApplicationsPage() {
         }
     }, [vacancyId, searchParams]);
 
-    const handleStatusChange = (applicationId: string, newStatus: ApplicationStatus) => {
-        setApplications(prev => prev.map(app => app.id === applicationId ? { ...app, status: newStatus } : app));
+    const handleStatusChange = (applicationId: string, newStatus: ApplicationStatus, notes?: string) => {
+        setApplications(prev => prev.map(app => 
+            app.id === applicationId 
+            ? { ...app, status: newStatus, notes: notes !== undefined ? notes : app.notes } 
+            : app
+        ));
     };
 
     const handleGenerateReport = () => {
@@ -169,8 +175,8 @@ export default function VacancyApplicationsPage() {
     }
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col h-screen overflow-hidden">
+            <div className="p-4 sm:p-6 lg:p-8 shrink-0">
                 <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
                     <Button variant="outline" onClick={() => router.back()}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -197,4 +203,3 @@ export default function VacancyApplicationsPage() {
         </div>
     );
 }
-    
