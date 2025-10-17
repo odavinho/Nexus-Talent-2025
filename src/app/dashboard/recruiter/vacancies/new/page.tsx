@@ -134,7 +134,6 @@ export default function NewVacancyPage() {
               requirements: parsedVacancy.requirements,
               aiScreeningQuestions: parsedVacancy.aiScreeningQuestions || [],
             });
-            setShowGeneratedContent(true);
         }
 
       } catch (error) {
@@ -148,7 +147,6 @@ export default function NewVacancyPage() {
     }
   }, [searchParams, form, toast]);
 
-  const [showGeneratedContent, setShowGeneratedContent] = useState(false);
 
   const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
     setIsGenerating(true);
@@ -156,7 +154,6 @@ export default function NewVacancyPage() {
     try {
       const result = await generateVacancyContentAction({title: data.title, category: data.category, industry: data.industry, minExperience: data.minExperience, demandLevel: data.demandLevel });
       setGeneratedContent(result);
-      setShowGeneratedContent(true);
       toast({
         title: "Conteúdo Gerado!",
         description: "A descrição da vaga foi gerada pela IA. Reveja e publique.",
@@ -665,15 +662,15 @@ export default function NewVacancyPage() {
                 )}
               </Button>
 
-              {showGeneratedContent && (
+              {generatedContent && (
                 <div className="mt-8 pt-6 border-t space-y-6">
                   <h3 className="font-headline text-2xl">Conteúdo Gerado</h3>
                   <div className="space-y-4">
-                    <TextareaWithLabel label="Descrição Geral" value={generatedContent!.description} onChange={(e) => setGeneratedContent({...generatedContent!, description: e.target.value})} rows={4} />
-                    <TextareaWithLabel label="Responsabilidades (uma por linha)" value={generatedContent!.responsibilities.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, responsibilities: e.target.value.split('\n')})} rows={6} />
-                    <TextareaWithLabel label="Requisitos (uma por linha)" value={generatedContent!.requirements.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, requirements: e.target.value.split('\n')})} rows={6} />
-                    {generatedContent!.aiScreeningQuestions && (
-                        <TextareaWithLabel label="Perguntas de Triagem (sugestões da IA)" value={generatedContent!.aiScreeningQuestions.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, aiScreeningQuestions: e.target.value.split('\n')})} rows={5} />
+                    <TextareaWithLabel label="Descrição Geral" value={generatedContent.description} onChange={(e) => setGeneratedContent({...generatedContent, description: e.target.value})} rows={4} />
+                    <TextareaWithLabel label="Responsabilidades (uma por linha)" value={generatedContent.responsibilities.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, responsibilities: e.target.value.split('\n')})} rows={6} />
+                    <TextareaWithLabel label="Requisitos (uma por linha)" value={generatedContent.requirements.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, requirements: e.target.value.split('\n')})} rows={6} />
+                    {generatedContent.aiScreeningQuestions && (
+                        <TextareaWithLabel label="Perguntas de Triagem (sugestões da IA)" value={generatedContent.aiScreeningQuestions.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, aiScreeningQuestions: e.target.value.split('\n')})} rows={5} />
                     )}
                   </div>
                   <Button onClick={handleSaveVacancy} disabled={isSaving} className="w-full bg-green-600 hover:bg-green-700">
