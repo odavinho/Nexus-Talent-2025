@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/shared/logo';
 import { Menu, X, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser, useAuth } from '@/firebase/provider';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase/provider';
 import { signOut } from 'firebase/auth';
 import {
   DropdownMenu,
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from '../ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { doc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 const navLinks = [
     { href: '/courses', label: 'Cursos' },
@@ -31,10 +33,19 @@ export function DashboardHeader() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const firestore = useFirestore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  const userDocRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, `users/${user.uid}`);
+  }, [user, firestore]);
+    
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+
   const handleLogout = async () => {
+    if (!auth) return;
     await signOut(auth);
     router.push('/');
   };
@@ -45,6 +56,23 @@ export function DashboardHeader() {
     const initials = names.map(n => n[0]).join('');
     return initials.slice(0, 2).toUpperCase();
   }
+
+  const getProfileLink = () => {
+    if (!userProfile) return '/dashboard/student/profile'; // Default fallback
+    switch (userProfile.userType) {
+      case 'recruiter':
+        return '/dashboard/recruiter/company-profile';
+      case 'student':
+        return '/dashboard/student/profile';
+      case 'instructor':
+        return '/dashboard/instructor'; // Or a specific instructor profile page
+      case 'admin':
+        return '/dashboard/admin'; // Or a specific admin profile page
+      default:
+        return '/dashboard';
+    }
+  }
+
 
   return (
     <header className="bg-card shadow-sm sticky top-0 z-40">
@@ -73,7 +101,7 @@ export function DashboardHeader() {
 
           <div className="flex items-center space-x-2">
 
-            {isUserLoading ? (
+            {isUserLoading || isProfileLoading ? (
               <Skeleton className="h-9 w-24" />
             ) : user ? (
               <DropdownMenu>
@@ -93,11 +121,10 @@ export function DashboardHeader() {
                     <Link href="/dashboard">Painel</Link>
                   </DropdownMenuItem>
                    <DropdownMenuItem asChild>
-                    <Link href="/dashboard/student/profile">Meu Perfil</Link>
+                    <Link href={getProfileLink()}>Meu Perfil</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/student/profile">Configurações</Link>
-                  </DropdownMenuItem>
+                    <Link href="/dashboard/settings">Configurações</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-500">
                     <LogOut className="mr-2"/>
