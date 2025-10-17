@@ -31,11 +31,9 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'data',
-        hostname: '',
-      }
     ],
+    dangerouslyAllowSVG: true,
+    unoptimized: true
   },
 };
 
