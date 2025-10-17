@@ -5,18 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, FileDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboardPage() {
-  const { toast } = useToast();
-
-  const handleGenerateReport = (reportType: string) => {
-    toast({
-      title: "Relatório Gerado (Simulação)",
-      description: `O relatório para ${reportType} foi gerado e o download seria iniciado (formato XLS).`,
-    });
-  };
-
 
   return (
     <div>
@@ -118,11 +108,11 @@ export default function AdminDashboardPage() {
                             <CardDescription>Exporte dados gerais sobre cursos e recrutamento.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
-                            <Button variant="outline" onClick={() => handleGenerateReport('cursos')}>
-                                Relatório de Cursos (XLS)
+                            <Button variant="outline" asChild>
+                               <Link href="/dashboard/admin/courses">Relatório de Cursos (XLS)</Link>
                             </Button>
-                             <Button variant="outline" onClick={() => handleGenerateReport('vagas')}>
-                                Relatório de Vagas (XLS)
+                             <Button variant="outline" asChild>
+                                <Link href="/dashboard/admin/vacancies">Relatório de Vagas (XLS)</Link>
                             </Button>
                         </CardContent>
                     </Card>

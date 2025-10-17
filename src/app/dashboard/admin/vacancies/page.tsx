@@ -5,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Briefcase, FileWarning, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Briefcase, FileWarning, PlusCircle, ArrowLeft, FileDown } from 'lucide-react';
 import type { Vacancy } from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -136,16 +136,21 @@ export default function ManageVacanciesPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
-        <div className="flex justify-between items-start mb-8">
-            <div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div className="flex-grow">
                 <h1 className="font-headline text-4xl font-bold">Gestão de Vagas</h1>
                 <p className="text-muted-foreground mt-2">
                 Publique e administre as oportunidades de emprego.
                 </p>
             </div>
-            <Button asChild>
-                <Link href="/dashboard/vacancies/new"><PlusCircle className='mr-2 h-4 w-4' />Publicar Nova Vaga</Link>
-            </Button>
+            <div className="flex gap-2">
+                <Button variant="outline" disabled>
+                    <FileDown className="mr-2 h-4 w-4"/> Exportar (XLS)
+                </Button>
+                <Button asChild>
+                    <Link href="/dashboard/vacancies/new"><PlusCircle className='mr-2 h-4 w-4' />Publicar Nova Vaga</Link>
+                </Button>
+            </div>
         </div>
         {renderContent()}
     </div>

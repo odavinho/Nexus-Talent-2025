@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BookOpen, FileWarning, PlusCircle, ArrowLeft, Search } from 'lucide-react';
+import { BookOpen, FileWarning, PlusCircle, ArrowLeft, Search, FileDown } from 'lucide-react';
 import type { Course, CourseCategory } from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -135,9 +135,14 @@ export default function ManageCoursesPage() {
                 Visualize, adicione, edite e organize todos os cursos da plataforma.
                 </p>
             </div>
-            <Button asChild className='w-full md:w-auto'>
-                <Link href="/dashboard/courses/new"><PlusCircle className='mr-2 h-4 w-4' />Adicionar Novo Curso</Link>
-            </Button>
+            <div className="flex gap-2">
+                <Button variant="outline" disabled>
+                    <FileDown className="mr-2 h-4 w-4" /> Exportar (XLS)
+                </Button>
+                <Button asChild className='w-full md:w-auto'>
+                    <Link href="/dashboard/courses/new"><PlusCircle className='mr-2 h-4 w-4' />Adicionar Novo Curso</Link>
+                </Button>
+            </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">
