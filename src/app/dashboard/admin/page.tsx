@@ -13,7 +13,7 @@ export default function AdminDashboardPage() {
   const handleGenerateReport = (reportType: string) => {
     toast({
       title: "Relatório Gerado (Simulação)",
-      description: `O relatório para ${reportType} foi gerado e o download seria iniciado.`,
+      description: `O relatório para ${reportType} foi gerado e o download seria iniciado (formato XLS).`,
     });
   };
 
@@ -119,10 +119,10 @@ export default function AdminDashboardPage() {
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
                             <Button variant="outline" onClick={() => handleGenerateReport('cursos')}>
-                                Relatório de Cursos (CSV)
+                                Relatório de Cursos (XLS)
                             </Button>
                              <Button variant="outline" onClick={() => handleGenerateReport('vagas')}>
-                                Relatório de Vagas (CSV)
+                                Relatório de Vagas (XLS)
                             </Button>
                         </CardContent>
                     </Card>

@@ -113,22 +113,12 @@ export default function VacancyApplicationsPage() {
         const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
 
         // --- Header ---
-        // Logo
-        doc.setFillColor(33, 150, 243); // Primary color
-        doc.setDrawColor(33, 150, 243);
-        doc.rect(14, 15, 10, 10, 'FD'); // Square
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        // This is a simplified representation of the GraduationCap icon
-        doc.text('🎓', 16, 22);
-
-        // Title
-        doc.setTextColor(0, 0, 0);
+        // Logo (simple text representation)
         doc.setFontSize(22);
         doc.setFont("helvetica", "bold");
-        doc.text("Nexus", 26, 22);
-        doc.setTextColor(33, 150, 243);
-        doc.text("Talent", 46, 22);
+        doc.text("Nexus", 14, 22);
+        doc.setTextColor(33, 150, 243); // Primary color
+        doc.text("Talent", 34, 22);
         
         doc.setFont("helvetica", "normal");
         doc.setFontSize(18);
