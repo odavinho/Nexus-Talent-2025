@@ -37,6 +37,11 @@ export interface Course {
     name: string;
   }
 
+  export interface ScreeningQuestion {
+    question: string;
+    requiredAnswer: 'sim' | 'nao';
+  }
+
   export interface Vacancy {
     id: string;
     title: string;
@@ -49,7 +54,8 @@ export interface Course {
     closingDate?: Timestamp | Date;
     responsibilities: string[];
     requirements: string[];
-    screeningQuestions?: string[];
+    aiScreeningQuestions?: string[];
+    screeningQuestions?: ScreeningQuestion[];
     industry?: string;
     minExperience?: string;
     numberOfVacancies?: number;
@@ -154,3 +160,5 @@ export interface Course {
       imageHint: string;
       imageDataUri?: string;
   }
+
+    

@@ -312,6 +312,25 @@
         "requirements": {
             "type": "array",
             "items": { "type": "string" }
+        },
+        "screeningQuestions": {
+          "type": "array",
+          "description": "A list of Yes/No screening questions with required answers.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string",
+                "description": "The text of the screening question."
+              },
+              "requiredAnswer": {
+                "type": "string",
+                "description": "The mandatory answer ('sim' ou 'nao') for the candidate to be considered.",
+                "enum": ["sim", "nao"]
+              }
+            },
+            "required": ["question", "requiredAnswer"]
+          }
         }
       },
       "required": [
@@ -569,3 +588,4 @@
     "reasoning": "This Firestore data structure is designed to support the NexusTalent platform, encompassing online courses, recruitment, and candidate management. The structure prioritizes authorization independence via denormalization, structural segregation for homogenous security postures, and standardized access modeling. \n\n**Authorization Independence:**\n*   For entities nested under users (e.g., enrollments, applications), the `userId` is inherently part of the path, providing implicit ownership. For collaborative data (e.g., job postings accessible to recruiters), the `recruiterId` is stored as a field in the document.\n*   Courses store the `trainerId` to allow easy filtering of courses by trainers. The Enrollment entity also includes the `userId` and `courseId` for easier querying of enrollments by user or course.\n\n**Structural Segregation:**\n*   User data is stored under `/users/{userId}`, clearly delineating ownership. Courses are stored in a top-level `/courses` collection, and modules are nested under `/courses/{courseId}/modules`. Similarly, job postings are stored in `/jobPostings/{jobPostingId}` and applications under `/applications/{applicationId}`. Enrollments are stored in the `/enrollments` collection.\n*   User roles are managed through the `userType` field within the `/users/{userId}` document. Admins can be identified by querying this field.\n\n**QAPs (Rules are not Filters):**\n*   The structure supports secure `list` operations by ensuring that each collection contains documents with a homogeneous security posture. For example, only a user can list their own enrollments, and only recruiters can list job postings they created. This prevents the need for complex filtering in security rules.\n\n**Invariants:**\n*   Ownership is enforced through path-based security rules for user-owned data. Timestamps can be enforced using server timestamps and validation rules. Denormalized data like `userId` and `courseId` in the `enrollments` collection allows efficient querying and maintains data integrity.\n\n**Admin privileges:**\n*   Admins can be handled by checking the `userType` attribute inside the `/users/{userId}`. This information can be secured and only modified via backend processes.\n\nThis design ensures that security rules are simple, robust, and easily debuggable by leveraging Firestore's hierarchical structure and denormalization strategies."
   }
 }
+    

@@ -25,7 +25,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateVacancyContentInputSchema},
   output: {schema: GenerateVacancyContentOutputSchema},
   prompt: `You are an expert recruiter. Based on the job title, category, industry, minimum experience, and demand level, generate a detailed job description in Portuguese. 
-The description should include a general summary, a list of key responsibilities, a list of required qualifications and skills, and a list of 3-5 insightful screening questions to help filter candidates.
+The description should include a general summary, a list of key responsibilities, a list of required qualifications and skills, and a list of 3-5 insightful, open-ended screening questions to help filter candidates.
 
 Job Title: {{{title}}}
 Category: {{{category}}}
@@ -46,3 +46,5 @@ const generateVacancyContentFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { getCourseCategories } from '@/lib/course-service';
@@ -11,7 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, CalendarIcon, ArrowLeft, Save } from 'lucide-react';
+import { Loader2, Wand2, CalendarIcon, ArrowLeft, Save, Trash2, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateVacancyContentAction } from '@/app/actions';
 import type { GenerateVacancyContentOutput } from '@/ai/flows/generate-vacancy-content';
@@ -25,7 +25,13 @@ import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { addVacancy } from '@/lib/vacancy-service';
 import type { Vacancy, EducationLevel } from '@/lib/types';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
+
+const screeningQuestionSchema = z.object({
+  question: z.string().min(1, "A pergunta é obrigatória."),
+  requiredAnswer: z.enum(['sim', 'nao']),
+});
 
 const formSchema = z.object({
   title: z.string().min(5, { message: 'O título da vaga deve ter pelo menos 5 caracteres.' }),
@@ -45,6 +51,7 @@ const formSchema = z.object({
   aboutEmployer: z.string().min(10, 'A descrição sobre o empregador é obrigatória.'),
   hideEmployerData: z.boolean().default(false),
   minEducationLevel: z.string().optional(),
+  screeningQuestions: z.array(screeningQuestionSchema).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -82,8 +89,15 @@ export default function NewVacancyPage() {
       showSalary: true,
       salaryRange: '',
       languages: '',
+      screeningQuestions: [],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "screeningQuestions",
+  });
+
 
   useEffect(() => {
     const vacancyData = searchParams.get('data');
@@ -110,6 +124,7 @@ export default function NewVacancyPage() {
           aboutEmployer: parsedVacancy.aboutEmployer || recruiterProfile.companyDescription,
           hideEmployerData: parsedVacancy.hideEmployerData || false,
           minEducationLevel: parsedVacancy.minEducationLevel || undefined,
+          screeningQuestions: parsedVacancy.screeningQuestions || []
         });
         
         if (parsedVacancy.description && parsedVacancy.responsibilities && parsedVacancy.requirements) {
@@ -117,8 +132,9 @@ export default function NewVacancyPage() {
               description: parsedVacancy.description,
               responsibilities: parsedVacancy.responsibilities,
               requirements: parsedVacancy.requirements,
-              screeningQuestions: parsedVacancy.screeningQuestions || [],
+              aiScreeningQuestions: parsedVacancy.aiScreeningQuestions || [],
             });
+            setShowGeneratedContent(true);
         }
 
       } catch (error) {
@@ -132,12 +148,15 @@ export default function NewVacancyPage() {
     }
   }, [searchParams, form, toast]);
 
+  const [showGeneratedContent, setShowGeneratedContent] = useState(false);
+
   const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
     setIsGenerating(true);
     setGeneratedContent(null);
     try {
       const result = await generateVacancyContentAction({title: data.title, category: data.category, industry: data.industry, minExperience: data.minExperience, demandLevel: data.demandLevel });
       setGeneratedContent(result);
+      setShowGeneratedContent(true);
       toast({
         title: "Conteúdo Gerado!",
         description: "A descrição da vaga foi gerada pela IA. Reveja e publique.",
@@ -192,7 +211,11 @@ export default function NewVacancyPage() {
     const newVacancyData: Omit<Vacancy, 'id' | 'postedDate'> = {
         ...formValues,
         minEducationLevel: minEducationLevelValue,
-        ...generatedContent,
+        description: generatedContent.description,
+        responsibilities: generatedContent.responsibilities,
+        requirements: generatedContent.requirements,
+        aiScreeningQuestions: generatedContent.aiScreeningQuestions,
+        screeningQuestions: formValues.screeningQuestions,
         recruiterId: testRecruiter.uid,
         languages: formValues.languages?.split(',').map(l => l.trim()).filter(l => l) || [],
     };
@@ -516,6 +539,73 @@ export default function NewVacancyPage() {
                 )}
               />
 
+              <div className="space-y-4 pt-6 border-t">
+                <h3 className="font-semibold text-lg">Perguntas de Triagem (Sim/Não)</h3>
+                <p className="text-sm text-muted-foreground">
+                  Adicione perguntas de resposta "Sim" ou "Não" para filtrar candidatos automaticamente.
+                  Defina qual a resposta que o candidato deve dar para ser considerado.
+                </p>
+                {fields.map((field, index) => (
+                  <Card key={field.id} className="p-4 bg-secondary/50 relative">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                    <FormField
+                      control={form.control}
+                      name={`screeningQuestions.${index}.question`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pergunta {index + 1}</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ex: Tem mais de 5 anos de experiência com React?" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`screeningQuestions.${index}.requiredAnswer`}
+                      render={({ field }) => (
+                        <FormItem className="mt-2">
+                          <FormLabel>Resposta Eliminatória</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex items-center gap-4"
+                            >
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl><RadioGroupItem value="sim" /></FormControl>
+                                <FormLabel className="font-normal">Sim</FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl><RadioGroupItem value="nao" /></FormControl>
+                                <FormLabel className="font-normal">Não</FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </Card>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => append({ question: '', requiredAnswer: 'sim' })}
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
+                </Button>
+              </div>
+
 
               <div className="border-t pt-6 space-y-6">
                 <FormField
@@ -575,15 +665,15 @@ export default function NewVacancyPage() {
                 )}
               </Button>
 
-              {generatedContent && (
+              {showGeneratedContent && (
                 <div className="mt-8 pt-6 border-t space-y-6">
                   <h3 className="font-headline text-2xl">Conteúdo Gerado</h3>
                   <div className="space-y-4">
-                    <TextareaWithLabel label="Descrição Geral" value={generatedContent.description} onChange={(e) => setGeneratedContent({...generatedContent, description: e.target.value})} rows={4} />
-                    <TextareaWithLabel label="Responsabilidades (separado por nova linha)" value={generatedContent.responsibilities.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, responsibilities: e.target.value.split('\n')})} rows={6} />
-                    <TextareaWithLabel label="Requisitos (separado por nova linha)" value={generatedContent.requirements.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, requirements: e.target.value.split('\n')})} rows={6} />
-                    {generatedContent.screeningQuestions && (
-                        <TextareaWithLabel label="Perguntas de Triagem (separado por nova linha)" value={generatedContent.screeningQuestions.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent, screeningQuestions: e.target.value.split('\n')})} rows={5} />
+                    <TextareaWithLabel label="Descrição Geral" value={generatedContent!.description} onChange={(e) => setGeneratedContent({...generatedContent!, description: e.target.value})} rows={4} />
+                    <TextareaWithLabel label="Responsabilidades (uma por linha)" value={generatedContent!.responsibilities.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, responsibilities: e.target.value.split('\n')})} rows={6} />
+                    <TextareaWithLabel label="Requisitos (uma por linha)" value={generatedContent!.requirements.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, requirements: e.target.value.split('\n')})} rows={6} />
+                    {generatedContent!.aiScreeningQuestions && (
+                        <TextareaWithLabel label="Perguntas de Triagem (sugestões da IA)" value={generatedContent!.aiScreeningQuestions.join('\n')} onChange={(e) => setGeneratedContent({...generatedContent!, aiScreeningQuestions: e.target.value.split('\n')})} rows={5} />
                     )}
                   </div>
                   <Button onClick={handleSaveVacancy} disabled={isSaving} className="w-full bg-green-600 hover:bg-green-700">
@@ -606,3 +696,5 @@ const TextareaWithLabel = ({ label, ...props }: React.ComponentProps<typeof Text
       <Textarea {...props} />
     </div>
   );
+
+    
