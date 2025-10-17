@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { addVacancy } from '@/lib/vacancy-service';
-import type { Vacancy, EducationLevel } from '@/lib/types';
+import type { Vacancy, EducationLevel, ScreeningQuestion } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
@@ -215,7 +215,7 @@ export default function NewVacancyPage() {
         responsibilities: generatedContent.responsibilities,
         requirements: generatedContent.requirements,
         aiScreeningQuestions: generatedContent.aiScreeningQuestions,
-        screeningQuestions: formValues.screeningQuestions,
+        screeningQuestions: formValues.screeningQuestions as ScreeningQuestion[],
         recruiterId: testRecruiter.uid,
         languages: formValues.languages?.split(',').map(l => l.trim()).filter(l => l) || [],
     };
@@ -696,5 +696,3 @@ const TextareaWithLabel = ({ label, ...props }: React.ComponentProps<typeof Text
       <Textarea {...props} />
     </div>
   );
-
-    

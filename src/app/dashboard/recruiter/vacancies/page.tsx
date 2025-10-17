@@ -63,13 +63,6 @@ export default function RecruiterVacanciesPage() {
     });
   };
 
-  const handleDuplicate = (vacancy: Vacancy) => {
-    // Remove properties that should not be copied directly
-    const { id, postedDate, ...duplicationData } = vacancy;
-    const dataString = encodeURIComponent(JSON.stringify(duplicationData));
-    router.push(`/dashboard/recruiter/vacancies/new?data=${dataString}`);
-  }
-
   // Pagination Logic
   const totalPages = Math.ceil(vacancies.length / VACANCIES_PER_PAGE);
 

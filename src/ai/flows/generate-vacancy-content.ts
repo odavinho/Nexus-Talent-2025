@@ -46,5 +46,3 @@ const generateVacancyContentFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
