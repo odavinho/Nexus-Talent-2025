@@ -1,9 +1,23 @@
+
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, FileDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboardPage() {
+  const { toast } = useToast();
+
+  const handleGenerateReport = (reportType: string) => {
+    toast({
+      title: "Relatório Gerado (Simulação)",
+      description: `O relatório para ${reportType} foi gerado e o download seria iniciado.`,
+    });
+  };
+
+
   return (
     <div>
         <div className="flex items-center gap-4 mb-8">
@@ -66,7 +80,7 @@ export default function AdminDashboardPage() {
                         </CardContent>
                     </Card>
                 </div>
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-3 gap-8">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -92,6 +106,23 @@ export default function AdminDashboardPage() {
                         <CardContent>
                             <Button asChild>
                                 <Link href="/dashboard/settings">Gerir Conteúdo</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileDown />
+                                Relatórios Gerais
+                            </CardTitle>
+                            <CardDescription>Exporte dados gerais sobre cursos e recrutamento.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-wrap gap-2">
+                            <Button variant="outline" onClick={() => handleGenerateReport('cursos')}>
+                                Relatório de Cursos (CSV)
+                            </Button>
+                             <Button variant="outline" onClick={() => handleGenerateReport('vagas')}>
+                                Relatório de Vagas (CSV)
                             </Button>
                         </CardContent>
                     </Card>
