@@ -174,6 +174,7 @@ export const GenerateEmailCampaignInputSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone of the email."),
   language: z.enum(['Português', 'Inglês']).describe("The language for the email content."),
   template: z.enum(['simple', 'withImage']).describe("The visual template for the email."),
+  targetFunctionalAreas: z.array(z.string()).optional().describe("A list of functional areas to target."),
 });
 
 export const EmailCampaignContentSchema = z.object({

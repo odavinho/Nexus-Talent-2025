@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,12 @@ import { Separator } from '@/components/ui/separator';
 import { getVacancies } from '@/lib/vacancy-service';
 import { getCourses } from '@/lib/course-service';
 import { users as allUsers } from '@/lib/users';
+import { applications as allApplications } from '@/lib/applications'; // Import applications
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 
 const formSchema = z.object({
@@ -32,11 +38,11 @@ const formSchema = z.object({
   audienceType: z.enum(['all', 'course_students', 'vacancy_candidates', 'candidates_by_area']),
   targetCourseId: z.string().optional(),
   targetVacancyId: z.string().optional(),
-  targetFunctionalArea: z.string().optional(),
+  targetFunctionalAreas: z.array(z.string()).optional(),
 }).refine(data => {
     if (data.audienceType === 'course_students') return !!data.targetCourseId;
     if (data.audienceType === 'vacancy_candidates') return !!data.targetVacancyId;
-    if (data.audienceType === 'candidates_by_area') return !!data.targetFunctionalArea;
+    if (data.audienceType === 'candidates_by_area') return !!data.targetFunctionalAreas && data.targetFunctionalAreas.length > 0;
     return true;
 }, {
     message: "Por favor, selecione uma opção específica para este público.",
@@ -53,6 +59,7 @@ export default function EmailMarketingPage() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [functionalAreas, setFunctionalAreas] = useState<string[]>([]);
+  const [audienceCount, setAudienceCount] = useState<number>(0);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -78,8 +85,37 @@ export default function EmailMarketingPage() {
       buttonText: "Saber Mais",
       buttonLink: "https://nexustalent.com/courses/new-leadership-course",
       audienceType: 'all',
+      targetFunctionalAreas: [],
     },
   });
+
+  const watchedValues = form.watch(['audienceType', 'targetCourseId', 'targetVacancyId', 'targetFunctionalAreas']);
+  
+  useEffect(() => {
+    const [type, courseId, vacancyId, areas] = watchedValues;
+    let count = 0;
+    switch (type) {
+      case 'all':
+        count = allUsers.length;
+        break;
+      case 'course_students':
+        // Mock: Assume between 15 and 50 students for any course
+        if (courseId) count = Math.floor(Math.random() * (50 - 15 + 1)) + 15;
+        break;
+      case 'vacancy_candidates':
+        if (vacancyId) {
+          count = new Set(allApplications.filter(app => app.jobPostingId === vacancyId).map(app => app.userId)).size;
+        }
+        break;
+      case 'candidates_by_area':
+        if (areas && areas.length > 0) {
+            count = allUsers.filter(user => user.functionalArea && areas.includes(user.functionalArea)).length;
+        }
+        break;
+    }
+    setAudienceCount(count);
+  }, [watchedValues]);
+
 
   const audienceType = form.watch('audienceType');
 
@@ -116,7 +152,7 @@ export default function EmailMarketingPage() {
     setTimeout(() => {
       toast({
         title: "Campanha Enviada! (Simulação)",
-        description: `O e-mail "${generatedContent.subject}" foi enviado para o público selecionado.`,
+        description: `O e-mail "${generatedContent.subject}" foi enviado para ${audienceCount} destinatário(s).`,
       });
       setIsSending(false);
     }, 1500);
@@ -179,20 +215,27 @@ export default function EmailMarketingPage() {
               </div>
 
                <h3 className="text-lg font-semibold border-t pt-6">2. Segmente o Público-Alvo</h3>
-                 <FormField control={form.control} name="audienceType" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Enviar para:</FormLabel>
-                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="all"><div className="flex items-center gap-2"><Users size={16}/> Todos os Usuários</div></SelectItem>
-                                <SelectItem value="course_students"><div className="flex items-center gap-2"><GraduationCap size={16}/> Formandos de um Curso</div></SelectItem>
-                                <SelectItem value="vacancy_candidates"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos a uma Vaga</div></SelectItem>
-                                <SelectItem value="candidates_by_area"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos por Área Funcional</div></SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </FormItem>
-                 )}/>
+                <div className="flex items-center gap-4">
+                    <FormField control={form.control} name="audienceType" render={({ field }) => (
+                        <FormItem className="flex-grow">
+                            <FormLabel>Enviar para:</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="all"><div className="flex items-center gap-2"><Users size={16}/> Todos os Usuários</div></SelectItem>
+                                    <SelectItem value="course_students"><div className="flex items-center gap-2"><GraduationCap size={16}/> Formandos de um Curso</div></SelectItem>
+                                    <SelectItem value="vacancy_candidates"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos a uma Vaga</div></SelectItem>
+                                    <SelectItem value="candidates_by_area"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos por Área Funcional</div></SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )}/>
+                     <div className="pt-6">
+                        <Badge variant="secondary" className="text-lg px-4 py-2">
+                           <Users className="mr-2 h-5 w-5" /> {audienceCount}
+                        </Badge>
+                    </div>
+                </div>
 
                 {audienceType === 'course_students' && (
                     <FormField control={form.control} name="targetCourseId" render={({ field }) => (
@@ -226,21 +269,65 @@ export default function EmailMarketingPage() {
                         </FormItem>
                     )}/>
                 )}
-                 {audienceType === 'candidates_by_area' && (
-                    <FormField control={form.control} name="targetFunctionalArea" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Selecione a Área Funcional</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a área..."/></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {functionalAreas.map(area => (
-                                        <SelectItem key={area} value={area}>{area}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
+                {audienceType === 'candidates_by_area' && (
+                    <FormField
+                        control={form.control}
+                        name="targetFunctionalAreas"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Selecione a(s) Área(s) Funcional(is)</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className={cn(
+                                                    "w-full justify-between",
+                                                    !field.value?.length && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <span className='truncate'>
+                                                {field.value && field.value.length > 0 ? field.value.join(', ') : "Selecione as áreas..."}
+                                                </span>
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Pesquisar área..." />
+                                            <CommandEmpty>Nenhuma área encontrada.</CommandEmpty>
+                                            <CommandGroup>
+                                                {functionalAreas.map((area) => (
+                                                    <CommandItem
+                                                        value={area}
+                                                        key={area}
+                                                        onSelect={() => {
+                                                            const currentValue = field.value || [];
+                                                            const newValue = currentValue.includes(area)
+                                                                ? currentValue.filter((a) => a !== area)
+                                                                : [...currentValue, area];
+                                                            field.onChange(newValue);
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                field.value?.includes(area) ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        {area}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 )}
 
               <h3 className="text-lg font-semibold border-t pt-6">3. Detalhes do Call-to-Action</h3>
@@ -279,7 +366,7 @@ export default function EmailMarketingPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className='font-headline text-2xl'>Resultado</h2>
-                 <Button onClick={handleSendCampaign} disabled={!generatedContent || isSending}>
+                 <Button onClick={handleSendCampaign} disabled={!generatedContent || isSending || audienceCount === 0}>
                     {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Enviar Campanha
                 </Button>
             </div>
@@ -293,7 +380,7 @@ export default function EmailMarketingPage() {
                     <Textarea 
                         id="html-editor"
                         value={generatedContent.bodyHtml}
-                        onChange={(e) => setGeneratedContent({...generatedContent, bodyHtml: e.target.value})}
+                        onChange={(e) => setGeneratedContent(prev => prev ? {...prev, bodyHtml: e.target.value} : null)}
                         className="h-[60vh] font-mono text-xs"
                         placeholder="O código HTML do seu e-mail aparecerá aqui."
                     />
