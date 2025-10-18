@@ -38,12 +38,43 @@ export default function AdminDashboardPage() {
         return acc;
     }, [] as { name: string, total: number }[]);
 
+    // Mock data for new charts and KPIs
+    const weeklyEngagementData = [
+      { day: 'Seg', users: 120 },
+      { day: 'Ter', users: 150 },
+      { day: 'Qua', users: 170 },
+      { day: 'Qui', users: 140 },
+      { day: 'Sex', users: 200 },
+      { day: 'Sáb', users: 90 },
+      { day: 'Dom', users: 70 },
+    ];
+
+    const recruitmentFunnelData = [
+        { stage: 'Candidaturas', count: 1200 },
+        { stage: 'Triagem', count: 400 },
+        { stage: 'Entrevista', count: 150 },
+        { stage: 'Oferta', count: 50 },
+        { stage: 'Contratado', count: 25 },
+    ];
+
     setReportData({
       totalCourses: courses.length,
       totalVacancies: vacancies.length,
       totalUsers: totalUsers,
       coursesByCategory: courseData,
       vacanciesByLocation: vacancyData,
+      weeklyEngagement: weeklyEngagementData,
+      recruitmentFunnel: recruitmentFunnelData,
+      lmsKpis: {
+        completionRate: 78,
+        averageRating: 4.6,
+        firstAttemptSuccessRate: 85,
+      },
+      atsKpis: {
+        applicationsPerVacancy: 45.2,
+        timeToHire: 28,
+        profileCompletionRate: 65,
+      }
     });
   }
 
@@ -144,7 +175,7 @@ export default function AdminDashboardPage() {
                                 <BarChart />
                                 Relatórios Gerais
                             </CardTitle>
-                            <CardDescription>Exporte dados gerais sobre cursos e recrutamento.</CardDescription>
+                            <CardDescription>Visão geral do desempenho da plataforma.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
                             <Dialog>
