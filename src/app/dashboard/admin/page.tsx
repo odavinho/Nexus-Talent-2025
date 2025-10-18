@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail, AreaChart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -163,9 +163,12 @@ export default function AdminDashboardPage() {
                             </CardTitle>
                             <CardDescription>Crie e envie campanhas de e-mail com IA.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="flex flex-wrap gap-2">
                             <Button asChild>
                                 <Link href="/dashboard/admin/email-marketing">Criar Campanha</Link>
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href="/dashboard/admin/campaigns">Ver Campanhas</Link>
                             </Button>
                         </CardContent>
                     </Card>

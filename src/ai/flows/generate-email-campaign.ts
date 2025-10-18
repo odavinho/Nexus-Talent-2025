@@ -35,7 +35,7 @@ Com base nisso, gere o seguinte conteúdo:
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageUrl**: {{#if (eq template 'withImage')}} Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). {{else}} Retorne uma string vazia. {{/if}}
+5.  **imageHint**: {{#if (eq template 'withImage')}} Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). {{else}} Retorne uma string vazia. {{/if}}
 `,
 });
 
@@ -75,8 +75,8 @@ const generateEmailCampaignFlow = ai.defineFlow(
     let finalBodyHtml = textOutput.bodyHtml;
     let imageDataUri = "";
 
-    if (input.template === 'withImage' && textOutput.imageUrl) {
-      imageDataUri = await generateImageFlow(textOutput.imageUrl);
+    if (input.template === 'withImage' && textOutput.imageHint) {
+      imageDataUri = await generateImageFlow(textOutput.imageHint);
       if (imageDataUri) {
           finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri);
       }

@@ -174,7 +174,6 @@ export const GenerateEmailCampaignInputSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone of the email."),
   language: z.enum(['Português', 'Inglês']).describe("The language for the email content."),
   template: z.enum(['simple', 'withImage']).describe("The visual template for the email."),
-  targetFunctionalAreas: z.array(z.string()).optional().describe("A list of functional areas to target."),
 });
 
 export const EmailCampaignContentSchema = z.object({
@@ -182,7 +181,7 @@ export const EmailCampaignContentSchema = z.object({
   bodyHtml: z.string().describe("The generated email body content in HTML format."),
   buttonText: z.string().describe("The generated call-to-action button text."),
   buttonLink: z.string().url().describe("The generated example URL for the button."),
-  imageUrl: z.string().optional().describe("A prompt for the AI image generator if the image template is used."),
+  imageHint: z.string().optional().describe("A prompt for the AI image generator if the image template is used."),
   imageDataUri: z.string().optional().describe("The data URI of the generated image."),
 });
 
