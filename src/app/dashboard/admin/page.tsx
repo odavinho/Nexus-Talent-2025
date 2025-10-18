@@ -108,11 +108,11 @@ export default function AdminDashboardPage() {
                             <CardDescription>Exporte dados gerais sobre cursos e recrutamento.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
-                            <Button variant="outline" asChild>
-                               <Link href="/dashboard/admin/courses">Relatório de Cursos (XLS)</Link>
+                            <Button variant="outline" disabled>
+                               Relatório de Cursos (XLS)
                             </Button>
-                             <Button variant="outline" asChild>
-                                <Link href="/dashboard/admin/vacancies">Relatório de Vagas (XLS)</Link>
+                             <Button variant="outline" disabled>
+                                Relatório de Vagas (XLS)
                             </Button>
                         </CardContent>
                     </Card>

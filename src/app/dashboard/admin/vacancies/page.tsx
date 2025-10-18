@@ -1,3 +1,4 @@
+
 'use client';
 
 import { collection, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
@@ -54,6 +55,13 @@ export default function ManageVacanciesPage() {
         });
     }
   }
+
+  const handleExport = () => {
+    toast({
+      title: 'Relatório Gerado (Simulação)',
+      description: 'O seu relatório de vagas em formato XLS foi descarregado.',
+    });
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -144,7 +152,7 @@ export default function ManageVacanciesPage() {
                 </p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" disabled>
+                <Button variant="outline" onClick={handleExport}>
                     <FileDown className="mr-2 h-4 w-4"/> Exportar (XLS)
                 </Button>
                 <Button asChild>

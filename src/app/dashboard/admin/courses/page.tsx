@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -13,10 +14,12 @@ import { getCourses, getCourseCategories } from '@/lib/course-service';
 import { useEffect, useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function ManageCoursesPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<CourseCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +56,12 @@ export default function ManageCoursesPage() {
     });
   }, [courses, searchTerm, selectedCategory]);
 
+  const handleExport = () => {
+    toast({
+      title: 'Relatório Gerado (Simulação)',
+      description: 'O seu relatório de cursos em formato XLS foi descarregado.',
+    });
+  }
 
   const renderContent = () => {
     if (isLoading) {
@@ -136,7 +145,7 @@ export default function ManageCoursesPage() {
                 </p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" disabled>
+                <Button variant="outline" onClick={handleExport}>
                     <FileDown className="mr-2 h-4 w-4" /> Exportar (XLS)
                 </Button>
                 <Button asChild className='w-full md:w-auto'>
