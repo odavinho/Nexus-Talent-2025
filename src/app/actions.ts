@@ -8,6 +8,8 @@ import { generateVacancyContent } from "@/ai/flows/generate-vacancy-content";
 import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume";
 import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
 import { generateModuleAssessment } from "@/ai/flows/generate-module-assessment";
+import { generateEmailCampaign } from "@/ai/flows/generate-email-campaign";
+
 
 import type { 
     AIResumeAnalysisInput, AIResumeAnalysisOutput, 
@@ -16,7 +18,8 @@ import type {
     GenerateVacancyContentInput, GenerateVacancyContentOutput,
     ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
     GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
-    GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput
+    GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput,
+    GenerateEmailCampaignInput, EmailCampaignContent
 } from "@/lib/schemas";
 import type { Course } from "@/lib/types";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
@@ -115,6 +118,16 @@ export async function generateAssessmentTestAction(input: GenerateAssessmentTest
       console.error("Error in generateModuleAssessmentAction:", error);
       throw new Error("Failed to generate module assessment. Please try again.");
     }
+  }
+
+  export async function generateEmailCampaignAction(input: GenerateEmailCampaignInput): Promise<EmailCampaignContent> {
+      try {
+          const output = await generateEmailCampaign(input);
+          return output;
+      } catch (error) {
+          console.error("Error in generateEmailCampaignAction:", error);
+          throw new Error("Failed to generate email campaign content. Please try again.");
+      }
   }
 
 

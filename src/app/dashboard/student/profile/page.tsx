@@ -20,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { users } from '@/lib/users'; // Using mock user data
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
-import { ExtractProfileFromResumeInputSchema } from '@/lib/schemas';
 
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {

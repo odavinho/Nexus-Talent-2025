@@ -143,3 +143,12 @@ export interface Course {
     title: string;
     questions: AssessmentQuestion[];
   }
+
+  export interface EmailCampaignContent {
+    subject: string;
+    body: string;
+    buttonText: string;
+    buttonLink: string;
+    imageUrl?: string;
+    imageDataUri?: string;
+  }

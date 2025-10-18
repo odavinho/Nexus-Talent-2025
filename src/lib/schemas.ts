@@ -166,3 +166,24 @@ export const ModuleAssessmentFormSchema = z.object({
 });
 
 export type ModuleAssessmentFormValues = z.infer<typeof ModuleAssessmentFormSchema>;
+
+
+// Schemas for Email Campaign Generation
+export const GenerateEmailCampaignInputSchema = z.object({
+  topic: z.string().describe("The main topic or goal of the email."),
+  tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone of the email."),
+  language: z.enum(['Português', 'Inglês']).describe("The language for the email content."),
+  template: z.enum(['simple', 'withImage']).describe("The visual template for the email."),
+});
+
+export const EmailCampaignContentSchema = z.object({
+  subject: z.string().describe("The generated email subject line."),
+  body: z.string().describe("The generated email body content."),
+  buttonText: z.string().describe("The generated call-to-action button text."),
+  buttonLink: z.string().url().describe("The generated example URL for the button."),
+  imageUrl: z.string().optional().describe("A prompt for the AI image generator if the image template is used."),
+  imageDataUri: z.string().optional().describe("The data URI of the generated image."),
+});
+
+export type GenerateEmailCampaignInput = z.infer<typeof GenerateEmailCampaignInputSchema>;
+export type EmailCampaignContent = z.infer<typeof EmailCampaignContentSchema>;
