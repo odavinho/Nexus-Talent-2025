@@ -182,13 +182,10 @@ export default function AdminDashboardPage() {
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2">
                              <Button asChild variant="outline">
-                                <Link href="#"><BarChart className="mr-2 h-4 w-4" />Relatórios de Vendas</Link>
+                                <Link href="/dashboard/admin/financials/reports"><BarChart className="mr-2 h-4 w-4" />Relatórios de Vendas</Link>
                             </Button>
                              <Button asChild variant="outline">
-                                <Link href="#"><Repeat className="mr-2 h-4 w-4" />Gerir Subscrições</Link>
-                            </Button>
-                            <Button asChild variant="outline">
-                                <Link href="#"><FileDown className="mr-2 h-4 w-4" />Exportar Contabilidade</Link>
+                                <Link href="/dashboard/admin/financials/subscriptions"><Repeat className="mr-2 h-4 w-4" />Gerir Subscrições</Link>
                             </Button>
                         </CardContent>
                     </Card>
