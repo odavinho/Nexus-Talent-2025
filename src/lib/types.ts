@@ -143,23 +143,3 @@ export interface Course {
     title: string;
     questions: AssessmentQuestion[];
   }
-
-  // Types for generate-course-content flow
-  export interface GenerateCourseContentInput {
-    courseName: string;
-    courseCategory: string;
-    courseLevel: string;
-  }
-
-  export interface GenerateCourseContentOutput {
-      courseId: string;
-      generalObjective: string;
-      whatYouWillLearn: string[];
-      modules: Array<{
-          title: string;
-          topics: string[];
-      }>;
-      duration: string;
-      imageHint: string;
-      imageDataUri?: string;
-  }

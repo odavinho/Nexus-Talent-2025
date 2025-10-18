@@ -112,17 +112,17 @@ export default function EmailMarketingPage() {
                       render={({ field }) => (
                           <FormItem>
                               <FormLabel>Público-Alvo</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                      <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                                  </FormControl>
+                               <FormControl>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
                                   <SelectContent>
                                       <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
                                       <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
                                       <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
                                       <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
                                   </SelectContent>
-                              </Select>
+                                </Select>
+                              </FormControl>
                               <FormMessage />
                           </FormItem>
                       )}
@@ -133,16 +133,16 @@ export default function EmailMarketingPage() {
                       render={({ field }) => (
                           <FormItem>
                               <FormLabel>Tom do E-mail</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                                </FormControl>
                                   <SelectContent>
                                       <SelectItem value="Profissional">Profissional</SelectItem>
                                       <SelectItem value="Amigável">Amigável</SelectItem>
                                       <SelectItem value="Urgente">Urgente</SelectItem>
                                   </SelectContent>
-                              </Select>
+                                </Select>
+                               </FormControl>
                               <FormMessage />
                           </FormItem>
                       )}
@@ -153,15 +153,15 @@ export default function EmailMarketingPage() {
                       render={({ field }) => (
                           <FormItem>
                               <FormLabel>Layout do E-mail</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                                </FormControl>
                                   <SelectContent>
                                       <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
                                       <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
                                   </SelectContent>
-                              </Select>
+                                </Select>
+                                </FormControl>
                               <FormMessage />
                           </FormItem>
                       )}
