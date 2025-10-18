@@ -233,5 +233,3 @@ export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) 
         </div>
     );
 }
-
-    
