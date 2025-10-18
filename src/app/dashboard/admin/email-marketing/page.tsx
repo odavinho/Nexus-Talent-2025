@@ -14,11 +14,12 @@ import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, C
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import type { EmailCampaignContent, Vacancy, Course } from '@/lib/types';
+import type { EmailCampaignContent, Vacancy, Course, UserProfile } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { getVacancies } from '@/lib/vacancy-service';
 import { getCourses } from '@/lib/course-service';
+import { users as allUsers } from '@/lib/users';
 
 
 const formSchema = z.object({
@@ -28,16 +29,18 @@ const formSchema = z.object({
   template: z.enum(['simple', 'withImage']),
   buttonText: z.string().min(1, "O texto do botão é obrigatório."),
   buttonLink: z.string().url("Por favor, insira um URL válido."),
-  audienceType: z.enum(['all', 'course_students', 'vacancy_candidates']),
+  audienceType: z.enum(['all', 'course_students', 'vacancy_candidates', 'candidates_by_area']),
   targetCourseId: z.string().optional(),
   targetVacancyId: z.string().optional(),
+  targetFunctionalArea: z.string().optional(),
 }).refine(data => {
     if (data.audienceType === 'course_students') return !!data.targetCourseId;
     if (data.audienceType === 'vacancy_candidates') return !!data.targetVacancyId;
+    if (data.audienceType === 'candidates_by_area') return !!data.targetFunctionalArea;
     return true;
 }, {
-    message: "Por favor, selecione um curso ou vaga específica para este público.",
-    path: ['targetCourseId'], // Can be any of the conditional fields
+    message: "Por favor, selecione uma opção específica para este público.",
+    path: ['targetCourseId'], // Applies to the first conditional field, but signals the group issue
 });
 
 
@@ -49,12 +52,20 @@ export default function EmailMarketingPage() {
   const [isSending, setIsSending] = useState(false);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [functionalAreas, setFunctionalAreas] = useState<string[]>([]);
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
     setVacancies(getVacancies(true)); // Get all vacancies, including expired
     setCourses(getCourses());
+
+    const areas = [...new Set(
+        allUsers
+            .filter(user => user.userType === 'student' && user.functionalArea)
+            .map(user => user.functionalArea!)
+    )].sort();
+    setFunctionalAreas(areas);
   }, []);
 
   const form = useForm<FormValues>({
@@ -177,6 +188,7 @@ export default function EmailMarketingPage() {
                                 <SelectItem value="all"><div className="flex items-center gap-2"><Users size={16}/> Todos os Usuários</div></SelectItem>
                                 <SelectItem value="course_students"><div className="flex items-center gap-2"><GraduationCap size={16}/> Formandos de um Curso</div></SelectItem>
                                 <SelectItem value="vacancy_candidates"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos a uma Vaga</div></SelectItem>
+                                <SelectItem value="candidates_by_area"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos por Área Funcional</div></SelectItem>
                             </SelectContent>
                         </Select>
                     </FormItem>
@@ -194,6 +206,7 @@ export default function EmailMarketingPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
+                            <FormMessage />
                         </FormItem>
                     )}/>
                 )}
@@ -209,6 +222,23 @@ export default function EmailMarketingPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}/>
+                )}
+                 {audienceType === 'candidates_by_area' && (
+                    <FormField control={form.control} name="targetFunctionalArea" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Selecione a Área Funcional</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a área..."/></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    {functionalAreas.map(area => (
+                                        <SelectItem key={area} value={area}>{area}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
                         </FormItem>
                     )}/>
                 )}
@@ -218,12 +248,14 @@ export default function EmailMarketingPage() {
                 <FormItem>
                   <FormLabel>Texto do Botão</FormLabel>
                   <FormControl><Input placeholder="Ex: Inscreva-se Agora" {...field} /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )}/>
                 <FormField control={form.control} name="buttonLink" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Link do Botão</FormLabel>
                   <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )}/>
 
