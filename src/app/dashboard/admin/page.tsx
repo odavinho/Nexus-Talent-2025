@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail, AreaChart } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail, AreaChart, DollarSign, Repeat, FileDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -175,18 +175,24 @@ export default function AdminDashboardPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Settings />
-                                Configurações do Site
+                                <DollarSign />
+                                Financeiro e Vendas
                             </CardTitle>
-                            <CardDescription>Edite o conteúdo estático do site, como parceiros e estatísticas.</CardDescription>
+                            <CardDescription>Gira subscrições, veja relatórios de vendas e integre com a contabilidade.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <Button asChild>
-                                <Link href="/dashboard/settings">Gerir Conteúdo</Link>
+                        <CardContent className="flex flex-col gap-2">
+                             <Button asChild variant="outline">
+                                <Link href="#"><BarChart className="mr-2 h-4 w-4" />Relatórios de Vendas</Link>
+                            </Button>
+                             <Button asChild variant="outline">
+                                <Link href="#"><Repeat className="mr-2 h-4 w-4" />Gerir Subscrições</Link>
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href="#"><FileDown className="mr-2 h-4 w-4" />Exportar Contabilidade</Link>
                             </Button>
                         </CardContent>
                     </Card>
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <BarChart />
@@ -211,6 +217,20 @@ export default function AdminDashboardPage() {
                                     {reportData && <GeneralReport data={reportData} />}
                                 </DialogContent>
                             </Dialog>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Settings />
+                                Configurações do Site
+                            </CardTitle>
+                            <CardDescription>Edite o conteúdo estático do site, como parceiros e estatísticas.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button asChild>
+                                <Link href="/dashboard/settings">Gerir Conteúdo</Link>
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>
