@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { getVacancies, deleteVacancy } from '@/lib/vacancy-service';
 import { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { GeneralReport } from "@/components/admin/general-report";
 
 export default function ManageVacanciesPage() {
   const { toast } = useToast();
@@ -22,10 +24,11 @@ export default function ManageVacanciesPage() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
 
   useEffect(() => {
     try {
-      const allVacancies = getVacancies();
+      const allVacancies = getVacancies(true);
       setVacancies(allVacancies);
     } catch(e) {
       if (e instanceof Error) {
@@ -56,10 +59,28 @@ export default function ManageVacanciesPage() {
     }
   }
 
-  const handleExport = () => {
+  const handleExportXLS = () => {
     toast({
       title: 'Relatório Gerado (Simulação)',
       description: 'O seu relatório de vagas em formato XLS foi descarregado.',
+    });
+  };
+
+  const handleGenerateReport = () => {
+    const vacancyData = vacancies.reduce((acc, vacancy) => {
+        const location = vacancy.location;
+        const existing = acc.find(item => item.name === location);
+        if (existing) {
+            existing.total++;
+        } else {
+            acc.push({ name: location, total: 1 });
+        }
+        return acc;
+    }, [] as { name: string, total: number }[]);
+
+    setReportData({
+      totalVacancies: vacancies.length,
+      vacanciesByLocation: vacancyData,
     });
   };
 
@@ -152,9 +173,23 @@ export default function ManageVacanciesPage() {
                 </p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" onClick={handleExport}>
+                <Button variant="outline" onClick={handleExportXLS}>
                     <FileDown className="mr-2 h-4 w-4"/> Exportar (XLS)
                 </Button>
+                 <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="default" onClick={handleGenerateReport}>Gerar Relatório PDF</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl h-[90vh]">
+                        <DialogHeader>
+                            <DialogTitle>Relatório de Vagas</DialogTitle>
+                            <DialogDescription>
+                                Visão geral das vagas na plataforma.
+                            </DialogDescription>
+                        </DialogHeader>
+                        {reportData && <GeneralReport data={reportData} reportType="vacancies" />}
+                    </DialogContent>
+                </Dialog>
                 <Button asChild>
                     <Link href="/dashboard/vacancies/new"><PlusCircle className='mr-2 h-4 w-4' />Publicar Nova Vaga</Link>
                 </Button>

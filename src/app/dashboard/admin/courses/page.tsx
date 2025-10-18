@@ -15,6 +15,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { GeneralReport } from '@/components/admin/general-report';
 
 
 export default function ManageCoursesPage() {
@@ -26,6 +28,7 @@ export default function ManageCoursesPage() {
   const [error, setError] = useState<Error | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [reportData, setReportData] = useState<any>(null);
 
 
   useEffect(() => {
@@ -56,10 +59,22 @@ export default function ManageCoursesPage() {
     });
   }, [courses, searchTerm, selectedCategory]);
 
-  const handleExport = () => {
+  const handleExportXLS = () => {
     toast({
       title: 'Relatório Gerado (Simulação)',
       description: 'O seu relatório de cursos em formato XLS foi descarregado.',
+    });
+  }
+
+  const handleGenerateReport = () => {
+     const courseData = categories.map(category => ({
+      name: category.name,
+      total: courses.filter(course => course.category === category.id).length
+    })).filter(c => c.total > 0);
+
+    setReportData({
+      totalCourses: courses.length,
+      coursesByCategory: courseData
     });
   }
 
@@ -145,9 +160,23 @@ export default function ManageCoursesPage() {
                 </p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" onClick={handleExport}>
+                <Button variant="outline" onClick={handleExportXLS}>
                     <FileDown className="mr-2 h-4 w-4" /> Exportar (XLS)
                 </Button>
+                 <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="default" onClick={handleGenerateReport}>Gerar Relatório PDF</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl h-[90vh]">
+                        <DialogHeader>
+                            <DialogTitle>Relatório de Cursos</DialogTitle>
+                            <DialogDescription>
+                                Visão geral dos cursos na plataforma.
+                            </DialogDescription>
+                        </DialogHeader>
+                        {reportData && <GeneralReport data={reportData} reportType="courses" />}
+                    </DialogContent>
+                </Dialog>
                 <Button asChild className='w-full md:w-auto'>
                     <Link href="/dashboard/courses/new"><PlusCircle className='mr-2 h-4 w-4' />Adicionar Novo Curso</Link>
                 </Button>

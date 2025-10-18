@@ -2,11 +2,50 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, FileDown } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { GeneralReport } from "@/components/admin/general-report";
+import { getCourses, getCourseCategories } from "@/lib/course-service";
+import { getVacancies } from "@/lib/vacancy-service";
+import { users } from "@/lib/users";
+import { useState } from "react";
+
 
 export default function AdminDashboardPage() {
+  const [reportData, setReportData] = useState<any>(null);
+
+  const handleGenerateReport = () => {
+    const courses = getCourses();
+    const courseCategories = getCourseCategories();
+    const vacancies = getVacancies(true);
+    const totalUsers = users.length;
+
+    const courseData = courseCategories.map(category => ({
+      name: category.name,
+      total: courses.filter(course => course.category === category.id).length
+    })).filter(c => c.total > 0);
+
+    const vacancyData = vacancies.reduce((acc, vacancy) => {
+        const location = vacancy.location;
+        const existing = acc.find(item => item.name === location);
+        if (existing) {
+            existing.total++;
+        } else {
+            acc.push({ name: location, total: 1 });
+        }
+        return acc;
+    }, [] as { name: string, total: number }[]);
+
+    setReportData({
+      totalCourses: courses.length,
+      totalVacancies: vacancies.length,
+      totalUsers: totalUsers,
+      coursesByCategory: courseData,
+      vacanciesByLocation: vacancyData,
+    });
+  }
 
   return (
     <div>
@@ -102,18 +141,28 @@ export default function AdminDashboardPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileDown />
+                                <BarChart />
                                 Relatórios Gerais
                             </CardTitle>
                             <CardDescription>Exporte dados gerais sobre cursos e recrutamento.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
-                            <Button variant="outline" disabled>
-                               Relatório de Cursos (XLS)
-                            </Button>
-                             <Button variant="outline" disabled>
-                                Relatório de Vagas (XLS)
-                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="default" onClick={handleGenerateReport}>
+                                        Gerar Relatório
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl h-[90vh]">
+                                    <DialogHeader>
+                                        <DialogTitle>Relatório Geral da Plataforma</DialogTitle>
+                                        <DialogDescription>
+                                            Visão geral do estado atual da plataforma NexusTalent.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    {reportData && <GeneralReport data={reportData} />}
+                                </DialogContent>
+                            </Dialog>
                         </CardContent>
                     </Card>
                 </div>
