@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,10 @@ export default function CompanyProfilePage() {
         defaultValues: companyProfileData
     });
     
-    const { fields, append, remove } = form.control.register('benefits' as never) ? form.control : { fields: [], append: () => {}, remove: () => {} };
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: 'benefits',
+    });
 
 
     const handleSave: SubmitHandler<FormValues> = async (data) => {
@@ -132,8 +135,8 @@ export default function CompanyProfilePage() {
                             <div>
                                 <FormLabel>Benefícios</FormLabel>
                                 <div className="space-y-2 mt-2">
-                                    {(form.watch('benefits') || []).map((field, index) => (
-                                         <div key={index} className="flex items-center gap-2">
+                                    {fields.map((field, index) => (
+                                         <div key={field.id} className="flex items-center gap-2">
                                             <FormField
                                                 control={form.control}
                                                 name={`benefits.${index}.value`}
@@ -144,13 +147,13 @@ export default function CompanyProfilePage() {
                                                     </FormItem>
                                                 )}
                                             />
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => form.setValue('benefits', companyProfileData.benefits.filter((_, i) => i !== index))}>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
                                                 <Trash2 className="h-4 w-4 text-destructive"/>
                                             </Button>
                                         </div>
                                     ))}
                                 </div>
-                                 <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => form.setValue('benefits', [...form.getValues('benefits'), { value: '' }])}>
+                                 <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => append({ value: "" })}>
                                     <PlusCircle className="mr-2 h-4 w-4"/> Adicionar Benefício
                                 </Button>
                             </div>
