@@ -7,15 +7,16 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { PlusCircle, Trash2, Edit } from 'lucide-react';
 import { ImageFormDialog } from './image-form-dialog';
 import { DeleteImageDialog } from './delete-image-dialog';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
+import type { ImagePlaceholder } from '@/lib/site-data';
 
 interface EditableImageGridProps {
   items: ImagePlaceholder[];
   itemType: 'parceiro' | 'certificação';
   idPrefix: 'partner-' | 'cert-';
+  onUpdate: (updatedItems: ImagePlaceholder[]) => void;
 }
 
-export function EditableImageGrid({ items, itemType, idPrefix }: EditableImageGridProps) {
+export function EditableImageGrid({ items, itemType, idPrefix, onUpdate }: EditableImageGridProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ImagePlaceholder | null>(null);
@@ -72,6 +73,8 @@ export function EditableImageGrid({ items, itemType, idPrefix }: EditableImageGr
         item={selectedItem}
         itemType={itemType}
         idPrefix={idPrefix}
+        allItems={items}
+        onUpdate={onUpdate}
       />
 
       {selectedItem && (
@@ -80,6 +83,7 @@ export function EditableImageGrid({ items, itemType, idPrefix }: EditableImageGr
             setIsOpen={setDeleteDialogOpen}
             item={selectedItem}
             itemType={itemType}
+            onDeleteSuccess={() => onUpdate(items.filter(i => i.id !== selectedItem.id))}
         />
       )}
     </div>

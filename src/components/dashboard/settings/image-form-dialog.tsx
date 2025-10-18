@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { addImageAction, updateImageAction } from '@/app/actions';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
+import type { ImagePlaceholder } from '@/lib/site-data';
 import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -28,9 +28,11 @@ interface ImageFormDialogProps {
   item: ImagePlaceholder | null;
   itemType: 'parceiro' | 'certificação';
   idPrefix: 'partner-' | 'cert-';
+  allItems: ImagePlaceholder[];
+  onUpdate: (updatedItems: ImagePlaceholder[]) => void;
 }
 
-export function ImageFormDialog({ isOpen, setIsOpen, item, itemType, idPrefix }: ImageFormDialogProps) {
+export function ImageFormDialog({ isOpen, setIsOpen, item, itemType, idPrefix, allItems, onUpdate }: ImageFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const isEditing = !!item;
@@ -63,13 +65,25 @@ export function ImageFormDialog({ isOpen, setIsOpen, item, itemType, idPrefix }:
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsSubmitting(true);
     try {
-      const result = isEditing ? await updateImageAction(data) : await addImageAction(data);
-      if (result.success) {
-        toast({ title: 'Sucesso!', description: result.message });
-        setIsOpen(false);
-      } else {
-        toast({ variant: 'destructive', title: 'Erro', description: result.message });
-      }
+        if (isEditing && item) {
+            const result = await updateImageAction(data);
+            if (result.success) {
+                toast({ title: 'Sucesso!', description: result.message });
+                onUpdate(allItems.map(i => i.id === data.id ? data : i));
+                setIsOpen(false);
+            } else {
+                 toast({ variant: 'destructive', title: 'Erro', description: result.message });
+            }
+        } else {
+             const result = await addImageAction(data);
+             if (result.success) {
+                toast({ title: 'Sucesso!', description: result.message });
+                onUpdate([...allItems, data]);
+                setIsOpen(false);
+             } else {
+                toast({ variant: 'destructive', title: 'Erro', description: result.message });
+             }
+        }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
       toast({ variant: 'destructive', title: 'Erro', description: message });

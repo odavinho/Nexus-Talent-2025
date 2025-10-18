@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
 import { getSiteData, updateSiteData } from "@/app/actions";
-import type { SiteData } from "@/lib/site-data";
+import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -121,14 +121,16 @@ export default function SettingsPage() {
   
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
+    if (!siteData) return;
     setIsSaving(true);
+    
+    const updatedData = { ...siteData, stats: data.stats };
+
     try {
-        if (!siteData) throw new Error("Dados do site não carregados.");
-        const result = await updateSiteData({ ...siteData, stats: data.stats });
+        const result = await updateSiteData(updatedData);
         if (result.success) {
-            toast({ title: "Sucesso!", description: "Configurações atualizadas."});
-            const updatedData = await getSiteData();
-            setSiteData(updatedData);
+            toast({ title: "Sucesso!", description: "Configurações de estatísticas atualizadas."});
+            setSiteData(updatedData); // Optimistically update UI
         } else {
             throw new Error(result.message);
         }
@@ -138,6 +140,16 @@ export default function SettingsPage() {
         setIsSaving(false);
     }
   };
+
+  const handleImageGridUpdate = async (updatedImages: ImagePlaceholder[]) => {
+      if (!siteData) return;
+
+      const newSiteData = { ...siteData, images: updatedImages };
+      
+      // No need to call the server action here, as the child components do it.
+      // We just update the local state to reflect the change.
+      setSiteData(newSiteData);
+  }
 
   if (!siteData) {
     return (
@@ -175,10 +187,15 @@ export default function SettingsPage() {
                         <Building />
                         Parceiros
                     </CardTitle>
-                    <CardDescription className="mt-2">Os logotipos de parceiros exibidos no carrossel da página inicial.</CardDescription>
+                    <CardDescription className="mt-2">Os logótipos de parceiros exibidos no carrossel da página inicial.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <EditableImageGrid items={partners} itemType="parceiro" idPrefix="partner-" />
+                    <EditableImageGrid 
+                        items={partners} 
+                        itemType="parceiro" 
+                        idPrefix="partner-" 
+                        onUpdate={(updatedPartners) => handleImageGridUpdate([...certifications, ...updatedPartners])}
+                    />
                 </CardContent>
             </Card>
 
@@ -191,7 +208,12 @@ export default function SettingsPage() {
                     <CardDescription className="mt-2">As certificações e acreditações exibidas na página inicial.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <EditableImageGrid items={certifications} itemType="certificação" idPrefix="cert-" />
+                    <EditableImageGrid 
+                        items={certifications} 
+                        itemType="certificação" 
+                        idPrefix="cert-"
+                        onUpdate={(updatedCerts) => handleImageGridUpdate([...partners, ...updatedCerts])}
+                    />
                 </CardContent>
             </Card>
         </div>

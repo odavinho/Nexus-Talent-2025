@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { deleteImageAction } from '@/app/actions';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
+import type { ImagePlaceholder } from '@/lib/site-data';
 import { Loader2 } from 'lucide-react';
 
 interface DeleteImageDialogProps {
@@ -22,9 +22,10 @@ interface DeleteImageDialogProps {
   setIsOpen: (open: boolean) => void;
   item: ImagePlaceholder;
   itemType: 'parceiro' | 'certificação';
+  onDeleteSuccess: () => void;
 }
 
-export function DeleteImageDialog({ isOpen, setIsOpen, item, itemType }: DeleteImageDialogProps) {
+export function DeleteImageDialog({ isOpen, setIsOpen, item, itemType, onDeleteSuccess }: DeleteImageDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
@@ -34,6 +35,7 @@ export function DeleteImageDialog({ isOpen, setIsOpen, item, itemType }: DeleteI
       const result = await deleteImageAction(item.id);
       if (result.success) {
         toast({ title: 'Sucesso!', description: result.message });
+        onDeleteSuccess();
         setIsOpen(false);
       } else {
         toast({ variant: 'destructive', title: 'Erro', description: result.message });
