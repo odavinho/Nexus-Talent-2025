@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
 import { GenerateEmailCampaignInputSchema } from '@/lib/schemas';
+import { Label } from '@/components/ui/label';
 
 type FormValues = z.infer<typeof GenerateEmailCampaignInputSchema>;
 
