@@ -45,7 +45,15 @@ export default function EmailMarketingPage() {
     setIsGenerating(true);
     setGeneratedContent(null);
     try {
-      const result = await generateEmailCampaignAction(data);
+      // Prepare the input for the AI action
+      const inputForAI: FormValues = { ...data };
+
+      // If the layout doesn't use an image, ensure imageUrl is not sent
+      if (inputForAI.layoutType !== 'Imagem, Título e Botão') {
+        inputForAI.imageUrl = undefined;
+      }
+
+      const result = await generateEmailCampaignAction(inputForAI);
       setGeneratedContent(result);
       toast({
         title: "Conteúdo do E-mail Gerado!",
@@ -55,7 +63,7 @@ export default function EmailMarketingPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao gerar conteúdo',
-        description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
+        description: error instanceof Error ? error.message : 'Ocorreu um erro inesperado.',
       });
     } finally {
       setIsGenerating(false);

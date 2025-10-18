@@ -36,10 +36,10 @@ Crie o seguinte:
     - Termine com um rodapé profissional que inclua links para redes sociais (placeholders) e uma opção de cancelamento de subscrição.
     - O texto do e-mail deve ser bem escrito, persuasivo e adaptado ao público-alvo e ao tom especificado.
 
-    {{#if imageUrl}}
-    - **Layout com Imagem:** Se um URL de imagem foi fornecido, comece com a imagem, seguida por um título (h1), um ou dois parágrafos de texto, e termine com o botão de CTA.
+    {{#if (and imageUrl (eq layoutType "Imagem, Título e Botão"))}}
+    - **Layout com Imagem:** Comece com a imagem, seguida por um título (h1), um ou dois parágrafos de texto, e termine com o botão de CTA.
     {{else}}
-    - **Layout de Texto:** Se nenhum URL de imagem foi fornecido, comece com um título (h1), seguido por parágrafos de texto e termine com o botão de CTA.
+    - **Layout de Texto:** Comece com um título (h1), seguido por parágrafos de texto e termine com o botão de CTA.
     {{/if}}`,
 });
 
