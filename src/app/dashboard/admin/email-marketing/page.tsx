@@ -18,7 +18,6 @@ import { GenerateEmailCampaignInputSchema } from '@/lib/schemas';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-
 type FormValues = z.infer<typeof GenerateEmailCampaignInputSchema>;
 
 export default function EmailMarketingPage() {
@@ -108,17 +107,17 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Público-Alvo</FormLabel>
-                        <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
-                                    <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
-                                    <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
-                                    <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
+                                <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
+                                <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
+                                <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -129,16 +128,16 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tom do E-mail</FormLabel>
-                        <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Profissional">Profissional</SelectItem>
-                                    <SelectItem value="Amigável">Amigável</SelectItem>
-                                    <SelectItem value="Urgente">Urgente</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Profissional">Profissional</SelectItem>
+                                <SelectItem value="Amigável">Amigável</SelectItem>
+                                <SelectItem value="Urgente">Urgente</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -149,15 +148,15 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Layout do E-mail</FormLabel>
-                        <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
-                                    <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                                <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
