@@ -20,7 +20,6 @@ const prompt = ai.definePrompt({
   prompt: `Você é um especialista em marketing por e-mail e designer. Sua tarefa é criar um e-mail HTML completo, profissional, responsivo e persuasivo.
 
 Use tabelas para o layout para garantir a máxima compatibilidade com clientes de e-mail.
-O e-mail deve incluir um cabeçalho, corpo principal e rodapé.
 Incorpore as cores da marca: cor primária hsl(197, 76%, 53%) para links e botões, e um cinzento escuro como #333 para o texto principal.
 
 O objetivo do e-mail é: {{{topic}}}
@@ -29,10 +28,14 @@ O idioma deve ser: {{{language}}}
 
 Com base nisso, gere o seguinte conteúdo:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
-2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado. Inclua um placeholder para o logótipo da empresa como '[Logo URL]'. Use placeholders como '[Link 1]' e '[Link 2]' para URLs no corpo do texto que possam ser substituídos.
+2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado. 
+    - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
+    - {{#if (eq template 'withImage')}} Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho gerada por IA: '[IMAGE_URL]'. {{/if}}
+    - Inclua um placeholder como '[Link]' para o URL do botão principal no corpo do texto que possa ser substituído.
+    - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageUrl**: Se o template for 'withImage', gere um prompt de uma a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). Se for 'simple', retorne uma string vazia.
+5.  **imageUrl**: {{#if (eq template 'withImage')}} Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). {{else}} Retorne uma string vazia. {{/if}}
 `,
 });
 
@@ -69,13 +72,19 @@ const generateEmailCampaignFlow = ai.defineFlow(
       throw new Error('AI failed to generate email content.');
     }
 
+    let finalBodyHtml = textOutput.bodyHtml;
     let imageDataUri = "";
+
     if (input.template === 'withImage' && textOutput.imageUrl) {
       imageDataUri = await generateImageFlow(textOutput.imageUrl);
+      if (imageDataUri) {
+          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri);
+      }
     }
     
     return {
         ...textOutput,
+        bodyHtml: finalBodyHtml,
         imageDataUri: imageDataUri
     };
   }

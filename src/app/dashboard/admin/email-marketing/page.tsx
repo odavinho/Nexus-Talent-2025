@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,13 +10,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import type { EmailCampaignContent } from '@/lib/types';
+import type { EmailCampaignContent, Vacancy, Course } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { getVacancies } from '@/lib/vacancy-service';
+import { getCourses } from '@/lib/course-service';
+
 
 const formSchema = z.object({
   topic: z.string().min(1, "O tópico é obrigatório."),
@@ -25,7 +28,18 @@ const formSchema = z.object({
   template: z.enum(['simple', 'withImage']),
   buttonText: z.string().min(1, "O texto do botão é obrigatório."),
   buttonLink: z.string().url("Por favor, insira um URL válido."),
+  audienceType: z.enum(['all', 'course_students', 'vacancy_candidates']),
+  targetCourseId: z.string().optional(),
+  targetVacancyId: z.string().optional(),
+}).refine(data => {
+    if (data.audienceType === 'course_students') return !!data.targetCourseId;
+    if (data.audienceType === 'vacancy_candidates') return !!data.targetVacancyId;
+    return true;
+}, {
+    message: "Por favor, selecione um curso ou vaga específica para este público.",
+    path: ['targetCourseId'], // Can be any of the conditional fields
 });
+
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -33,8 +47,15 @@ export default function EmailMarketingPage() {
   const [generatedContent, setGeneratedContent] = useState<EmailCampaignContent | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    setVacancies(getVacancies(true)); // Get all vacancies, including expired
+    setCourses(getCourses());
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -44,9 +65,12 @@ export default function EmailMarketingPage() {
       language: 'Português',
       template: 'withImage',
       buttonText: "Saber Mais",
-      buttonLink: "https://nexustalent.com/courses/new-leadership-course"
+      buttonLink: "https://nexustalent.com/courses/new-leadership-course",
+      audienceType: 'all',
     },
   });
+
+  const audienceType = form.watch('audienceType');
 
   const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
     setIsGenerating(true);
@@ -81,7 +105,7 @@ export default function EmailMarketingPage() {
     setTimeout(() => {
       toast({
         title: "Campanha Enviada! (Simulação)",
-        description: `O e-mail "${generatedContent.subject}" foi enviado para a lista de marketing.`,
+        description: `O e-mail "${generatedContent.subject}" foi enviado para o público selecionado.`,
       });
       setIsSending(false);
     }, 1500);
@@ -102,9 +126,10 @@ export default function EmailMarketingPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-6">
+              <h3 className="text-lg font-semibold pt-4">1. Defina o Conteúdo do E-mail</h3>
               <FormField control={form.control} name="topic" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>1. Tópico ou Objetivo do E-mail</FormLabel>
+                  <FormLabel>Tópico ou Objetivo do E-mail</FormLabel>
                   <FormControl><Textarea placeholder="Ex: Promover o novo curso de Power BI" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -142,7 +167,53 @@ export default function EmailMarketingPage() {
                 )}/>
               </div>
 
-              <h3 className="text-lg font-semibold border-t pt-4">2. Detalhes do Call-to-Action</h3>
+               <h3 className="text-lg font-semibold border-t pt-6">2. Segmente o Público-Alvo</h3>
+                 <FormField control={form.control} name="audienceType" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Enviar para:</FormLabel>
+                         <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="all"><div className="flex items-center gap-2"><Users size={16}/> Todos os Usuários</div></SelectItem>
+                                <SelectItem value="course_students"><div className="flex items-center gap-2"><GraduationCap size={16}/> Formandos de um Curso</div></SelectItem>
+                                <SelectItem value="vacancy_candidates"><div className="flex items-center gap-2"><Briefcase size={16}/> Candidatos a uma Vaga</div></SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </FormItem>
+                 )}/>
+
+                {audienceType === 'course_students' && (
+                    <FormField control={form.control} name="targetCourseId" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Selecione o Curso</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Selecione o curso..."/></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    {courses.map(course => (
+                                        <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )}/>
+                )}
+                 {audienceType === 'vacancy_candidates' && (
+                    <FormField control={form.control} name="targetVacancyId" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Selecione a Vaga</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Selecione a vaga..."/></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    {vacancies.map(vacancy => (
+                                        <SelectItem key={vacancy.id} value={vacancy.id}>{vacancy.title}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )}/>
+                )}
+
+              <h3 className="text-lg font-semibold border-t pt-6">3. Detalhes do Call-to-Action</h3>
                 <FormField control={form.control} name="buttonText" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Texto do Botão</FormLabel>
