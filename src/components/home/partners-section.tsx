@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useEffect, useState } from "react";
+import Autoplay from "embla-carousel-autoplay"
 import {
     Carousel,
     CarouselContent,
@@ -9,11 +11,13 @@ import {
 } from "@/components/ui/carousel"
 import { getSiteData } from "@/lib/site-data";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import type { ImagePlaceholder } from "@/lib/site-data";
 
 export function PartnersSection() {
     const [partners, setPartners] = useState<ImagePlaceholder[]>([]);
+    const plugin = React.useRef(
+        Autoplay({ delay: 2000, stopOnInteraction: true })
+    )
 
     useEffect(() => {
         async function loadData() {
@@ -35,10 +39,13 @@ export function PartnersSection() {
                     </p>
                 </div>
                 <Carousel
+                    plugins={[plugin.current]}
                     opts={{
                         align: "start",
                         loop: true,
                     }}
+                    onMouseEnter={plugin.current.stop}
+                    onMouseLeave={plugin.current.reset}
                     className="w-full max-w-5xl mx-auto"
                 >
                     <CarouselContent className="-ml-4">
