@@ -163,3 +163,11 @@ export interface Course {
       imageHint: string;
       imageDataUri?: string;
   }
+
+  export interface EmailCampaign {
+    id: string;
+    subject: string;
+    body: string;
+    targetAudience: string;
+    sentDate: Date;
+  }
