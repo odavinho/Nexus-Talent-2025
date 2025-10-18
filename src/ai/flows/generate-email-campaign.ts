@@ -89,14 +89,16 @@ const generateEmailCampaignFlow = ai.defineFlow(
     }
 
     if (input.template === 'promotional') {
-      const hint1 = textOutput.imageHint + " item 1";
-      const hint2 = textOutput.imageHint + " item 2";
-      const [img1, img2] = await Promise.all([
-          generateImageFlow(hint1),
-          generateImageFlow(hint2)
-      ]);
-      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
-      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
+      if (textOutput.imageHint) {
+          const hint1 = textOutput.imageHint + " item 1";
+          const hint2 = textOutput.imageHint + " item 2";
+          const [img1, img2] = await Promise.all([
+              generateImageFlow(hint1),
+              generateImageFlow(hint2)
+          ]);
+          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
+          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
+      }
     }
     
     return {
