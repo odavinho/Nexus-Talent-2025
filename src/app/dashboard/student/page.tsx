@@ -1,8 +1,10 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Award, UserCircle, LineChart, Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
 
 export default function StudentDashboardPage() {
     // Mock data for enrolled courses
@@ -47,28 +49,8 @@ export default function StudentDashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <LineChart />
-                                Progressão e Acompanhamento
-                            </CardTitle>
-                             <CardDescription>Visualize o seu desempenho e evolução nos cursos.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                             <div className="space-y-3">
-                                {enrolledCourses.map(course => (
-                                    <div key={course.name} className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
-                                        <p className="font-medium">{course.name}</p>
-                                        <div className="text-right">
-                                            <p className="font-bold text-lg">{course.grade ? `${course.grade}%` : 'N/A'}</p>
-                                            <p className="text-xs text-muted-foreground">Nota Final</p>
-                                        </div>
-                                    </div>
-                                ))}
-                             </div>
-                        </CardContent>
-                    </Card>
+                    <CourseRecommendations />
+                    
                 </div>
                 <div className="lg:col-span-1 space-y-8">
                      <Card>

@@ -1,3 +1,4 @@
+
 import { getCourseById, getCourseCategories, getCourses } from "@/lib/course-service";
 import { getImages } from "@/lib/site-data";
 import { notFound } from "next/navigation";
