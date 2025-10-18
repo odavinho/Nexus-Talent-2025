@@ -47,7 +47,6 @@ export default function EmailMarketingPage() {
     setGeneratedContent(null);
     try {
       const inputForAI: FormValues = { ...data };
-      // If layout is not with image, ensure imageUrl is not sent
       if (inputForAI.layoutType !== 'Imagem, Título e Botão') {
         inputForAI.imageUrl = undefined;
       }
@@ -82,9 +81,6 @@ export default function EmailMarketingPage() {
             title: "Campanha Enviada! (Simulação)",
             description: "O seu e-mail foi 'enviado' com sucesso.",
         });
-        // Opcional: Limpar o formulário após o envio
-        // setGeneratedContent(null);
-        // form.reset();
     }, 1500);
   };
 
@@ -112,17 +108,17 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Público-Alvo</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
-                              <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
-                              <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
-                              <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
+                                    <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
+                                    <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
+                                    <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -133,16 +129,16 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tom do E-mail</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Profissional">Profissional</SelectItem>
-                              <SelectItem value="Amigável">Amigável</SelectItem>
-                              <SelectItem value="Urgente">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Profissional">Profissional</SelectItem>
+                                    <SelectItem value="Amigável">Amigável</SelectItem>
+                                    <SelectItem value="Urgente">Urgente</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -153,15 +149,15 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Layout do E-mail</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
-                              <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                                    <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
