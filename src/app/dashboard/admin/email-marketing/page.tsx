@@ -75,7 +75,6 @@ export default function EmailMarketingPage() {
     }
     setIsSending(true);
     
-    // Simulação de envio
     setTimeout(() => {
         setIsSending(false);
         toast({
@@ -84,7 +83,7 @@ export default function EmailMarketingPage() {
         });
     }, 1500);
   };
-
+  
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Button variant="outline" onClick={() => router.back()} className="mb-6">
@@ -122,15 +121,15 @@ export default function EmailMarketingPage() {
                       <FormItem>
                         <FormLabel>Público-Alvo</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
-                              <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
-                              <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
-                              <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
-                          </SelectContent>
+                            <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
+                                <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
+                                <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
+                                <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
+                            </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -143,14 +142,14 @@ export default function EmailMarketingPage() {
                       <FormItem>
                         <FormLabel>Tom do E-mail</FormLabel>
                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Profissional">Profissional</SelectItem>
-                              <SelectItem value="Amigável">Amigável</SelectItem>
-                              <SelectItem value="Urgente">Urgente</SelectItem>
-                          </SelectContent>
+                            <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Profissional">Profissional</SelectItem>
+                                <SelectItem value="Amigável">Amigável</SelectItem>
+                                <SelectItem value="Urgente">Urgente</SelectItem>
+                            </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -163,13 +162,13 @@ export default function EmailMarketingPage() {
                       <FormItem>
                         <FormLabel>Layout do E-mail</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
-                              <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
-                          </SelectContent>
+                            <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                                <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                            </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
