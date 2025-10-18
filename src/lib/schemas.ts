@@ -172,6 +172,9 @@ export const GenerateEmailCampaignInputSchema = z.object({
   targetAudience: z.string().describe("The target audience for the email (e.g., 'Todos os candidatos', 'Engenheiros de Software')."),
   emailGoal: z.string().min(10, "O objetivo do e-mail deve ter pelo menos 10 caracteres.").describe("The primary goal of the email campaign (e.g., 'Anunciar novo curso de liderança')."),
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone for the email content."),
+  layoutType: z.enum(['Texto com Botão', 'Imagem, Título e Botão']).describe("The visual layout of the email."),
+  ctaLink: z.string().url("Por favor, insira um URL válido.").describe("The link for the main call-to-action button."),
+  imageUrl: z.string().url("Por favor, insira um URL de imagem válido.").optional().describe("The URL for the main image in the email, if applicable."),
 });
 
 export const GenerateEmailCampaignOutputSchema = z.object({

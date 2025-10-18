@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Send, Mail, Code, Eye } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Send, Mail, Code, Eye, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
@@ -33,8 +33,13 @@ export default function EmailMarketingPage() {
       targetAudience: 'Todos os candidatos',
       emailGoal: '',
       tone: 'Profissional',
+      layoutType: 'Texto com Botão',
+      ctaLink: 'https://www.nexustalent.com/vacancies',
+      imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&h=300&fit=crop',
     },
   });
+
+  const layoutType = form.watch('layoutType');
 
   const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
     setIsGenerating(true);
@@ -90,7 +95,24 @@ export default function EmailMarketingPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+               <FormField
+                control={form.control}
+                name="emailGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Objetivo Principal do E-mail</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Ex: Anunciar novo curso de liderança, promover vagas na área de TI..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="targetAudience"
@@ -128,24 +150,56 @@ export default function EmailMarketingPage() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="layoutType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Layout do E-mail</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                          <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
                <FormField
-                control={form.control}
-                name="emailGoal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Objetivo do E-mail</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Ex: Anunciar novo curso de liderança, promover vagas na área de TI..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="ctaLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Link do Botão Principal (CTA)</FormLabel>
+                       <div className="relative">
+                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl><Input placeholder="https://..." className="pl-9" {...field} /></FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              
+              {layoutType === 'Imagem, Título e Botão' && (
+                  <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem</FormLabel>
+                      <div className="relative">
+                        <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl><Input placeholder="https://images.unsplash.com/..." className="pl-9" {...field} /></FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               
               <Button type="submit" disabled={isGenerating} className="w-full">
                 {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
