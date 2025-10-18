@@ -10,12 +10,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Send, Mail } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Send, Mail, Code, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
 import { GenerateEmailCampaignInputSchema } from '@/lib/schemas';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type FormValues = z.infer<typeof GenerateEmailCampaignInputSchema>;
 
@@ -79,7 +80,7 @@ export default function EmailMarketingPage() {
         <ArrowLeft className="mr-2 h-4 w-4" />
         Voltar
       </Button>
-      <Card className="max-w-4xl mx-auto">
+      <Card className="max-w-6xl mx-auto">
         <CardHeader>
           <CardTitle className="font-headline text-3xl flex items-center gap-2"><Mail /> Nova Campanha de E-mail Marketing</CardTitle>
           <CardDescription>
@@ -153,19 +154,44 @@ export default function EmailMarketingPage() {
             </form>
           </Form>
 
+          {isGenerating && (
+            <div className="text-center pt-10">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                <p className="mt-2 text-muted-foreground">Aguarde, a IA está a criar a sua campanha...</p>
+            </div>
+          )}
+
           {generatedContent && (
             <div className="mt-8 pt-6 border-t space-y-6">
-              <h3 className="font-headline text-2xl">Conteúdo Gerado (Pode editar)</h3>
-              <div className="space-y-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="subject">Assunto</Label>
-                    <Input id="subject" value={generatedContent.subject} onChange={(e) => setGeneratedContent({ ...generatedContent, subject: e.target.value })} />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="body">Corpo do E-mail</Label>
-                    <Textarea id="body" value={generatedContent.body} onChange={(e) => setGeneratedContent({ ...generatedContent, body: e.target.value })} rows={12} />
-                </div>
+              <h3 className="font-headline text-2xl">Conteúdo Gerado</h3>
+              <div className="space-y-2">
+                  <Label htmlFor="subject">Assunto</Label>
+                  <Input id="subject" value={generatedContent.subject} onChange={(e) => setGeneratedContent({ ...generatedContent, subject: e.target.value })} />
               </div>
+
+              <Tabs defaultValue="preview">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="preview"><Eye className="mr-2 h-4 w-4"/> Pré-visualização</TabsTrigger>
+                    <TabsTrigger value="html"><Code className="mr-2 h-4 w-4"/> Editar HTML</TabsTrigger>
+                </TabsList>
+                <TabsContent value="preview">
+                    <div className="border rounded-md mt-2">
+                         <iframe 
+                            srcDoc={generatedContent.body} 
+                            className="w-full h-[500px]"
+                            sandbox="allow-scripts"
+                            title="Pré-visualização do E-mail"
+                        />
+                    </div>
+                </TabsContent>
+                <TabsContent value="html">
+                    <div className="space-y-2 mt-2">
+                        <Label htmlFor="body">Corpo do E-mail (HTML)</Label>
+                        <Textarea id="body" value={generatedContent.body} onChange={(e) => setGeneratedContent({ ...generatedContent, body: e.target.value })} rows={20} className="font-mono text-xs"/>
+                    </div>
+                </TabsContent>
+              </Tabs>
+             
               <Button onClick={handleSendCampaign} disabled={isSending} className="w-full bg-green-600 hover:bg-green-700">
                  {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                  Enviar Campanha

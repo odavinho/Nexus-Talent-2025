@@ -176,7 +176,7 @@ export const GenerateEmailCampaignInputSchema = z.object({
 
 export const GenerateEmailCampaignOutputSchema = z.object({
   subject: z.string().describe("The generated subject line for the email."),
-  body: z.string().describe("The generated body content for the email."),
+  body: z.string().describe("The generated HTML body content for the email."),
 });
 
 export type GenerateEmailCampaignInput = z.infer<typeof GenerateEmailCampaignInputSchema>;

@@ -6,7 +6,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
 import { GenerateEmailCampaignInputSchema, GenerateEmailCampaignOutputSchema, type GenerateEmailCampaignInput, type GenerateEmailCampaignOutput } from '@/lib/schemas';
 
 export async function generateEmailCampaign(input: GenerateEmailCampaignInput): Promise<GenerateEmailCampaignOutput> {
@@ -18,7 +17,7 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateEmailCampaignInputSchema },
   output: { schema: GenerateEmailCampaignOutputSchema },
   prompt: `Você é um especialista em e-mail marketing para uma plataforma de recrutamento e formação chamada NexusTalent.
-Sua tarefa é criar um e-mail marketing eficaz em português.
+Sua tarefa é criar um e-mail marketing eficaz em português, utilizando um layout HTML profissional.
 
 **Público-Alvo:** {{{targetAudience}}}
 **Objetivo do E-mail:** {{{emailGoal}}}
@@ -26,7 +25,13 @@ Sua tarefa é criar um e-mail marketing eficaz em português.
 
 Crie o seguinte:
 1.  **Assunto (Subject):** Um assunto curto, apelativo e que desperte a curiosidade, alinhado com o objetivo.
-2.  **Corpo do E-mail (Body):** O texto completo do e-mail. Comece com uma saudação apropriada (ex: "Olá [Nome do Candidato]," ou "Olá a todos,"). Desenvolva a mensagem principal de forma clara e concisa. Termine com uma chamada para ação (call-to-action) clara e uma despedida profissional. Use quebras de linha para separar parágrafos.`,
+2.  **Corpo do E-mail (Body):** O conteúdo completo do e-mail em formato HTML. O HTML deve ser "inline-styled" e usar tabelas para o layout para garantir máxima compatibilidade com clientes de e-mail.
+    - Inclua um cabeçalho com o logótipo da NexusTalent (use uma imagem de placeholder: https://placehold.co/150x50/1d71b8/ffffff?text=NexusTalent).
+    - Estruture o corpo da mensagem de forma clara e legível.
+    - Incorpore as cores da marca (primária: #1d71b8, accent: #f59e0b).
+    - Inclua um botão de Call-to-Action (CTA) claro e proeminente, com um link de placeholder (ex: "#").
+    - Termine com um rodapé profissional que inclua links para redes sociais (placeholders) e uma opção de cancelamento de subscrição.
+    - O texto do e-mail deve ser bem escrito, persuasivo e adaptado ao público-alvo e ao tom especificado.`,
 });
 
 const generateEmailCampaignFlow = ai.defineFlow(
