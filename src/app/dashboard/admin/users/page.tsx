@@ -22,6 +22,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import Papa from 'papaparse';
 
 
 const userSchema = z.object({
@@ -150,8 +151,23 @@ export default function ManageUsersPage() {
     };
 
     const handleExport = () => {
-        // Temporarily disabled to fix build issue
-        toast({ title: "Funcionalidade em desenvolvimento", description: "A exportação de dados será reativada em breve." });
+        const dataToExport = filteredUsers.map(user => ({
+            'Nome': user.firstName,
+            'Apelido': user.lastName,
+            'Email': user.email,
+            'Telefone': user.phoneNumber || 'N/A',
+            'Papel': roleMap[user.userType] || user.userType,
+        }));
+
+        const csv = Papa.unparse(dataToExport);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "usuarios_nexustalent.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
