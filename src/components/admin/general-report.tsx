@@ -4,11 +4,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid } from 'recharts';
 import { Button } from "../ui/button";
-import { FileDown, Users, BookOpen, Briefcase, TrendingUp, Star, Percent, Clock, CheckCircle } from "lucide-react";
+import { FileDown, Users, BookOpen, Briefcase, TrendingUp, Star, Percent, Clock, CheckCircle, Calendar as CalendarIcon } from "lucide-react";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { addDays, format } from "date-fns";
+import { pt } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
+import { Calendar } from "../ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface ReportData {
     totalCourses: number;
@@ -16,7 +22,6 @@ interface ReportData {
     totalUsers: number;
     coursesByCategory: { name: string, total: number }[];
     vacanciesByLocation: { name: string, total: number }[];
-    // New mock data for KPIs
     weeklyEngagement: { day: string, users: number }[];
     recruitmentFunnel: { stage: string, count: number }[];
     lmsKpis: {
@@ -61,6 +66,10 @@ const KpiCard = ({ title, value, icon: Icon }: { title: string, value: string, i
 
 export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) {
     const reportRef = useRef<HTMLDivElement>(null);
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: addDays(new Date(), -29),
+        to: new Date(),
+    });
 
     const handleExportPDF = () => {
         const input = reportRef.current;
@@ -112,7 +121,46 @@ export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) 
                     <div className="space-y-10">
                         <div className="text-center mb-8">
                             <h1 className="font-headline text-3xl font-bold">Relatório de Desempenho da Plataforma</h1>
-                            <p className="text-gray-500">Dados de {new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                             <div className="flex items-center justify-center gap-2 mt-2">
+                                <p className="text-gray-500">Período:</p>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button
+                                        id="date"
+                                        variant={"outline"}
+                                        className={cn(
+                                        "w-[260px] justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {date?.from ? (
+                                        date.to ? (
+                                            <>
+                                            {format(date.from, "LLL dd, y", { locale: pt })} -{" "}
+                                            {format(date.to, "LLL dd, y", { locale: pt })}
+                                            </>
+                                        ) : (
+                                            format(date.from, "LLL dd, y", { locale: pt })
+                                        )
+                                        ) : (
+                                        <span>Escolha um período</span>
+                                        )}
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="center">
+                                    <Calendar
+                                        initialFocus
+                                        mode="range"
+                                        defaultMonth={date?.from}
+                                        selected={date}
+                                        onSelect={setDate}
+                                        numberOfMonths={2}
+                                        locale={pt}
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
 
                         {/* General KPIs */}
@@ -185,3 +233,5 @@ export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) 
         </div>
     );
 }
+
+    
