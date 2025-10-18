@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { users as mockUsers } from '@/lib/users';
 import type { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, UserPlus, FileDown, MoreHorizontal, Loader2 } from 'lucide-react';
+import { ArrowLeft, UserPlus, FileDown, MoreHorizontal, Loader2, KeyRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -19,15 +19,25 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import Papa from 'papaparse';
+
 
 const userSchema = z.object({
   firstName: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
   lastName: z.string().min(2, { message: 'O apelido deve ter pelo menos 2 caracteres.' }),
   email: z.string().email({ message: 'Por favor, insira um email válido.' }),
   userType: z.enum(['student', 'instructor', 'recruiter', 'admin'], { required_error: 'Por favor, selecione uma função.' }),
+  phoneNumber: z.string().optional(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
+
+const passwordSchema = z.object({
+  newPassword: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.'),
+});
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 const roleMap: Record<UserProfile['userType'], string> = {
   student: 'Candidato',
@@ -46,28 +56,35 @@ const roleVariantMap: Record<UserProfile['userType'], 'default' | 'secondary' | 
 export default function ManageUsersPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const auth = useAuth();
     const [users, setUsers] = useState<UserProfile[]>(mockUsers);
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [isPasswordFormOpen, setIsPasswordFormOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
 
-    const form = useForm<UserFormValues>({
+    const userForm = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
+    });
+
+    const passwordForm = useForm<PasswordFormValues>({
+        resolver: zodResolver(passwordSchema),
     });
 
     useEffect(() => {
         if (selectedUser) {
-            form.reset({
+            userForm.reset({
                 firstName: selectedUser.firstName,
                 lastName: selectedUser.lastName,
                 email: selectedUser.email,
                 userType: selectedUser.userType,
+                phoneNumber: selectedUser.phoneNumber,
             });
         } else {
-            form.reset({ firstName: '', lastName: '', email: '', userType: 'student' });
+            userForm.reset({ firstName: '', lastName: '', email: '', userType: 'student', phoneNumber: '' });
         }
-    }, [selectedUser, form]);
+    }, [selectedUser, userForm]);
 
 
     const filteredUsers = useMemo(() => {
@@ -84,6 +101,12 @@ export default function ManageUsersPage() {
         setIsFormOpen(true);
     };
 
+     const handleOpenPasswordForm = (user: UserProfile) => {
+        setSelectedUser(user);
+        passwordForm.reset();
+        setIsPasswordFormOpen(true);
+    };
+
     const handleOpenAlert = (user: UserProfile) => {
         setSelectedUser(user);
         setIsAlertOpen(true);
@@ -91,7 +114,7 @@ export default function ManageUsersPage() {
     
     const onSubmit: SubmitHandler<UserFormValues> = (data) => {
         if (selectedUser) { // Editing
-            setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...selectedUser, ...data } : u));
+            setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...u, ...data } : u));
             toast({ title: "Usuário Atualizado", description: `Os dados de ${data.firstName} ${data.lastName} foram atualizados.` });
         } else { // Adding
             const newUser: UserProfile = {
@@ -111,9 +134,45 @@ export default function ManageUsersPage() {
         setIsAlertOpen(false);
     };
 
-    const handlePasswordReset = (email: string) => {
-        toast({ title: "Instruções Enviadas", description: `Um email de redefinição de senha foi enviado para ${email} (simulação).`})
+    const handlePasswordResetEmail = async (email: string) => {
+        try {
+            await sendPasswordResetEmail(auth, email);
+            toast({ title: "Instruções Enviadas", description: `Um email de redefinição de senha foi enviado para ${email}.`});
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Erro", description: error.message || "Não foi possível enviar o email." });
+        }
     }
+
+    const onPasswordSubmit: SubmitHandler<PasswordFormValues> = async (data) => {
+        // This is a simulation. Real implementation requires backend/admin SDK.
+        toast({ title: "Senha Alterada (Simulado)", description: `A senha para ${selectedUser?.email} foi alterada.`});
+        setIsPasswordFormOpen(false);
+    };
+
+    const handleExport = () => {
+        const dataToExport = users.map(user => ({
+            Nome: user.firstName,
+            Apelido: user.lastName,
+            Email: user.email,
+            Função: roleMap[user.userType],
+            Telefone: user.phoneNumber || 'N/A',
+            Nacionalidade: user.nationality || 'N/A',
+            Cidade: user.cidade || 'N/A',
+        }));
+
+        const csv = Papa.unparse(dataToExport);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'usuarios_nexustalent.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast({ title: "Exportação Concluída", description: "Os dados dos usuários foram exportados." });
+    };
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -129,9 +188,9 @@ export default function ManageUsersPage() {
                             <CardDescription>Visualize e gerencie todos os usuários da plataforma.</CardDescription>
                         </div>
                         <div className="flex gap-2">
-                             <Button variant="outline" disabled>
+                             <Button variant="outline" onClick={handleExport}>
                                 <FileDown className="mr-2 h-4 w-4"/>
-                                Exportar
+                                Exportar (CSV/XLS)
                             </Button>
                             <Button onClick={() => handleOpenForm(null)}>
                                 <UserPlus className="mr-2 h-4 w-4"/>
@@ -154,6 +213,7 @@ export default function ManageUsersPage() {
                             <TableRow>
                                 <TableHead>Nome</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>Telefone</TableHead>
                                 <TableHead>Papel</TableHead>
                                 <TableHead className="text-right">Ações</TableHead>
                             </TableRow>
@@ -163,6 +223,7 @@ export default function ManageUsersPage() {
                                 <TableRow key={user.id}>
                                     <TableCell className="font-medium">{user.firstName} {user.lastName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
+                                    <TableCell>{user.phoneNumber || 'N/A'}</TableCell>
                                     <TableCell>
                                         <Badge variant={roleVariantMap[user.userType] || 'default'}>
                                             {roleMap[user.userType] || user.userType}
@@ -177,11 +238,13 @@ export default function ManageUsersPage() {
                                             </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => handleOpenForm(user)}>Editar</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handlePasswordReset(user.email)}>Gerar Nova Senha</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleOpenForm(user)}>Editar Perfil</DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem onClick={() => handlePasswordResetEmail(user.email)}>Enviar Email de Recuperação</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleOpenPasswordForm(user)}>Definir Nova Senha</DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem className="text-destructive" onClick={() => handleOpenAlert(user)}>
-                                                Excluir
+                                                Excluir Usuário
                                             </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -201,19 +264,58 @@ export default function ManageUsersPage() {
                             {selectedUser ? 'Atualize os dados do usuário.' : 'Preencha os dados para criar um novo usuário.'}
                         </DialogDescription>
                     </DialogHeader>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <Form {...userForm}>
+                        <form onSubmit={userForm.handleSubmit(onSubmit)} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Apelido</FormLabel><FormControl><Input placeholder="Apelido" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={userForm.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input placeholder="Nome" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={userForm.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Apelido</FormLabel><FormControl><Input placeholder="Apelido" {...field} /></FormControl><FormMessage /></FormItem>)} />
                             </div>
-                            <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="email@exemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="userType" render={({ field }) => (<FormItem><FormLabel>Função</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione uma função" /></SelectTrigger></FormControl><SelectContent><SelectItem value="student">Candidato</SelectItem><SelectItem value="instructor">Formador</SelectItem><SelectItem value="recruiter">Recrutador</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                            <FormField control={userForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="email@exemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={userForm.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Telefone</FormLabel><FormControl><Input placeholder="+244..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={userForm.control} name="userType" render={({ field }) => (<FormItem><FormLabel>Função</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione uma função" /></SelectTrigger></FormControl><SelectContent><SelectItem value="student">Candidato</SelectItem><SelectItem value="instructor">Formador</SelectItem><SelectItem value="recruiter">Recrutador</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
-                                <Button type="submit" disabled={form.formState.isSubmitting}>
-                                    {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                <Button type="submit" disabled={userForm.formState.isSubmitting}>
+                                    {userForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     {selectedUser ? 'Guardar Alterações' : 'Adicionar Usuário'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isPasswordFormOpen} onOpenChange={setIsPasswordFormOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Definir Nova Senha</DialogTitle>
+                        <DialogDescription>
+                           Defina uma nova senha para <strong className="text-foreground">{selectedUser?.email}</strong>.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...passwordForm}>
+                        <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                            <FormField
+                                control={passwordForm.control}
+                                name="newPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nova Senha</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input type="password" placeholder="Mínimo 6 caracteres" className="pl-9" {...field} />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setIsPasswordFormOpen(false)}>Cancelar</Button>
+                                <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+                                    {passwordForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Definir Senha
                                 </Button>
                             </DialogFooter>
                         </form>
