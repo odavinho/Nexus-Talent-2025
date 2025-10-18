@@ -47,7 +47,7 @@ export default function EmailMarketingPage() {
     setGeneratedContent(null);
     try {
       const inputForAI: FormValues = { ...data };
-      if (inputForAI.layoutType !== 'Imagem, Título e Botão' || !inputForAI.imageUrl) {
+      if (inputForAI.layoutType !== 'Imagem, Título e Botão') {
         inputForAI.imageUrl = undefined;
       }
       const result = await generateEmailCampaignAction(inputForAI);
