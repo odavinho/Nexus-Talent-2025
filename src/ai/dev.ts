@@ -8,4 +8,3 @@ import '@/ai/flows/generate-vacancy-content.ts';
 import '@/ai/flows/extract-profile-from-resume.ts';
 import '@/ai/flows/generate-assessment-test.ts';
 import '@/ai/flows/generate-module-assessment.ts';
-import '@/ai/flows/generate-email-campaign.ts';

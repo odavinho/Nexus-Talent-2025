@@ -1,3 +1,4 @@
+
 "use server";
 
 import { aiResumeAnalysis } from "@/ai/flows/ai-resume-analysis";
@@ -7,7 +8,7 @@ import { generateVacancyContent } from "@/ai/flows/generate-vacancy-content";
 import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume";
 import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
 import { generateModuleAssessment } from "@/ai/flows/generate-module-assessment";
-import { generateEmailCampaign } from "@/ai/flows/generate-email-campaign";
+
 import type { 
     AIResumeAnalysisInput, AIResumeAnalysisOutput, 
     PersonalizedCourseRecommendationsInput, PersonalizedCourseRecommendationsOutput,
@@ -15,8 +16,7 @@ import type {
     GenerateVacancyContentInput, GenerateVacancyContentOutput,
     ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
     GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
-    GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput,
-    GenerateEmailCampaignInput, GenerateEmailCampaignOutput
+    GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput
 } from "@/lib/schemas";
 import type { Course } from "@/lib/types";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
@@ -114,16 +114,6 @@ export async function generateAssessmentTestAction(input: GenerateAssessmentTest
     } catch (error) {
       console.error("Error in generateModuleAssessmentAction:", error);
       throw new Error("Failed to generate module assessment. Please try again.");
-    }
-  }
-
-  export async function generateEmailCampaignAction(input: GenerateEmailCampaignInput): Promise<GenerateEmailCampaignOutput> {
-    try {
-      const output = await generateEmailCampaign(input);
-      return output;
-    } catch (error) {
-      console.error("Error in generateEmailCampaignAction:", error);
-      throw new Error("Failed to generate email content. Please try again.");
     }
   }
 

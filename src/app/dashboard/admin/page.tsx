@@ -155,20 +155,7 @@ export default function AdminDashboardPage() {
                     </Card>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Mail />
-                                E-mail Marketing
-                            </CardTitle>
-                            <CardDescription>Crie e envie campanhas de e-mail com a ajuda de IA.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button asChild>
-                                <Link href="/dashboard/admin/email-marketing">Criar Campanha</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
+                     
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
