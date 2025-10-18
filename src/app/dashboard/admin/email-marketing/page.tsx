@@ -107,64 +107,64 @@ export default function EmailMarketingPage() {
               <FormField control={form.control} name="emailGoal" render={({ field }) => ( <FormItem> <FormLabel>Objetivo Principal do E-mail</FormLabel> <FormControl> <Textarea placeholder="Ex: Anunciar novo curso de liderança, promover vagas na área de TI..." {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <FormField
-                      control={form.control}
-                      name="targetAudience"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Público-Alvo</FormLabel>
-                               <FormControl>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                                  <SelectContent>
-                                      <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
-                                      <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
-                                      <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
-                                      <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                          </FormItem>
-                      )}
+                    control={form.control}
+                    name="targetAudience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Público-Alvo</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
+                              <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
+                              <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
+                              <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                   <FormField
-                      control={form.control}
-                      name="tone"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Tom do E-mail</FormLabel>
-                              <FormControl>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                                  <SelectContent>
-                                      <SelectItem value="Profissional">Profissional</SelectItem>
-                                      <SelectItem value="Amigável">Amigável</SelectItem>
-                                      <SelectItem value="Urgente">Urgente</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                               </FormControl>
-                              <FormMessage />
-                          </FormItem>
-                      )}
+                    control={form.control}
+                    name="tone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tom do E-mail</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Profissional">Profissional</SelectItem>
+                              <SelectItem value="Amigável">Amigável</SelectItem>
+                              <SelectItem value="Urgente">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                   <FormField
-                      control={form.control}
-                      name="layoutType"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Layout do E-mail</FormLabel>
-                              <FormControl>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                                  <SelectContent>
-                                      <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
-                                      <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                </FormControl>
-                              <FormMessage />
-                          </FormItem>
-                      )}
+                    control={form.control}
+                    name="layoutType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Layout do E-mail</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                              <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
               </div>
               <FormField control={form.control} name="ctaLink" render={({ field }) => ( <FormItem> <FormLabel>Link do Botão Principal (CTA)</FormLabel> <div className="relative"> <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /> <FormControl><Input placeholder="https://..." className="pl-9" {...field} /></FormControl> </div> <FormMessage /> </FormItem> )}/>
