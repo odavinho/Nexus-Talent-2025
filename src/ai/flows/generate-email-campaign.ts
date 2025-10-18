@@ -67,7 +67,9 @@ const generateEmailCampaignFlow = ai.defineFlow(
     outputSchema: EmailCampaignContentSchema,
   },
   async (input) => {
+    // Pass the entire input to the prompt, including the 'template' field.
     const { output: textOutput } = await prompt(input);
+    
     if (!textOutput) {
       throw new Error('AI failed to generate email content.');
     }
@@ -75,11 +77,13 @@ const generateEmailCampaignFlow = ai.defineFlow(
     let finalBodyHtml = textOutput.bodyHtml;
     let imageDataUri = "";
 
+    // Image logic is now cleaner and respects the provided template and URL
     if (input.template === 'withImage') {
-      // Prioritize user-provided URL, otherwise generate with AI
+      // Prioritize user-provided URL
       if (input.imageUrl) {
         imageDataUri = input.imageUrl;
       } else if (textOutput.imageHint) {
+        // Only generate with AI if URL is not provided AND hint exists
         imageDataUri = await generateImageFlow(textOutput.imageHint);
       }
     }
