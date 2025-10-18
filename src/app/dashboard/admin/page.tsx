@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
                                         Gerar Relatório
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-4xl h-[90vh]">
+                                <DialogContent className="max-w-4xl max-h-[90vh]">
                                     <DialogHeader>
                                         <DialogTitle>Relatório Geral da Plataforma</DialogTitle>
                                         <DialogDescription>

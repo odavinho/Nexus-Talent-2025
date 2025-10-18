@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { FileDown, Users, BookOpen, Briefcase, TrendingUp, Star, Percent, Clock,
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useRef } from "react";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface ReportData {
     totalCourses: number;
@@ -80,12 +82,22 @@ export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) 
                 const pdfHeight = pdf.internal.pageSize.getHeight();
                 const imgWidth = canvas.width;
                 const imgHeight = canvas.height;
-                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-                const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                const ratio = pdfWidth / imgWidth;
+                const finalHeight = imgHeight * ratio;
+
+                let heightLeft = finalHeight;
+                let position = 0;
                 
-                pdf.setFont("helvetica", "bold");
-                pdf.text("Relatório Geral - NexusTalent", pdfWidth / 2, 15, { align: 'center' });
-                pdf.addImage(imgData, 'PNG', imgX, 20, imgWidth * ratio, imgHeight * ratio);
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalHeight);
+                heightLeft -= pdfHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - finalHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalHeight);
+                    heightLeft -= pdfHeight;
+                }
+
                 pdf.save(`relatorio_nexustalent_${new Date().toLocaleDateString('pt-PT')}.pdf`);
                 
                 input.style.backgroundColor = originalBg; // Restore original background
@@ -95,74 +107,76 @@ export function GeneralReport({ data, reportType = 'all' }: GeneralReportProps) 
     
     return (
         <div className="flex flex-col h-full">
-             <div id="report-content" ref={reportRef} className="flex-grow overflow-y-auto p-6 bg-white text-black">
-                <div className="space-y-10">
-                    <div className="text-center mb-8">
-                        <h1 className="font-headline text-3xl font-bold">Relatório de Desempenho da Plataforma</h1>
-                        <p className="text-gray-500">Dados de {new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </div>
+             <ScrollArea className="flex-grow">
+                <div id="report-content" ref={reportRef} className="p-6 bg-white text-black">
+                    <div className="space-y-10">
+                        <div className="text-center mb-8">
+                            <h1 className="font-headline text-3xl font-bold">Relatório de Desempenho da Plataforma</h1>
+                            <p className="text-gray-500">Dados de {new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
 
-                    {/* General KPIs */}
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <KpiCard title="Utilizadores Totais" value={data.totalUsers.toString()} icon={Users} />
-                        <KpiCard title="Cursos Ativos" value={data.totalCourses.toString()} icon={BookOpen} />
-                        <KpiCard title="Vagas Ativas" value={data.totalVacancies.toString()} icon={Briefcase} />
-                    </div>
-
-                     {/* LMS Section */}
-                    <div className="space-y-6">
-                        <h2 className="font-headline text-2xl font-bold border-b pb-2">Engajamento & Qualidade (LMS)</h2>
+                        {/* General KPIs */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <KpiCard title="Taxa de Conclusão de Curso" value={`${data.lmsKpis.completionRate}%`} icon={Percent} />
-                            <KpiCard title="Avaliação Média dos Cursos" value={`${data.lmsKpis.averageRating.toFixed(1)} / 5.0`} icon={Star} />
-                            <KpiCard title="Sucesso na 1ª Tentativa" value={`${data.lmsKpis.firstAttemptSuccessRate}%`} icon={CheckCircle} />
+                            <KpiCard title="Utilizadores Totais" value={data.totalUsers.toString()} icon={Users} />
+                            <KpiCard title="Cursos Ativos" value={data.totalCourses.toString()} icon={BookOpen} />
+                            <KpiCard title="Vagas Ativas" value={data.totalVacancies.toString()} icon={Briefcase} />
                         </div>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Engajamento Semanal (Utilizadores Ativos)</CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-80">
-                               <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={data.weeklyEngagement} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="day" />
-                                        <YAxis />
-                                        <Tooltip content={<CustomTooltip />} />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="users" name="Utilizadores Ativos" stroke="#1d71b8" strokeWidth={2} />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </div>
 
-                     {/* ATS Section */}
-                    <div className="space-y-6">
-                        <h2 className="font-headline text-2xl font-bold border-b pb-2">Funil de Recrutamento (ATS)</h2>
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <KpiCard title="Candidaturas / Vaga" value={data.atsKpis.applicationsPerVacancy.toFixed(1)} icon={TrendingUp} />
-                            <KpiCard title="Tempo para Contratar (dias)" value={data.atsKpis.timeToHire.toString()} icon={Clock} />
-                            <KpiCard title="Taxa de Conclusão de Perfil" value={`${data.atsKpis.profileCompletionRate}%`} icon={Percent} />
-                        </div>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Eficiência do Funil de Recrutamento</CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-80">
+                        {/* LMS Section */}
+                        <div className="space-y-6">
+                            <h2 className="font-headline text-2xl font-bold border-b pb-2">Engajamento & Qualidade (LMS)</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <KpiCard title="Taxa de Conclusão de Curso" value={`${data.lmsKpis.completionRate}%`} icon={Percent} />
+                                <KpiCard title="Avaliação Média dos Cursos" value={`${data.lmsKpis.averageRating.toFixed(1)} / 5.0`} icon={Star} />
+                                <KpiCard title="Sucesso na 1ª Tentativa" value={`${data.lmsKpis.firstAttemptSuccessRate}%`} icon={CheckCircle} />
+                            </div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Engajamento Semanal (Utilizadores Ativos)</CardTitle>
+                                </CardHeader>
+                                <CardContent className="h-80">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={data.recruitmentFunnel}>
-                                        <XAxis dataKey="stage" fontSize={12} />
-                                        <YAxis />
-                                        <Tooltip content={<CustomTooltip />} />
-                                        <Bar dataKey="count" name="Nº de Candidatos" fill="#f59e0b" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </div>
+                                        <LineChart data={data.weeklyEngagement} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="day" />
+                                            <YAxis />
+                                            <Tooltip content={<CustomTooltip />} />
+                                            <Legend />
+                                            <Line type="monotone" dataKey="users" name="Utilizadores Ativos" stroke="#1d71b8" strokeWidth={2} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </CardContent>
+                            </Card>
+                        </div>
 
+                        {/* ATS Section */}
+                        <div className="space-y-6">
+                            <h2 className="font-headline text-2xl font-bold border-b pb-2">Funil de Recrutamento (ATS)</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <KpiCard title="Candidaturas / Vaga" value={data.atsKpis.applicationsPerVacancy.toFixed(1)} icon={TrendingUp} />
+                                <KpiCard title="Tempo para Contratar (dias)" value={data.atsKpis.timeToHire.toString()} icon={Clock} />
+                                <KpiCard title="Taxa de Conclusão de Perfil" value={`${data.atsKpis.profileCompletionRate}%`} icon={Percent} />
+                            </div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Eficiência do Funil de Recrutamento</CardTitle>
+                                </CardHeader>
+                                <CardContent className="h-80">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={data.recruitmentFunnel}>
+                                            <XAxis dataKey="stage" fontSize={12} />
+                                            <YAxis />
+                                            <Tooltip content={<CustomTooltip />} />
+                                            <Bar dataKey="count" name="Nº de Candidatos" fill="#f59e0b" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                    </div>
                 </div>
-            </div>
+             </ScrollArea>
              <div className="p-4 border-t bg-background flex justify-end">
                 <Button onClick={handleExportPDF}>
                     <FileDown className="mr-2 h-4 w-4" /> Exportar para PDF
