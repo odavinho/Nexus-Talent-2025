@@ -25,19 +25,22 @@ Incorpore as cores da marca: cor primária hsl(197, 76%, 53%) para links e botõ
 O objetivo do e-mail é: {{{topic}}}
 O tom deve ser: {{{tone}}}
 O idioma deve ser: {{{language}}}
+O template escolhido é: {{{template}}}
 
 Com base nisso, gere o seguinte conteúdo:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
-2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado. 
+2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado.
     - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
     - {{#if (eq template 'withImage')}} Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'. {{/if}}
+    - {{#if (eq template 'promotional')}} Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL_1]' e '[IMAGE_URL_2]', título e pequena descrição. {{/if}}
     - Inclua um placeholder como '[Link]' para o URL do botão principal no corpo do texto que possa ser substituído.
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageHint**: {{#if (eq template 'withImage')}} Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). {{else}} Retorne uma string vazia. {{/if}}
+5.  **imageHint**: {{#if (or (eq template 'withImage') (eq template 'promotional'))}}Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional").{{else}}Retorne uma string vazia.{{/if}}
 `,
 });
+
 
 const generateImageFlow = ai.defineFlow(
   {
@@ -67,7 +70,6 @@ const generateEmailCampaignFlow = ai.defineFlow(
     outputSchema: EmailCampaignContentSchema,
   },
   async (input) => {
-    // Pass the entire input to the prompt, including the 'template' field.
     const { output: textOutput } = await prompt(input);
     
     if (!textOutput) {
@@ -77,20 +79,25 @@ const generateEmailCampaignFlow = ai.defineFlow(
     let finalBodyHtml = textOutput.bodyHtml;
     let imageDataUri = "";
 
-    // Image logic is now cleaner and respects the provided template and URL
     if (input.template === 'withImage') {
-      // Prioritize user-provided URL
       if (input.imageUrl) {
         imageDataUri = input.imageUrl;
       } else if (textOutput.imageHint) {
-        // Only generate with AI if URL is not provided AND hint exists
         imageDataUri = await generateImageFlow(textOutput.imageHint);
       }
+      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri || '');
     }
-    
-    // Always run the replace, even if imageDataUri is empty.
-    // This will replace the placeholder with the image or remove it if none is available.
-    finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri || '');
+
+    if (input.template === 'promotional') {
+      const hint1 = textOutput.imageHint + " item 1";
+      const hint2 = textOutput.imageHint + " item 2";
+      const [img1, img2] = await Promise.all([
+          generateImageFlow(hint1),
+          generateImageFlow(hint2)
+      ]);
+      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
+      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
+    }
     
     return {
         ...textOutput,

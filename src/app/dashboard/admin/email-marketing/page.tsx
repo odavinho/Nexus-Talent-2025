@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap, LinkIcon } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap, LinkIcon, LayoutTemplate } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
@@ -32,7 +32,7 @@ const formSchema = z.object({
   topic: z.string().min(1, "O tópico é obrigatório."),
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
-  template: z.enum(['simple', 'withImage']),
+  template: z.enum(['simple', 'withImage', 'promotional']),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco para a IA gerar.").optional().or(z.literal('')),
   buttonText: z.string().min(1, "O texto do botão é obrigatório."),
   buttonLink: z.string().url("Por favor, insira um URL válido."),
@@ -211,6 +211,7 @@ export default function EmailMarketingPage() {
                       <SelectContent>
                         <SelectItem value="withImage"><div className='flex items-center gap-2'><ImageIcon size={16}/> Com Imagem</div></SelectItem>
                         <SelectItem value="simple"><div className='flex items-center gap-2'><Text size={16}/> Simples</div></SelectItem>
+                        <SelectItem value="promotional"><div className='flex items-center gap-2'><LayoutTemplate size={16}/> Promocional</div></SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>

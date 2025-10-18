@@ -173,7 +173,7 @@ export const GenerateEmailCampaignInputSchema = z.object({
   topic: z.string().describe("The main topic or goal of the email."),
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone of the email."),
   language: z.enum(['Português', 'Inglês']).describe("The language for the email content."),
-  template: z.enum(['simple', 'withImage']).describe("The visual template for the email."),
+  template: z.enum(['simple', 'withImage', 'promotional']).describe("The visual template for the email."),
   imageUrl: z.string().url().optional().describe("An optional, user-provided URL for the header image."),
 });
 
