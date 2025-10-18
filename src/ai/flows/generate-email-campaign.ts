@@ -37,7 +37,7 @@ Com base nisso, gere o seguinte conteúdo:
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageHint**: {{#if (or (eq template 'withImage') (eq template 'promotional'))}}Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional").{{else}}Retorne uma string vazia.{{/if}}
+5.  **imageHint**: {{#if (or (eq template "withImage") (eq template "promotional"))}}Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional").{{else}}Retorne uma string vazia.{{/if}}
 `,
 });
 
@@ -77,34 +77,33 @@ const generateEmailCampaignFlow = ai.defineFlow(
     }
 
     let finalBodyHtml = textOutput.bodyHtml;
-    let imageDataUri = "";
 
     if (input.template === 'withImage') {
-      if (input.imageUrl) {
-        imageDataUri = input.imageUrl;
-      } else if (textOutput.imageHint) {
+      let imageDataUri = input.imageUrl || "";
+      if (!imageDataUri && textOutput.imageHint) {
         imageDataUri = await generateImageFlow(textOutput.imageHint);
       }
-      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri || '');
+      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri);
+      textOutput.imageDataUri = imageDataUri; // Pass it back to the client
     }
 
-    if (input.template === 'promotional') {
-      if (textOutput.imageHint) {
-          const hint1 = textOutput.imageHint + " item 1";
-          const hint2 = textOutput.imageHint + " item 2";
-          const [img1, img2] = await Promise.all([
-              generateImageFlow(hint1),
-              generateImageFlow(hint2)
-          ]);
-          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
-          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
-      }
+    if (input.template === 'promotional' && textOutput.imageHint) {
+        const hint1 = textOutput.imageHint + " item 1";
+        const hint2 = textOutput.imageHint + " item 2";
+        
+        // Generate images in parallel
+        const [img1, img2] = await Promise.all([
+            generateImageFlow(hint1),
+            generateImageFlow(hint2)
+        ]);
+
+        finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
+        finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
     }
     
     return {
         ...textOutput,
         bodyHtml: finalBodyHtml,
-        imageDataUri: imageDataUri
     };
   }
 );
