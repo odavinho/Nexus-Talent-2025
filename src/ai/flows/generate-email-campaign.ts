@@ -25,19 +25,19 @@ Incorpore as cores da marca: cor primária hsl(197, 76%, 53%) para links e botõ
 O objetivo do e-mail é: {{{topic}}}
 O tom deve ser: {{{tone}}}
 O idioma deve ser: {{{language}}}
-O template escolhido é: {{{template}}}
+O template escolhido é: '{{{template}}}'.
 
 Com base nisso, gere o seguinte conteúdo:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
 2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado.
     - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
-    - {{#if (eq template 'withImage')}} Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'. {{/if}}
-    - {{#if (eq template 'promotional')}} Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL_1]' e '[IMAGE_URL_2]', título e pequena descrição. {{/if}}
+    - Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'.
+    - Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL_1]' e '[IMAGE_URL_2]', título e pequena descrição.
     - Inclua um placeholder como '[Link]' para o URL do botão principal no corpo do texto que possa ser substituído.
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageHint**: {{#if (or (eq template "withImage") (eq template "promotional"))}}Gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional").{{else}}Retorne uma string vazia.{{/if}}
+5.  **imageHint**: Se o template for 'withImage' ou 'promotional', gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). Caso contrário, retorne uma string vazia.
 `,
 });
 
