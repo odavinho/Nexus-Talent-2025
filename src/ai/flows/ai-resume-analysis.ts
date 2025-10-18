@@ -4,30 +4,11 @@
  * @fileOverview AI-powered resume/CV analysis for employers.
  *
  * - aiResumeAnalysis - A function that handles the resume analysis process.
- * - AIResumeAnalysisInput - The input type for the aiResumeAnalysis function.
- * - AIResumeAnalysisOutput - The return type for the aiResumeAnalysis function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-const AIResumeAnalysisInputSchema = z.object({
-  jobDescription: z.string().describe('The description of the job.'),
-  resumeDataUri: z
-    .string()
-    .describe(
-      "A resume or CV, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type AIResumeAnalysisInput = z.infer<typeof AIResumeAnalysisInputSchema>;
-
-const AIResumeAnalysisOutputSchema = z.object({
-  candidateRanking: z.number().describe('The ranking of the candidate (1-100).'),
-  candidateSummary: z.string().describe('A summary of the candidate.'),
-  keySkillsMatch: z.string().describe('Key skills that match the job description.'),
-  areasForImprovement: z.string().describe('Areas for improvement for the candidate.'),
-});
-export type AIResumeAnalysisOutput = z.infer<typeof AIResumeAnalysisOutputSchema>;
+import { AIResumeAnalysisInputSchema, AIResumeAnalysisOutputSchema, type AIResumeAnalysisInput, type AIResumeAnalysisOutput } from '@/lib/schemas';
 
 export async function aiResumeAnalysis(input: AIResumeAnalysisInput): Promise<AIResumeAnalysisOutput> {
   return aiResumeAnalysisFlow(input);

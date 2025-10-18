@@ -15,7 +15,7 @@ import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, 
 import { useToast } from '@/hooks/use-toast';
 import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction } from '@/app/actions';
 import Image from 'next/image';
-import type { Course, ModuleAssessment, ModuleQuestion } from '@/lib/types';
+import type { Course } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import {
@@ -27,7 +27,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ModuleAssessmentFormSchema, GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput } from '@/lib/schemas';
+import { ModuleAssessmentFormSchema, GenerateModuleAssessmentInputSchema, type GenerateModuleAssessmentInput, type GenerateModuleAssessmentOutput } from '@/lib/schemas';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -355,15 +355,18 @@ function ModuleAssessmentGenerator({ moduleIndex, moduleTitle, topics, mainForm 
     name: 'questions',
   });
 
-  const configForm = useForm({
+  const configForm = useForm<z.infer<typeof GenerateModuleAssessmentInputSchema>>({
+    resolver: zodResolver(GenerateModuleAssessmentInputSchema),
     defaultValues: {
+      moduleTitle: '',
+      topics: [],
       numMultipleChoice: 2,
       numShortAnswer: 1,
-      level: 'Médio' as 'Fácil' | 'Médio' | 'Difícil',
+      level: 'Médio',
     },
   });
 
-  const handleGenerate = async (configData: { numMultipleChoice: number, numShortAnswer: number, level: 'Fácil' | 'Médio' | 'Difícil' }) => {
+  const handleGenerate = async (configData: z.infer<typeof GenerateModuleAssessmentInputSchema>) => {
     if (!moduleTitle || topics.length === 0 || topics.every(t => !t)) {
         toast({
             variant: "destructive",

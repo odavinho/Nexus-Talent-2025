@@ -5,7 +5,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { getCourseRecommendationsAction } from "@/app/actions";
-import type { PersonalizedCourseRecommendationsOutput } from "@/ai/flows/personalized-course-recommendations";
+import { PersonalizedCourseRecommendationsOutputSchema, type PersonalizedCourseRecommendationsOutput } from "@/lib/schemas";
+
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";

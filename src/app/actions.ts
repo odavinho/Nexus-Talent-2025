@@ -1,13 +1,23 @@
 "use server";
 
-import { aiResumeAnalysis, AIResumeAnalysisInput, AIResumeAnalysisOutput } from "@/ai/flows/ai-resume-analysis";
-import { personalizedCourseRecommendations, PersonalizedCourseRecommendationsInput, PersonalizedCourseRecommendationsOutput } from "@/ai/flows/personalized-course-recommendations";
-import { generateCourseContent, GenerateCourseContentInput, GenerateCourseContentOutput } from "@/ai/flows/generate-course-content";
-import { generateVacancyContent, GenerateVacancyContentInput, GenerateVacancyContentOutput } from "@/ai/flows/generate-vacancy-content";
-import { extractProfileFromResume, ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput } from "@/ai/flows/extract-profile-from-resume";
-import { generateAssessmentTest, GenerateAssessmentTestInput, GenerateAssessmentTestOutput } from "@/ai/flows/generate-assessment-test";
-import { generateModuleAssessment, GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput } from "@/ai/flows/generate-module-assessment";
-import { generateEmailCampaign, GenerateEmailCampaignInput, GenerateEmailCampaignOutput } from "@/ai/flows/generate-email-campaign";
+import { aiResumeAnalysis } from "@/ai/flows/ai-resume-analysis";
+import { personalizedCourseRecommendations } from "@/ai/flows/personalized-course-recommendations";
+import { generateCourseContent } from "@/ai/flows/generate-course-content";
+import { generateVacancyContent } from "@/ai/flows/generate-vacancy-content";
+import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume";
+import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
+import { generateModuleAssessment } from "@/ai/flows/generate-module-assessment";
+import { generateEmailCampaign } from "@/ai/flows/generate-email-campaign";
+import type { 
+    AIResumeAnalysisInput, AIResumeAnalysisOutput, 
+    PersonalizedCourseRecommendationsInput, PersonalizedCourseRecommendationsOutput,
+    GenerateCourseContentInput, GenerateCourseContentOutput,
+    GenerateVacancyContentInput, GenerateVacancyContentOutput,
+    ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
+    GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
+    GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput,
+    GenerateEmailCampaignInput, GenerateEmailCampaignOutput
+} from "@/lib/schemas";
 import type { Course } from "@/lib/types";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 

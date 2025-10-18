@@ -4,23 +4,12 @@
  * @fileOverview Provides personalized course recommendations based on user profile, past activity, and career goals.
  *
  * - personalizedCourseRecommendations - A function that returns personalized course recommendations.
- * - PersonalizedCourseRecommendationsInput - The input type for the personalizedCourseRecommendations function.
- * - PersonalizedCourseRecommendationsOutput - The return type for the personalizedCourseRecommendations function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { PersonalizedCourseRecommendationsInputSchema, PersonalizedCourseRecommendationsOutputSchema, type PersonalizedCourseRecommendationsInput, type PersonalizedCourseRecommendationsOutput } from '@/lib/schemas';
 
-const PersonalizedCourseRecommendationsInputSchema = z.object({
-  userProfile: z.string().describe('The user profile including past activity and career goals.'),
-  courseCatalog: z.string().describe('The available courses with descriptions.'),
-});
-export type PersonalizedCourseRecommendationsInput = z.infer<typeof PersonalizedCourseRecommendationsInputSchema>;
-
-const PersonalizedCourseRecommendationsOutputSchema = z.object({
-  recommendedCourses: z.string().describe('A list of recommended courses with explanations.'),
-});
-export type PersonalizedCourseRecommendationsOutput = z.infer<typeof PersonalizedCourseRecommendationsOutputSchema>;
 
 export async function personalizedCourseRecommendations(
   input: PersonalizedCourseRecommendationsInput

@@ -14,7 +14,7 @@ import { Loader2, Wand2, ArrowLeft, Send, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import { GenerateEmailCampaignInputSchema } from '@/ai/flows/generate-email-campaign';
+import { GenerateEmailCampaignInputSchema } from '@/lib/schemas';
 
 type FormValues = z.infer<typeof GenerateEmailCampaignInputSchema>;
 

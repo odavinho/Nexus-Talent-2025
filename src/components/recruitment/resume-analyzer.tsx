@@ -5,9 +5,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { analyzeResumeAction } from '@/app/actions';
-import type { AIResumeAnalysisOutput } from '@/ai/flows/ai-resume-analysis';
 import { getVacancies } from '@/lib/vacancy-service';
 import type { Vacancy } from '@/lib/types';
+import type { AIResumeAnalysisOutput } from '@/lib/schemas';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";

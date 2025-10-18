@@ -1,5 +1,36 @@
 import { z } from "zod";
 
+// Schema for AI Resume Analysis
+export const AIResumeAnalysisInputSchema = z.object({
+  jobDescription: z.string().describe("The full job description for which the resume is being analyzed."),
+  resumeDataUri: z.string().describe("The resume file content as a data URI."),
+});
+
+export const AIResumeAnalysisOutputSchema = z.object({
+  candidateRanking: z.number().describe("The candidate's ranking on a scale of 1-100 based on the job description."),
+  candidateSummary: z.string().describe("A summary of the candidate's profile and qualifications."),
+  keySkillsMatch: z.string().describe("A list or description of key skills that match the job requirements."),
+  areasForImprovement: z.string().describe("Areas where the candidate could improve to better fit the role."),
+});
+
+export type AIResumeAnalysisInput = z.infer<typeof AIResumeAnalysisInputSchema>;
+export type AIResumeAnalysisOutput = z.infer<typeof AIResumeAnalysisOutputSchema>;
+
+
+// Schema for Personalized Course Recommendations
+export const PersonalizedCourseRecommendationsInputSchema = z.object({
+  userProfile: z.string().describe("A description of the user's interests, career goals, and current skills."),
+  courseCatalog: z.string().describe("A list of available courses."),
+});
+
+export const PersonalizedCourseRecommendationsOutputSchema = z.object({
+  recommendedCourses: z.string().describe("A detailed recommendation of courses, learning tracks, and potential improvements for the user."),
+});
+
+export type PersonalizedCourseRecommendationsInput = z.infer<typeof PersonalizedCourseRecommendationsInputSchema>;
+export type PersonalizedCourseRecommendationsOutput = z.infer<typeof PersonalizedCourseRecommendationsOutputSchema>;
+
+// Schema for Course Content Generation
 export const GenerateCourseContentInputSchema = z.object({
     courseName: z.string().describe("The name of the course."),
     courseCategory: z.string().describe("The category of the course."),
@@ -19,7 +50,11 @@ export const GenerateCourseContentOutputSchema = z.object({
     imageDataUri: z.string().describe("A data URI for the generated course image.").optional(),
 });
 
+export type GenerateCourseContentInput = z.infer<typeof GenerateCourseContentInputSchema>;
+export type GenerateCourseContentOutput = z.infer<typeof GenerateCourseContentOutputSchema>;
 
+
+// Schema for Vacancy Content Generation
 export const GenerateVacancyContentInputSchema = z.object({
     title: z.string().describe("The title of the job vacancy."),
     category: z.string().describe("The category of the job."),
@@ -35,6 +70,41 @@ export const GenerateVacancyContentOutputSchema = z.object({
     aiScreeningQuestions: z.array(z.string()).describe("A list of 3-5 open-ended screening questions for the candidate, suggested by AI."),
 });
 
+export type GenerateVacancyContentInput = z.infer<typeof GenerateVacancyContentInputSchema>;
+export type GenerateVacancyContentOutput = z.infer<typeof GenerateVacancyContentOutputSchema>;
+
+
+// Schema for Extracting Profile from Resume
+export const ExtractProfileFromResumeInputSchema = z.object({
+  resumeDataUri: z.string().describe("The resume file content as a data URI."),
+});
+
+export const ExtractProfileFromResumeOutputSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  academicTitle: z.string().optional(),
+  nationality: z.string().optional(),
+  yearsOfExperience: z.coerce.number().optional(),
+  functionalArea: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  academicHistory: z.array(z.object({
+      institution: z.string(),
+      degree: z.string(),
+      year: z.string(),
+  })).optional(),
+  workExperience: z.array(z.object({
+      company: z.string(),
+      role: z.string(),
+      period: z.string(),
+      description: z.string().optional(),
+  })).optional(),
+});
+
+export type ExtractProfileFromResumeInput = z.infer<typeof ExtractProfileFromResumeInputSchema>;
+export type ExtractProfileFromResumeOutput = z.infer<typeof ExtractProfileFromResumeOutputSchema>;
+
+
+// Schemas for Assessment Test Generation
 const QuestionSchema = z.object({
     id: z.string().describe("A unique ID for the question (e.g., 'q1')."),
     question: z.string().describe('The text of the question.'),
@@ -55,7 +125,11 @@ export const GenerateAssessmentTestOutputSchema = z.object({
     questions: z.array(QuestionSchema).describe('The list of generated questions.'),
 });
 
+export type GenerateAssessmentTestInput = z.infer<typeof GenerateAssessmentTestInputSchema>;
+export type GenerateAssessmentTestOutput = z.infer<typeof GenerateAssessmentTestOutputSchema>;
 
+
+// Schemas for Module Assessment Generation
 export const GenerateModuleAssessmentInputSchema = z.object({
     moduleTitle: z.string().describe('The title of the course module.'),
     topics: z.array(z.string()).describe('A list of topics covered in the module.'),
@@ -76,6 +150,10 @@ export const GenerateModuleAssessmentOutputSchema = z.object({
     questions: z.array(ModuleQuestionSchema).describe('The list of generated questions for the module quiz.'),
 });
 
+export type GenerateModuleAssessmentInput = z.infer<typeof GenerateModuleAssessmentInputSchema>;
+export type GenerateModuleAssessmentOutput = z.infer<typeof GenerateModuleAssessmentOutputSchema>;
+
+
 // Zod schema for the form in the UI, which uses a different structure for options
 export const ModuleAssessmentFormSchema = z.object({
     questions: z.array(z.object({
@@ -88,4 +166,18 @@ export const ModuleAssessmentFormSchema = z.object({
 });
 
 export type ModuleAssessmentFormValues = z.infer<typeof ModuleAssessmentFormSchema>;
-    
+
+// Schemas for Email Campaign Generation
+export const GenerateEmailCampaignInputSchema = z.object({
+  targetAudience: z.string().describe("The target audience for the email (e.g., 'Todos os candidatos', 'Engenheiros de Software')."),
+  emailGoal: z.string().min(10, "O objetivo do e-mail deve ter pelo menos 10 caracteres.").describe("The primary goal of the email campaign (e.g., 'Anunciar novo curso de liderança')."),
+  tone: z.enum(['Profissional', 'Amigável', 'Urgente']).describe("The desired tone for the email content."),
+});
+
+export const GenerateEmailCampaignOutputSchema = z.object({
+  subject: z.string().describe("The generated subject line for the email."),
+  body: z.string().describe("The generated body content for the email."),
+});
+
+export type GenerateEmailCampaignInput = z.infer<typeof GenerateEmailCampaignInputSchema>;
+export type GenerateEmailCampaignOutput = z.infer<typeof GenerateEmailCampaignOutputSchema>;

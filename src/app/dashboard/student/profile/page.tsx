@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Wand2, PlusCircle, Trash2, Edit, User, Briefcase, GraduationCap, Award, Link as LinkIcon, FileText, Download, ArrowLeft } from 'lucide-react';
-import type { UserProfile, AcademicHistory, WorkExperience } from '@/lib/types';
+import type { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -20,6 +20,8 @@ import { Badge } from '@/components/ui/badge';
 import { users } from '@/lib/users'; // Using mock user data
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
+import { ExtractProfileFromResumeInputSchema } from '@/lib/schemas';
+
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
