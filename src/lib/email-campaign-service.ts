@@ -1,81 +1,165 @@
-import type { EmailCampaign } from './types';
+import type { Timestamp } from 'firebase/firestore';
 
-// In-memory store for campaigns, acting as a cache for localStorage
-let campaigns: EmailCampaign[] | null = null;
-const CAMPAIGNS_STORAGE_KEY = 'nexus-talent-campaigns';
+export interface ModuleQuestion {
+  question: string;
+  type: 'multiple-choice' | 'short-answer';
+  options?: { value: string }[];
+  correctAnswerIndex?: number;
+  shortAnswer?: string;
+}
 
-const loadCampaigns = (): EmailCampaign[] => {
-    // If cache is populated, return it
-    if (campaigns) {
-        return campaigns;
-    }
+export interface ModuleAssessment {
+  questions: ModuleQuestion[];
+}
 
-    // If running on server, return empty array
-    if (typeof window === 'undefined') {
-        return [];
-    }
-    
-    try {
-        const storedCampaigns = localStorage.getItem(CAMPAIGNS_STORAGE_KEY);
-        if (storedCampaigns) {
-            // Parse stored data and populate cache
-            const parsed = JSON.parse(storedCampaigns);
-            // Ensure dates are converted back to Date objects
-            campaigns = parsed.map((c: any) => ({ ...c, sentDate: new Date(c.sentDate) }));
-            return campaigns!;
-        } else {
-            // No stored data, initialize empty array
-            campaigns = [];
-            localStorage.setItem(CAMPAIGNS_STORAGE_KEY, JSON.stringify(campaigns));
-            return campaigns;
-        }
-    } catch (error) {
-        console.error("Failed to load campaigns from localStorage, starting fresh:", error);
-        // On error, fallback to empty array
-        campaigns = [];
-        return campaigns;
-    }
-};
+export interface CourseModule {
+  title: string;
+  topics: string[];
+  videoUrl?: string;
+  assessment?: ModuleAssessment;
+}
 
-const saveCampaigns = (newCampaigns: EmailCampaign[]): void => {
-    campaigns = newCampaigns;
-    if (typeof window !== 'undefined') {
-        try {
-            localStorage.setItem(CAMPAIGNS_STORAGE_KEY, JSON.stringify(newCampaigns));
-        } catch (error) {
-            console.error("Failed to save campaigns to localStorage:", error);
-        }
-    }
-};
+export interface Course {
+    id: string;
+    name: string;
+    category: string;
+    imageId: string;
+    imageDataUri?: string; // New field for the generated image
+    duration: string;
+    format: 'Online' | 'Presencial' | 'Híbrido';
+    generalObjective: string;
+    whatYouWillLearn: string[];
+    modules: CourseModule[];
+  }
+  
+  export interface CourseCategory {
+    id: string;
+    name: string;
+  }
 
+  export interface ScreeningQuestion {
+    question: string;
+    requiredAnswer: 'sim' | 'nao';
+  }
 
-// Function to get all campaigns
-export const getCampaigns = (): EmailCampaign[] => {
-    const allCampaigns = loadCampaigns();
-    // Sort by most recent first
-    return [...allCampaigns].sort((a, b) => b.sentDate.getTime() - a.sentDate.getTime());
-};
+  export interface Vacancy {
+    id: string;
+    title: string;
+    location: string;
+    type: 'Full-time' | 'Part-time' | 'Remote';
+    category: string;
+    description: string;
+    recruiterId: string;
+    postedDate: Timestamp | Date; // Allow Date for mock data
+    closingDate?: Timestamp | Date;
+    responsibilities: string[];
+    requirements: string[];
+    aiScreeningQuestions?: string[];
+    screeningQuestions?: ScreeningQuestion[];
+    industry?: string;
+    minExperience?: string;
+    numberOfVacancies?: number;
+    requiredNationality?: string;
+    languages?: string[];
+    salaryRange?: string;
+    showSalary?: boolean;
+    employerName?: string;
+    aboutEmployer?: string;
+    hideEmployerData?: boolean;
+    minEducationLevel?: EducationLevel;
+  }
+  
+  export type ApplicationStatus = 'Recebida' | 'Triagem' | 'Teste' | 'Entrevista' | 'Oferta' | 'Contratado' | 'Rejeitada';
 
+  export interface Application {
+    id: string;
+    userId: string;
+    jobPostingId: string;
+    applicationDate: Timestamp | Date; // Allow Date for mock data
+    status: ApplicationStatus;
+    notes?: string;
+  }
 
-// Function to add a new campaign
-export const addCampaign = (campaignData: Omit<EmailCampaign, 'id' | 'sentDate'>): EmailCampaign[] => {
-    const currentCampaigns = getCampaigns();
-    
-    const newCampaign: EmailCampaign = {
-        ...campaignData,
-        id: `campaign-${new Date().getTime()}`,
-        sentDate: new Date(),
-    };
-    
-    const newCampaignsList = [newCampaign, ...currentCampaigns];
-    saveCampaigns(newCampaignsList);
-    
-    return newCampaignsList;
-};
+  export interface AcademicHistory {
+    institution: string;
+    degree: string;
+    year: string;
+  }
 
-// Function to delete a campaign (to be used in the future)
-export const deleteCampaign = (id: string): void => {
-    const currentCampaigns = getCampaigns();
-    const newCampaigns = currentCampaigns.filter(c => c.id !== id);
-    saveCampaigns(newCampaigns);
-};
+  export interface WorkExperience {
+    company: string;
+    role: string;
+    period: string;
+    description?: string;
+  }
+
+  export interface Certification {
+    name: string;
+    issuingOrganization: string;
+    year: string;
+  }
+
+  export type EducationLevel = 'Ensino Primário' | 'Ensino Médio' | 'Frequência Universitária' | 'Licenciatura' | 'Mestrado' | 'Doutoramento';
+
+  export interface UserProfile {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber?: string;
+    userType: 'student' | 'instructor' | 'admin' | 'recruiter';
+    profilePictureUrl?: string;
+    summary?: string;
+    resumeUrl?: string;
+    academicTitle?: string;
+    nationality?: string;
+    cidade?: string;
+    dateOfBirth?: string; // Format "YYYY-MM-DD"
+    gender?: 'Masculino' | 'Feminino';
+    languages?: string[];
+    educationLevel?: EducationLevel;
+    yearsOfExperience?: number;
+    functionalArea?: string;
+    subFunctionalArea?: string;
+    skills?: string[];
+    professionalLevel?: 'Estagiário / Júnior' | 'Pleno' | 'Sénior' | 'Especialista / Liderança';
+    academicHistory?: AcademicHistory[];
+    workExperience?: WorkExperience[];
+    certifications?: Certification[];
+    // Notification preferences
+    receivesNotifications?: boolean;
+    receivesJobAlerts?: boolean;
+  }
+  
+  export interface AssessmentQuestion {
+    id: string;
+    question: string;
+    type: 'multiple-choice' | 'short-answer' | 'psychometric';
+    options?: string[];
+  }
+  
+  export interface AssessmentTest {
+    id?: string;
+    title: string;
+    questions: AssessmentQuestion[];
+  }
+
+  // Types for generate-course-content flow
+  export interface GenerateCourseContentInput {
+    courseName: string;
+    courseCategory: string;
+    courseLevel: string;
+  }
+
+  export interface GenerateCourseContentOutput {
+      courseId: string;
+      generalObjective: string;
+      whatYouWillLearn: string[];
+      modules: Array<{
+          title: string;
+          topics: string[];
+      }>;
+      duration: string;
+      imageHint: string;
+      imageDataUri?: string;
+  }
