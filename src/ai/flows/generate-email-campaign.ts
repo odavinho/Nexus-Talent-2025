@@ -77,10 +77,11 @@ const generateEmailCampaignFlow = ai.defineFlow(
 
     if (input.template === 'withImage' && textOutput.imageHint) {
       imageDataUri = await generateImageFlow(textOutput.imageHint);
-      if (imageDataUri) {
-          finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri);
-      }
     }
+    
+    // Always run the replace, even if imageDataUri is empty.
+    // This will remove the placeholder if image generation fails or isn't requested.
+    finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri || '');
     
     return {
         ...textOutput,
