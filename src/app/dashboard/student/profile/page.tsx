@@ -19,6 +19,7 @@ import { extractProfileFromResumeAction } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import { users } from '@/lib/users'; // Using mock user data
 import { useRouter } from 'next/navigation';
+import { Switch } from '@/components/ui/switch';
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -47,6 +48,8 @@ const profileSchema = z.object({
         period: z.string().min(1, "Período é obrigatório"),
         description: z.string().optional(),
     })).optional(),
+    receivesNotifications: z.boolean().optional(),
+    receivesJobAlerts: z.boolean().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -67,6 +70,7 @@ export default function ProfilePage() {
             firstName: '', lastName: '', academicTitle: '', nationality: '',
             yearsOfExperience: 0, functionalArea: '', skills: '', resumeUrl: '',
             academicHistory: [], workExperience: [],
+            receivesNotifications: true, receivesJobAlerts: true,
         }
     });
 
@@ -93,6 +97,8 @@ export default function ProfilePage() {
                 resumeUrl: userProfile.resumeUrl || '',
                 academicHistory: userProfile.academicHistory || [],
                 workExperience: userProfile.workExperience || [],
+                receivesNotifications: userProfile.receivesNotifications !== false,
+                receivesJobAlerts: userProfile.receivesJobAlerts !== false,
             });
         }
     }, [userProfile, form, user]);
@@ -317,6 +323,38 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                         <div>
                             <h3 className="font-headline text-xl mb-4">Competências</h3>
                             <FormField control={form.control} name="skills" render={({ field }) => (<FormItem><FormLabel>Principais Competências</FormLabel><FormControl><Textarea placeholder="Ex: React, Gestão de Projetos, Liderança,..." rows={3} {...field} /></FormControl><FormDescription>Separe as competências por vírgulas.</FormDescription><FormMessage /></FormItem>)} />
+                        </div>
+                        <Separator />
+                        <div>
+                            <h3 className="font-headline text-xl mb-4">Preferências de Comunicação</h3>
+                            <div className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="receivesNotifications"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                            <div className="space-y-0.5">
+                                                <FormLabel>Notificações Gerais</FormLabel>
+                                                <FormDescription>Receber notificações sobre atividades, cursos e novidades da plataforma.</FormDescription>
+                                            </div>
+                                            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="receivesJobAlerts"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                            <div className="space-y-0.5">
+                                                <FormLabel>Alertas de Vagas</FormLabel>
+                                                <FormDescription>Receber e-mails sobre novas vagas de emprego que correspondem ao seu perfil.</FormDescription>
+                                            </div>
+                                            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
                         <Separator />
                         <div className="flex gap-4">

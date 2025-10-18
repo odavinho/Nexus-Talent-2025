@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -90,7 +90,7 @@ export default function AdminDashboardPage() {
         
         <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-3 grid gap-8 auto-rows-min">
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function AdminDashboardPage() {
                             </Button>
                         </CardContent>
                     </Card>
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Files />
@@ -139,8 +139,6 @@ export default function AdminDashboardPage() {
                             </Button>
                         </CardContent>
                     </Card>
-                </div>
-                <div className="grid md:grid-cols-3 gap-8">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -152,6 +150,22 @@ export default function AdminDashboardPage() {
                         <CardContent>
                             <Button asChild variant="outline">
                                 <Link href="/dashboard/admin/users">Gerir Usuários</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Mail />
+                                E-mail Marketing
+                            </CardTitle>
+                            <CardDescription>Crie e envie campanhas de e-mail com a ajuda de IA.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button asChild>
+                                <Link href="/dashboard/admin/email-marketing">Criar Campanha</Link>
                             </Button>
                         </CardContent>
                     </Card>
@@ -202,5 +216,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    

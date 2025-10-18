@@ -126,6 +126,9 @@ export interface Course {
     academicHistory?: AcademicHistory[];
     workExperience?: WorkExperience[];
     certifications?: Certification[];
+    // Notification preferences
+    receivesNotifications?: boolean;
+    receivesJobAlerts?: boolean;
   }
   
   export interface AssessmentQuestion {
@@ -160,5 +163,3 @@ export interface Course {
       imageHint: string;
       imageDataUri?: string;
   }
-
-    
