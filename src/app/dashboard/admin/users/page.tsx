@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -149,7 +150,8 @@ export default function ManageUsersPage() {
     };
 
     const handleExport = () => {
-        toast({ title: "Funcionalidade em desenvolvimento", description: "A exportação para CSV/XLS será ativada em breve." });
+        // Temporarily disabled to fix build issue
+        toast({ title: "Funcionalidade em desenvolvimento", description: "A exportação de dados será reativada em breve." });
     };
 
     return (
@@ -168,7 +170,7 @@ export default function ManageUsersPage() {
                         <div className="flex gap-2">
                              <Button variant="outline" onClick={handleExport}>
                                 <FileDown className="mr-2 h-4 w-4"/>
-                                Exportar (CSV/XLS)
+                                Exportar (CSV)
                             </Button>
                             <Button onClick={() => handleOpenForm(null)}>
                                 <UserPlus className="mr-2 h-4 w-4"/>
