@@ -47,6 +47,7 @@ export default function EmailMarketingPage() {
     setGeneratedContent(null);
     try {
       const inputForAI: FormValues = { ...data };
+      // If layout is not with image, ensure imageUrl is not sent
       if (inputForAI.layoutType !== 'Imagem, Título e Botão') {
         inputForAI.imageUrl = undefined;
       }
@@ -82,8 +83,8 @@ export default function EmailMarketingPage() {
             description: "O seu e-mail foi 'enviado' com sucesso.",
         });
         // Opcional: Limpar o formulário após o envio
-        setGeneratedContent(null);
-        form.reset();
+        // setGeneratedContent(null);
+        // form.reset();
     }, 1500);
   };
 
