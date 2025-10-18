@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Award, UserCircle, LineChart, Star } from "lucide-react";
+import { BookOpen, Award, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -27,16 +27,16 @@ export default function StudentDashboardPage() {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <BookOpen />
-                                Meus Cursos
+                                Meus Cursos em Andamento
                             </CardTitle>
                             <CardDescription>Continue de onde parou e acompanhe seu progresso.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {enrolledCourses.map(course => (
                                     <div key={course.name}>
                                         <div className="flex justify-between items-center mb-1">
-                                            <h4 className="font-medium text-sm">{course.name}</h4>
+                                            <h4 className="font-medium">{course.name}</h4>
                                             <span className="text-sm font-semibold text-primary">{course.progress}%</span>
                                         </div>
                                         <Progress value={course.progress} className="h-2" />
@@ -62,9 +62,9 @@ export default function StudentDashboardPage() {
                              <CardDescription>Mantenha seu perfil atualizado para se destacar para os recrutadores.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <p className="text-muted-foreground text-sm mb-4">Complete seu perfil para se candidatar a vagas.</p>
+                             <p className="text-muted-foreground text-sm mb-4">Um perfil completo aumenta em até 5x as suas chances de ser contactado.</p>
                             <Button asChild className="w-full">
-                                <Link href="/dashboard/student/profile">Editar Perfil</Link>
+                                <Link href="/dashboard/student/profile">Gerir Meu Perfil</Link>
                             </Button>
                         </CardContent>
                     </Card>
@@ -82,13 +82,14 @@ export default function StudentDashboardPage() {
                                   {enrolledCourses.filter(c => c.progress === 100).map(c => (
                                     <Button key={c.name} variant="outline" className="w-full justify-between">
                                         <span>{c.name}</span>
-                                        <Star className="h-4 w-4 text-yellow-500" />
+                                        <span className="font-bold text-primary">{c.grade}%</span>
                                     </Button>
                                   ))}
                                 </div>
                             ) : (
                                 <p className="text-muted-foreground text-sm">Conclua cursos para ganhar certificados.</p>
                             )}
+                             <Button variant="secondary" className="w-full mt-4" disabled>Ver Todos</Button>
                         </CardContent>
                     </Card>
                 </div>
