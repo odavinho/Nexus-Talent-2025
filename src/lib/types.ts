@@ -146,7 +146,7 @@ export interface Course {
 
   export interface EmailCampaignContent {
     subject: string;
-    body: string;
+    bodyHtml: string;
     buttonText: string;
     buttonLink: string;
     imageUrl?: string;

@@ -178,7 +178,7 @@ export const GenerateEmailCampaignInputSchema = z.object({
 
 export const EmailCampaignContentSchema = z.object({
   subject: z.string().describe("The generated email subject line."),
-  body: z.string().describe("The generated email body content."),
+  bodyHtml: z.string().describe("The generated email body content in HTML format."),
   buttonText: z.string().describe("The generated call-to-action button text."),
   buttonLink: z.string().url().describe("The generated example URL for the button."),
   imageUrl: z.string().optional().describe("A prompt for the AI image generator if the image template is used."),
