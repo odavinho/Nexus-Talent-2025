@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap, LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
@@ -33,6 +33,7 @@ const formSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
   template: z.enum(['simple', 'withImage']),
+  imageUrl: z.string().url("Insira um URL válido ou deixe em branco para a IA gerar.").optional().or(z.literal('')),
   buttonText: z.string().min(1, "O texto do botão é obrigatório."),
   buttonLink: z.string().url("Por favor, insira um URL válido."),
   audienceType: z.enum(['all', 'course_students', 'vacancy_candidates', 'candidates_by_area']),
@@ -82,6 +83,7 @@ export default function EmailMarketingPage() {
       tone: 'Profissional',
       language: 'Português',
       template: 'withImage',
+      imageUrl: '',
       buttonText: "Saber Mais",
       buttonLink: "https://nexustalent.com/courses/new-leadership-course",
       audienceType: 'all',
@@ -118,6 +120,7 @@ export default function EmailMarketingPage() {
 
 
   const audienceType = form.watch('audienceType');
+  const templateType = form.watch('template');
 
   const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
     setIsGenerating(true);
@@ -213,6 +216,26 @@ export default function EmailMarketingPage() {
                   </FormItem>
                 )}/>
               </div>
+
+               {templateType === 'withImage' && (
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem (Opcional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                           <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                           <Input placeholder="https://exemplo.com/imagem.png" {...field} className="pl-9"/>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
 
                <h3 className="text-lg font-semibold border-t pt-6">2. Segmente o Público-Alvo</h3>
                 <div className="flex items-center gap-4">

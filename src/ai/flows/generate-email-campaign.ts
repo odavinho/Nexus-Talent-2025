@@ -30,7 +30,7 @@ Com base nisso, gere o seguinte conteúdo:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
 2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado. 
     - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
-    - {{#if (eq template 'withImage')}} Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho gerada por IA: '[IMAGE_URL]'. {{/if}}
+    - {{#if (eq template 'withImage')}} Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'. {{/if}}
     - Inclua um placeholder como '[Link]' para o URL do botão principal no corpo do texto que possa ser substituído.
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
@@ -75,12 +75,17 @@ const generateEmailCampaignFlow = ai.defineFlow(
     let finalBodyHtml = textOutput.bodyHtml;
     let imageDataUri = "";
 
-    if (input.template === 'withImage' && textOutput.imageHint) {
-      imageDataUri = await generateImageFlow(textOutput.imageHint);
+    if (input.template === 'withImage') {
+      // Prioritize user-provided URL, otherwise generate with AI
+      if (input.imageUrl) {
+        imageDataUri = input.imageUrl;
+      } else if (textOutput.imageHint) {
+        imageDataUri = await generateImageFlow(textOutput.imageHint);
+      }
     }
     
     // Always run the replace, even if imageDataUri is empty.
-    // This will remove the placeholder if image generation fails or isn't requested.
+    // This will replace the placeholder with the image or remove it if none is available.
     finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri || '');
     
     return {
