@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -14,14 +15,14 @@ import { Loader2, Wand2, ArrowLeft, Send, Code, Eye, Link as LinkIcon, Image as 
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import { GenerateEmailCampaignInputSchema } from '@/lib/schemas';
+import { GenerateEmailCampaignInputSchema, type GenerateEmailCampaignOutput } from '@/lib/schemas';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type FormValues = z.infer<typeof GenerateEmailCampaignInputSchema>;
 
 export default function EmailMarketingPage() {
-  const [generatedContent, setGeneratedContent] = useState<{ subject: string, body: string } | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<GenerateEmailCampaignOutput | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
@@ -35,7 +36,7 @@ export default function EmailMarketingPage() {
       tone: 'Profissional',
       layoutType: 'Texto com Botão',
       ctaLink: 'https://www.nexustalent.com/vacancies',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=1080&auto=format&fit=crop',
     },
   });
 
@@ -46,9 +47,10 @@ export default function EmailMarketingPage() {
     setGeneratedContent(null);
     try {
       const inputForAI: FormValues = { ...data };
-      if (inputForAI.layoutType !== 'Imagem, Título e Botão') {
+      if (inputForAI.layoutType !== 'Imagem, Título e Botão' && data.imageUrl?.startsWith('https://images.unsplash.com')) {
         inputForAI.imageUrl = undefined;
       }
+      
       const result = await generateEmailCampaignAction(inputForAI);
       setGeneratedContent(result);
       toast({
@@ -99,7 +101,19 @@ export default function EmailMarketingPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-6">
-              <FormField control={form.control} name="emailGoal" render={({ field }) => ( <FormItem> <FormLabel>Objetivo Principal do E-mail</FormLabel> <FormControl> <Textarea placeholder="Ex: Anunciar novo curso de liderança, promover vagas na área de TI..." {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
+              <FormField
+                control={form.control}
+                name="emailGoal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Objetivo Principal do E-mail</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Ex: Anunciar novo curso de liderança, promover vagas na área de TI..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <FormField
                     control={form.control}
@@ -108,15 +122,15 @@ export default function EmailMarketingPage() {
                       <FormItem>
                         <FormLabel>Público-Alvo</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
-                                <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
-                                <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
-                                <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
-                            </SelectContent>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o público" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Todos os candidatos">Todos os candidatos</SelectItem>
+                              <SelectItem value="Engenheiros de Software">Engenheiros de Software</SelectItem>
+                              <SelectItem value="Gestores de Projeto">Gestores de Projeto</SelectItem>
+                              <SelectItem value="Alunos de cursos de Finanças">Alunos de cursos de Finanças</SelectItem>
+                          </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -128,15 +142,15 @@ export default function EmailMarketingPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tom do E-mail</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="Profissional">Profissional</SelectItem>
-                                <SelectItem value="Amigável">Amigável</SelectItem>
-                                <SelectItem value="Urgente">Urgente</SelectItem>
-                            </SelectContent>
+                         <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o tom" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Profissional">Profissional</SelectItem>
+                              <SelectItem value="Amigável">Amigável</SelectItem>
+                              <SelectItem value="Urgente">Urgente</SelectItem>
+                          </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -149,28 +163,61 @@ export default function EmailMarketingPage() {
                       <FormItem>
                         <FormLabel>Layout do E-mail</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
-                                <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
-                            </SelectContent>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Selecione o layout" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                              <SelectItem value="Texto com Botão">Texto com Botão</SelectItem>
+                              <SelectItem value="Imagem, Título e Botão">Imagem, Título e Botão</SelectItem>
+                          </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
               </div>
-              <FormField control={form.control} name="ctaLink" render={({ field }) => ( <FormItem> <FormLabel>Link do Botão Principal (CTA)</FormLabel> <div className="relative"> <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /> <FormControl><Input placeholder="https://..." className="pl-9" {...field} /></FormControl> </div> <FormMessage /> </FormItem> )}/>
-              {layoutType === 'Imagem, Título e Botão' && ( <FormField control={form.control} name="imageUrl" render={({ field }) => ( <FormItem> <FormLabel>URL da Imagem (opcional)</FormLabel> <div className="relative"> <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /> <FormControl><Input placeholder="https://images.unsplash.com/..." className="pl-9" {...field} /></FormControl> </div> <FormMessage /> </FormItem> )}/> )}
+              <FormField
+                control={form.control}
+                name="ctaLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link do Botão Principal (CTA)</FormLabel>
+                    <div className="relative">
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <FormControl><Input placeholder="https://..." className="pl-9" {...field} /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {layoutType === 'Imagem, Título e Botão' && (
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem (opcional)</FormLabel>
+                      <div className="relative">
+                        <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <FormControl><Input placeholder="https://images.unsplash.com/..." className="pl-9" {...field} /></FormControl>
+                      </div>
+                       <FormDescription>Deixe em branco para a IA sugerir uma.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                )}
               <Button type="submit" disabled={isGenerating} className="w-full">
                   {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                   Gerar Conteúdo com IA
               </Button>
             </form>
           </Form>
-          {isGenerating && ( <div className="text-center pt-10"> <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /> <p className="mt-2 text-muted-foreground">Aguarde, a IA está a criar a sua campanha...</p> </div> )}
+          {isGenerating && (
+            <div className="text-center pt-10">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="mt-2 text-muted-foreground">Aguarde, a IA está a criar a sua campanha...</p>
+            </div>
+          )}
           {generatedContent && (
               <div className="mt-8 pt-6 border-t space-y-6">
               <h3 className="font-headline text-2xl">Conteúdo Gerado</h3>
