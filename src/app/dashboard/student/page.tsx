@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
 import { useToast } from "@/hooks/use-toast";
+import { CertificateGenerator } from "@/components/student/certificate-generator";
 
 export default function StudentDashboardPage() {
     // Mock data for enrolled courses
@@ -19,13 +20,6 @@ export default function StudentDashboardPage() {
     ];
     
     const { toast } = useToast();
-
-    const handleCertificateRequest = (courseName: string) => {
-        toast({
-            title: "Certificado Emitido! (Simulado)",
-            description: `O seu certificado para o curso "${courseName}" foi enviado para o seu e-mail.`,
-        });
-    };
 
     return (
         <div>
@@ -99,13 +93,7 @@ export default function StudentDashboardPage() {
                                             <p className="font-semibold text-sm">{c.name}</p>
                                             <p className="text-xs text-muted-foreground">Nota Final: {c.grade}%</p>
                                         </div>
-                                        <Button 
-                                            variant="default"
-                                            size="sm"
-                                            onClick={() => handleCertificateRequest(c.name)}
-                                        >
-                                            <Download className="mr-2 h-4 w-4"/> Emitir
-                                        </Button>
+                                        <CertificateGenerator courseName={c.name} />
                                     </div>
                                   ))}
                                 </div>
