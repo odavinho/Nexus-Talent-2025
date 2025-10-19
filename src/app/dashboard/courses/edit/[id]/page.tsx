@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Save, Trash2, PlusCircle, Link as LinkIcon, Bot, FileUp } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Trash2, PlusCircle, Link as LinkIcon, Bot, FileUp, Presentation } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateModuleAssessmentAction } from '@/app/actions';
 import Image from 'next/image';
@@ -45,6 +45,7 @@ const moduleSchema = z.object({
     title: z.string().min(1, "O tópico não pode estar vazio."),
     videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
     pdfUrl: z.string().optional(),
+    powerpointUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
@@ -102,7 +103,7 @@ export default function EditCoursePage() {
             imageDataUri: course.imageDataUri,
             modules: course.modules.map(m => ({
               ...m,
-              topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl || '', pdfUrl: t.pdfUrl || '' }))
+              topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl || '', pdfUrl: t.pdfUrl || '', powerpointUrl: t.powerpointUrl || '' }))
             }))
         });
     }
@@ -129,7 +130,7 @@ export default function EditCoursePage() {
       whatYouWillLearn: data.whatYouWillLearn?.split('\n').filter(line => line.trim() !== '') || [],
       modules: data.modules?.map(m => ({
           title: m.title,
-          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl, pdfUrl: t.pdfUrl })),
+          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl, pdfUrl: t.pdfUrl, powerpointUrl: t.powerpointUrl })),
           videoUrl: m.videoUrl,
           assessment: m.assessment,
       })) || [],
@@ -265,8 +266,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                             <FormItem className='flex-grow'><FormControl><Input {...field} placeholder={`Título do Tópico ${topicIndex + 1}`} /></FormControl><FormMessage /></FormItem>
                             )}
                         />
-                        {(courseFormat === 'Online' || courseFormat === 'Híbrido') && (
-                          <div className='grid grid-cols-2 gap-2'>
+                        <div className='grid grid-cols-1 md:grid-cols-3 gap-2'>
                             <FormField
                                 control={form.control}
                                 name={`modules.${moduleIndex}.topics.${topicIndex}.videoUrl`}
@@ -275,14 +275,29 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                                         <div className="relative">
                                             <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <FormControl>
-                                                <Input placeholder="URL do Vídeo (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                                <Input placeholder="URL do Vídeo" className="pl-9 text-xs h-8" {...field} />
                                             </FormControl>
                                         </div>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                             <FormField
+                            <FormField
+                                control={form.control}
+                                name={`modules.${moduleIndex}.topics.${topicIndex}.powerpointUrl`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="relative">
+                                            <Presentation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <FormControl>
+                                                <Input placeholder="URL do PowerPoint" className="pl-9 text-xs h-8" {...field} />
+                                            </FormControl>
+                                        </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
                                 control={form.control}
                                 name={`modules.${moduleIndex}.topics.${topicIndex}.pdfUrl`}
                                 render={({ field }) => (
@@ -297,8 +312,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                                     </FormItem>
                                 )}
                             />
-                          </div>
-                        )}
+                        </div>
                     </div>
                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(topicIndex)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                 </div>

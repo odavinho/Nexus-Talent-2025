@@ -5,7 +5,7 @@
 import { getCourseById } from "@/lib/course-service";
 import { notFound, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 import type { Course, CourseModule, CourseTopic } from "@/lib/types";
@@ -77,6 +77,39 @@ function CoursePlayerPage({ course }: { course: Course }) {
     });
     // In a real app, you would use the URL: window.open(url, '_blank');
   };
+  
+  const renderMedia = () => {
+    if (activeTopic?.powerpointUrl) {
+      const officeViewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(activeTopic.powerpointUrl)}`;
+      return (
+        <iframe
+          src={officeViewerUrl}
+          className="w-full h-full border-0"
+          title="PowerPoint Viewer"
+          allowFullScreen
+        ></iframe>
+      );
+    }
+
+    if (activeTopic?.videoUrl) {
+      return (
+        <div className="w-full h-full bg-black flex flex-col items-center justify-center text-white text-center">
+            <VideoIcon size={64} />
+            <p className="ml-4 text-xl mt-4">Simulação do Media Player de Vídeo</p>
+            <p className="text-muted-foreground text-sm mt-2">A mostrar vídeo para: <strong className="text-white">{activeTopic?.title}</strong></p>
+        </div>
+      )
+    }
+
+    return (
+        <div className="w-full h-full bg-secondary flex flex-col items-center justify-center text-center p-4">
+            <BookOpen size={64} className="text-muted-foreground" />
+            <p className="text-xl mt-4 text-foreground">Conteúdo da Aula</p>
+            <p className="text-muted-foreground text-sm mt-2">Nenhum conteúdo multimédia para este tópico. Consulte os recursos abaixo.</p>
+        </div>
+    );
+  };
+
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col">
@@ -90,11 +123,9 @@ function CoursePlayerPage({ course }: { course: Course }) {
         <div className="grid lg:grid-cols-3 gap-8 flex-grow">
             {/* Main Content - Video Player and Tabs */}
             <div className="lg:col-span-2 flex flex-col">
-                {/* Video Player Placeholder */}
-                <div className="w-full aspect-video bg-black rounded-lg flex flex-col items-center justify-center text-white mb-6 p-4 text-center">
-                    <VideoIcon size={64} />
-                    <p className="ml-4 text-xl mt-4">Simulação do Media Player</p>
-                    <p className="text-muted-foreground text-sm mt-2">A mostrar conteúdo para: <strong className="text-white">{activeTopic?.title || activeModule?.title}</strong></p>
+                {/* Media Player Placeholder */}
+                <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center mb-6 overflow-hidden">
+                    {renderMedia()}
                 </div>
                 
                 {/* Tabs for Resources, Quizzes, Notes */}
@@ -214,7 +245,7 @@ function CoursePlayerPage({ course }: { course: Course }) {
                                                 onClick={() => handleTopicClick(module, topic)}
                                                 className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
                                             >
-                                                {topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
+                                                {topic.powerpointUrl ? <Presentation size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
                                                 <span className="flex-grow">{topic.title}</span>
                                                 {topic.pdfUrl && <FileText size={16} className="text-muted-foreground"/>}
                                             </button>

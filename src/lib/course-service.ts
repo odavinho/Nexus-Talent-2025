@@ -89,9 +89,10 @@ export const updateCourse = (id: string, updatedData: Partial<Omit<Course, 'id'>
         return null; // Course not found
     }
 
-    const updatedCourse = {
+    const updatedCourse: Course = {
         ...currentCourses[courseIndex],
         ...updatedData,
+        id: id // ensure id is not lost
     };
     
     currentCourses[courseIndex] = updatedCourse;

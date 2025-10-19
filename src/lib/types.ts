@@ -18,6 +18,7 @@ export interface CourseTopic {
     title: string;
     videoUrl?: string;
     pdfUrl?: string;
+    powerpointUrl?: string;
 }
 
 export interface CourseModule {
