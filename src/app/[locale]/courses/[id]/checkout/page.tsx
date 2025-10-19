@@ -6,7 +6,7 @@ import { getCourseById } from '@/lib/course-service';
 import type { Course } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Loader2, Tag, Lock } from 'lucide-react';
+import { ArrowLeft, Loader2, Tag, Lock, QrCode } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getImages } from '@/lib/site-data';
@@ -27,11 +27,18 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [voucher, setVoucher] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+
 
   useEffect(() => {
     if (id) {
       const foundCourse = getCourseById(id);
       setCourse(foundCourse || null);
+       if (foundCourse) {
+        const paymentData = `Pagamento para NexusTalent;Curso: ${foundCourse.name};Valor: 25.000 AOA`;
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(paymentData)}`;
+        setQrCodeUrl(qrApiUrl);
+      }
     }
     setIsLoading(false);
   }, [id]);
@@ -106,9 +113,10 @@ export default function CheckoutPage() {
               <div className="space-y-6 bg-secondary/50 p-6 rounded-lg">
                  <h3 className="font-semibold text-lg">Procedimentos de Pagamento</h3>
                   <Tabs defaultValue="reference" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
+                    <TabsList className="grid w-full grid-cols-3">
                       <TabsTrigger value="reference">Referência</TabsTrigger>
                       <TabsTrigger value="express">Expresso</TabsTrigger>
+                       <TabsTrigger value="qrcode">QR Code</TabsTrigger>
                     </TabsList>
                     <TabsContent value="reference" className="mt-4 text-sm space-y-3">
                       <p className="text-xs text-muted-foreground">Efetue o pagamento numa caixa Multicaixa ou no seu Internet Banking usando os dados abaixo.</p>
@@ -125,6 +133,19 @@ export default function CheckoutPage() {
                             <p><strong>Montante:</strong> AOA 25.000,00</p>
                             <p className="mt-2 text-xs">Por favor, envie o comprovativo para o nosso e-mail após a conclusão.</p>
                       </div>
+                    </TabsContent>
+                     <TabsContent value="qrcode" className="mt-4 text-sm space-y-3">
+                        <p className="text-xs text-muted-foreground">Use a sua aplicação de pagamentos para ler o código QR e efetuar o pagamento.</p>
+                         <div className="p-4 border rounded-md bg-background flex flex-col items-center justify-center">
+                            {qrCodeUrl ? (
+                                <Image src={qrCodeUrl} alt="QR Code para pagamento" width={180} height={180} />
+                            ) : (
+                                <div className="h-[180px] w-[180px] flex items-center justify-center bg-muted">
+                                    <Loader2 className="h-8 w-8 animate-spin"/>
+                                </div>
+                            )}
+                            <p className='mt-4 font-mono font-bold'>AOA 25.000,00</p>
+                        </div>
                     </TabsContent>
                   </Tabs>
                  <Button className="w-full" size="lg" onClick={handlePayment} disabled={isProcessing}>
