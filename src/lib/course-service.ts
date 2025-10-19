@@ -82,7 +82,7 @@ export const addCourse = (courseData: Course): Course => {
 };
 
 // Function to update an existing course
-export const updateCourse = (id: string, updatedData: Partial<Omit<Course, 'id'>>): Course | null => {
+export const updateCourse = (id: string, updatedData: Partial<Course>): Course | null => {
     const currentCourses = getCourses();
     const courseIndex = currentCourses.findIndex(c => c.id === id);
     if (courseIndex === -1) {
