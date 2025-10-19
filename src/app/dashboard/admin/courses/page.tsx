@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { GeneralReport } from '@/components/admin/general-report";
+import { GeneralReport } from "@/components/admin/general-report";
 
 
 export default function ManageCoursesPage() {
@@ -215,5 +215,3 @@ export default function ManageCoursesPage() {
     </div>
   );
 }
-
-    
