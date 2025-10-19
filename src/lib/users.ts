@@ -1,6 +1,6 @@
 import type { UserProfile } from './types';
 
-export const users: UserProfile[] = [
+export let users: UserProfile[] = [
   // Recruiter User
   {
     id: '4FkPP1YFiBZh1Sw7ATyXpX0ZtII3',
@@ -555,3 +555,23 @@ export const users: UserProfile[] = [
     skills: ['SolidWorks', 'Análise de Elementos Finitos (FEA)', 'Termodinâmica', 'Gestão de Projetos'],
   },
 ];
+
+
+// Function to update a user's profile
+export const updateUser = (id: string, updatedData: Partial<UserProfile>): UserProfile | null => {
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+        return null; // User not found
+    }
+
+    const updatedUser = {
+        ...users[userIndex],
+        ...updatedData,
+    };
+    
+    users[userIndex] = updatedUser;
+    
+    return updatedUser;
+}
+
+    

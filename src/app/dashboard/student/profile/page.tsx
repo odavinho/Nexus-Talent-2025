@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wand2, PlusCircle, Trash2, Edit, User, Briefcase, GraduationCap, Award, Link as LinkIcon, FileText, Download, ArrowLeft } from 'lucide-react';
+import { Loader2, Wand2, PlusCircle, Trash2, Edit, User, Briefcase, GraduationCap, Award, Link as LinkIcon, FileText, Download, ArrowLeft, Save } from 'lucide-react';
 import type { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { extractProfileFromResumeAction } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
-import { users } from '@/lib/users'; // Using mock user data
+import { users as mockUsers, updateUser } from '@/lib/users'; // Import updateUser
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 
@@ -46,7 +46,7 @@ const profileSchema = z.object({
     workExperience: z.array(z.object({
         company: z.string().min(1, "Empresa é obrigatória"),
         role: z.string().min(1, "Função é obrigatória"),
-        period: z.string().min(1, "Período é obrigatório"),
+        period: z.string().min(1, "Período é obrigatória"),
         description: z.string().optional(),
     })).optional(),
     receivesNotifications: z.boolean().optional(),
@@ -58,7 +58,6 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
     const { user, isUserLoading } = useUser();
     const { toast } = useToast();
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
     // Use local state for profile data instead of Firestore
@@ -77,8 +76,8 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (user) {
-            // Find a mock user profile. In a real app, you'd fetch this.
-            const mockUserProfile = users.find(u => u.userType === 'student'); 
+            // Find a mock user profile.
+            const mockUserProfile = mockUsers.find(u => u.id === 'student1'); 
             setUserProfile(mockUserProfile || null);
         }
         setIsProfileLoading(false);
@@ -105,32 +104,39 @@ export default function ProfilePage() {
     }, [userProfile, form, user]);
 
     const onSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
-        if (!user) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'Utilizador não autenticado.' });
+        if (!user || !userProfile) {
+            toast({ variant: 'destructive', title: 'Erro', description: 'Utilizador não autenticado ou perfil não encontrado.' });
             return;
         }
-        setIsSubmitting(true);
-        
-        const finalData = {
-            ...data,
-            skills: data.skills ? data.skills.split(',').map(s => s.trim()).filter(s => s) : [],
-        };
 
-        const profileToSave: UserProfile = {
-            ...userProfile, 
-            ...finalData,   
-            id: user.id,
-            email: user.email!,
-            userType: userProfile?.userType || 'student',
-        };
-
-        // Simulate saving
-        setTimeout(() => {
-            setUserProfile(profileToSave); // Update local state
-            toast({ title: 'Sucesso!', description: 'O seu perfil foi atualizado (nesta sessão).' });
-            setIsEditing(false);
-            setIsSubmitting(false);
-        }, 1000);
+        form.control.handleSubmit(async () => {
+            const finalData = {
+                ...data,
+                skills: data.skills ? data.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+            };
+    
+            const profileToSave: UserProfile = {
+                ...userProfile, 
+                ...finalData,   
+                id: userProfile.id,
+                email: userProfile.email,
+                userType: userProfile.userType || 'student',
+            };
+    
+            try {
+                // Use the new updateUser function
+                const updatedProfile = updateUser(profileToSave.id, profileToSave);
+                if (updatedProfile) {
+                    setUserProfile(updatedProfile); // Update local state
+                    toast({ title: 'Sucesso!', description: 'O seu perfil foi atualizado.' });
+                    setIsEditing(false);
+                } else {
+                    throw new Error("Não foi possível encontrar o perfil para atualizar.");
+                }
+            } catch (error) {
+                 toast({ title: 'Erro', description: error instanceof Error ? error.message : 'Falha ao salvar o perfil.' });
+            }
+        })();
     };
     
     if (isUserLoading || isProfileLoading) {
@@ -141,7 +147,7 @@ export default function ProfilePage() {
         return <ProfileView profile={userProfile} onEdit={() => setIsEditing(true)} />;
     }
 
-    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={isSubmitting} onCancel={() => setIsEditing(false)} />;
+    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
 }
 
 function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => void }) {
@@ -361,7 +367,8 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                         <div className="flex gap-4">
                             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
                             <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Salvar Alterações'}
+                                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
+                                Salvar Alterações
                             </Button>
                         </div>
                     </form>
@@ -394,3 +401,5 @@ function ProfileSkeleton() {
         </Card>
     );
 }
+
+    
