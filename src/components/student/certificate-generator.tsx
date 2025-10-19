@@ -82,10 +82,12 @@ export function CertificateGenerator({ courseId, grade }: CertificateGeneratorPr
 
     doc.setFontSize(10);
     const dates = "20.01.2025 a 24.01.2025";
-    const location = "no Centro de Formação Profissional Conexão Acadêmica em Luanda"
-    const workload = `com carga horária de ${course.duration}.`
+    const location = course.format === 'Presencial' ? "no Centro de Formação Profissional Conexão Acadêmica em Luanda" : "em formato Online";
+    const workload = `com carga horária de ${course.duration}.`;
     doc.text(`Realizado de ${dates} ${location}, ${workload}`, pageWidth / 2, 120, { align: 'center' });
-    doc.text(`Conducted from ${dates} at Conexão Acadêmica Training Center in Luanda with a workload ${course.duration}.`, pageWidth / 2, 125, { align: 'center' });
+    
+    const locationEn = course.format === 'Presencial' ? 'at Conexão Acadêmica Training Center in Luanda' : 'in an Online format';
+    doc.text(`Conducted from ${dates} ${locationEn} with a workload ${course.duration}.`, pageWidth / 2, 125, { align: 'center' });
 
     // --- Table ---
     const tableData = course.modules.map(module => [

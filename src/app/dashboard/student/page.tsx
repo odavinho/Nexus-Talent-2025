@@ -93,7 +93,7 @@ export default function StudentDashboardPage() {
                                             <p className="font-semibold text-sm">{c.name}</p>
                                             <p className="text-xs text-muted-foreground">Nota Final: {c.grade}%</p>
                                         </div>
-                                        <CertificateGenerator courseName={c.name} />
+                                        <CertificateGenerator courseId={c.id} grade={c.grade!} />
                                     </div>
                                   ))}
                                 </div>
