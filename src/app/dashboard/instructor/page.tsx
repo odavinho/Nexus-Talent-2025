@@ -51,23 +51,23 @@ export default function InstructorDashboardPage() {
                          <CardDescription>Acompanhe o progresso dos seus formandos e utilize ferramentas de apoio.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid sm:grid-cols-2 gap-4">
-                        <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" asChild>
-                           <Link href="#">
+                        <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" disabled>
+                           <div>
                                 <div className="flex items-center gap-2">
                                     <ListChecks size={18}/>
                                     <h4 className="font-semibold">Registro de Atividades</h4>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-left">Registe notas de participação e observações das aulas presenciais.</p>
-                           </Link>
+                           </div>
                         </Button>
-                         <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" asChild>
-                           <Link href="#">
+                         <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" disabled>
+                           <div>
                                 <div className="flex items-center gap-2">
                                     <Library size={18}/>
                                     <h4 className="font-semibold">Materiais Complementares</h4>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-left">Disponibilize slides, e-books e vídeos de preparação para as aulas.</p>
-                           </Link>
+                           </div>
                         </Button>
                     </CardContent>
                 </Card>
@@ -81,23 +81,23 @@ export default function InstructorDashboardPage() {
                          <CardDescription>Interaja com suas turmas, envie avisos e responda a dúvidas.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid sm:grid-cols-2 gap-4">
-                         <Button variant="default" className="justify-start h-auto p-4 flex-col items-start gap-2" asChild>
-                           <Link href="#">
+                         <Button variant="default" className="justify-start h-auto p-4 flex-col items-start gap-2" disabled>
+                           <div>
                                 <div className="flex items-center gap-2">
                                     <AlertTriangle size={18}/>
                                     <h4 className="font-semibold">Enviar Alerta Urgente</h4>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-left">Envie notificações (SMS/Push) sobre cancelamentos ou mudanças.</p>
-                           </Link>
+                           </div>
                         </Button>
-                         <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" asChild>
-                           <Link href="#">
+                         <Button variant="outline" className="justify-start h-auto p-4 flex-col items-start gap-2" disabled>
+                           <div>
                                 <div className="flex items-center gap-2">
                                     <MessageSquare size={18}/>
                                     <h4 className="font-semibold">Fórum de Dúvidas</h4>
                                 </div>
                                 <p className="text-xs text-muted-foreground text-left">Responda a dúvidas e estenda o debate das aulas para o online.</p>
-                           </Link>
+                           </div>
                         </Button>
                     </CardContent>
                 </Card>
