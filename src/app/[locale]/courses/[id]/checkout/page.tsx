@@ -28,6 +28,7 @@ export default function CheckoutPage() {
   const [voucher, setVoucher] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [expressPhoneNumber, setExpressPhoneNumber] = useState('');
 
 
   useEffect(() => {
@@ -54,8 +55,12 @@ export default function CheckoutPage() {
   const image = getImages().find(p => p.id === course.imageId);
   const imageSrc = course.imageDataUri || image?.imageUrl;
   
-  const handlePayment = () => {
+  const handlePayment = (method: string) => {
     setIsProcessing(true);
+    toast({
+        title: "A processar pagamento...",
+        description: `Aguarde enquanto simulamos o pagamento via ${method}.`,
+    });
     // Simulate payment processing
     setTimeout(() => {
         toast({
@@ -63,7 +68,7 @@ export default function CheckoutPage() {
             description: `A sua inscrição no curso "${course.name}" foi concluída.`,
         });
         router.push('/dashboard/student');
-    }, 2000);
+    }, 2500);
   }
 
   return (
@@ -125,14 +130,21 @@ export default function CheckoutPage() {
                         <p><strong>Referência:</strong> {`123 456 ${new Date().getTime().toString().slice(-3)}`}</p>
                         <p><strong>Montante:</strong> AOA 25.000,00</p>
                       </div>
+                       <Button className="w-full mt-4" size="lg" onClick={() => handlePayment('Referência')} disabled={isProcessing}>
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+                            Confirmar Inscrição
+                        </Button>
                     </TabsContent>
                     <TabsContent value="express" className="mt-4 text-sm space-y-3">
-                        <p className="text-xs text-muted-foreground">Efetue o pagamento através do serviço Expresso do seu banco.</p>
-                        <div className="font-mono p-4 border rounded-md bg-background">
-                            <p><strong>Telefone:</strong> +244 9XX XXX XXX</p>
-                            <p><strong>Montante:</strong> AOA 25.000,00</p>
-                            <p className="mt-2 text-xs">Por favor, envie o comprovativo para o nosso e-mail após a conclusão.</p>
-                      </div>
+                        <p className="text-xs text-muted-foreground">Insira o seu número de telefone associado ao Multicaixa Express. Receberá uma notificação para confirmar o pagamento.</p>
+                        <div className="space-y-2">
+                            <Label htmlFor="express-phone">Nº de Telemóvel</Label>
+                            <Input id="express-phone" type="tel" placeholder="9XX XXX XXX" value={expressPhoneNumber} onChange={e => setExpressPhoneNumber(e.target.value)} />
+                        </div>
+                         <Button className="w-full mt-4" size="lg" onClick={() => handlePayment('Expresso')} disabled={isProcessing || !expressPhoneNumber}>
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+                            Pagar com Expresso
+                        </Button>
                     </TabsContent>
                      <TabsContent value="qrcode" className="mt-4 text-sm space-y-3">
                         <p className="text-xs text-muted-foreground">Use a sua aplicação de pagamentos para ler o código QR e efetuar o pagamento.</p>
@@ -146,12 +158,12 @@ export default function CheckoutPage() {
                             )}
                             <p className='mt-4 font-mono font-bold'>AOA 25.000,00</p>
                         </div>
+                          <Button className="w-full mt-4" size="lg" onClick={() => handlePayment('QR Code')} disabled={isProcessing}>
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+                            Confirmar Inscrição
+                        </Button>
                     </TabsContent>
                   </Tabs>
-                 <Button className="w-full" size="lg" onClick={handlePayment} disabled={isProcessing}>
-                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-                    Confirmar Inscrição
-                </Button>
               </div>
             </CardContent>
           </Card>
