@@ -1,23 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getCourseCategories } from '@/lib/course-service';
+import { getCourseCategories, getCourseById, updateCourse } from '@/lib/course-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, Bot } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Trash2, PlusCircle, Link as LinkIcon, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction } from '@/app/actions';
+import { generateModuleAssessmentAction } from '@/app/actions';
 import Image from 'next/image';
 import type { Course } from '@/lib/types';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useRouter, useParams, notFound } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -54,7 +54,7 @@ const formSchema = z.object({
   courseName: z.string().min(5, { message: 'O nome do curso deve ter pelo menos 5 caracteres.' }),
   courseCategory: z.string({ required_error: 'Selecione uma categoria.' }),
   courseLevel: z.string({ required_error: 'Selecione um nível.' }),
-  id: z.string().optional(),
+  id: z.string(),
   format: z.enum(['Online', 'Presencial', 'Híbrido'], { required_error: 'Selecione um formato.' }),
   duration: z.string().optional(),
   generalObjective: z.string().optional(),
@@ -67,82 +67,56 @@ type FormValues = z.infer<typeof formSchema>;
 type ModuleAssessmentFormValues = z.infer<typeof ModuleAssessmentFormSchema>;
 
 
-export default function NewCoursePage() {
-  const [isGenerating, setIsGenerating] = useState(false);
+export default function EditCoursePage() {
   const [isSaving, setIsSaving] = useState(false);
-  const [showGeneratedContent, setShowGeneratedContent] = useState(false);
+  const [course, setCourse] = useState<Course | null | undefined>(undefined);
   const { toast } = useToast();
   const router = useRouter();
-  const {user} = useUser();
+  const params = useParams();
+  const courseId = Array.isArray(params.id) ? params.id[0] : params.id;
   const courseCategories = getCourseCategories();
-
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      courseName: '',
-      format: 'Online',
-      modules: []
-    },
+    defaultValues: { modules: [] },
   });
+
+  useEffect(() => {
+    if (courseId) {
+      const foundCourse = getCourseById(courseId as string);
+      setCourse(foundCourse);
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    if (course) {
+        form.reset({
+            courseName: course.name,
+            courseCategory: course.category,
+            courseLevel: 'Intermediário', // Mock level, as it's not in the model
+            id: course.id,
+            format: course.format,
+            duration: course.duration,
+            generalObjective: course.generalObjective,
+            whatYouWillLearn: course.whatYouWillLearn.join('\n'),
+            imageDataUri: course.imageDataUri,
+            modules: course.modules.map(m => ({
+              ...m,
+              topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl || '', pdfUrl: t.pdfUrl || '' }))
+            }))
+        });
+    }
+  }, [course, form]);
+
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "modules"
   });
 
-  const handleGenerateContent: SubmitHandler<Pick<FormValues, 'courseName' | 'courseCategory' | 'courseLevel'>> = async (data) => {
-    setIsGenerating(true);
-    setShowGeneratedContent(false);
-    try {
-      const result = await generateCourseContentAction(data);
-      if (!result) {
-        throw new Error("A geração de conteúdo não retornou nenhum resultado.");
-      }
-      form.setValue('id', result.courseId);
-      form.setValue('duration', result.duration);
-      form.setValue('generalObjective', result.generalObjective);
-      form.setValue('whatYouWillLearn', result.whatYouWillLearn.join('\n'));
-      form.setValue('imageDataUri', result.imageDataUri);
-      
-      const modulesForForm = result.modules.map(m => ({
-        ...m,
-        topics: m.topics.map(t => ({ title: t, videoUrl: '', pdfUrl: '' })),
-        videoUrl: '',
-      }));
-      form.setValue('modules', modulesForForm);
-
-      setShowGeneratedContent(true);
-      toast({
-        title: "Conteúdo Gerado!",
-        description: "O conteúdo base para o seu curso foi criado. Edite e salve quando estiver pronto.",
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao gerar conteúdo',
-        description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-
   const handleSaveCourse: SubmitHandler<FormValues> = async (data) => {
-    if (!user) return;
     setIsSaving(true);
     
-    if (!data.id) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: 'O ID do curso não foi gerado. Tente gerar o conteúdo novamente.',
-        });
-        setIsSaving(false);
-        return;
-    }
-
     const courseData: Course = {
       id: data.id,
       name: data.courseName,
@@ -162,16 +136,16 @@ export default function NewCoursePage() {
     };
 
     try {
-      const result = await addCourseAction(courseData);
+      const result = updateCourse(data.id, courseData);
 
-      if (result.success) {
+      if (result) {
         toast({
-            title: "Curso salvo!",
-            description: "O curso foi adicionado com sucesso.",
+            title: "Curso Atualizado!",
+            description: "O curso foi atualizado com sucesso.",
         });
-        router.push('/dashboard/admin/courses');
+        router.push('/dashboard/instructor');
       } else {
-        throw new Error(result.message);
+        throw new Error("Não foi possível encontrar o curso para atualizar.");
       }
 
     } catch (error) {
@@ -185,6 +159,13 @@ export default function NewCoursePage() {
     }
   };
 
+  if (course === undefined) {
+    return <div className="container mx-auto p-12"><Skeleton className="h-96 w-full" /></div>
+  }
+
+  if (course === null) {
+      return notFound();
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -194,34 +175,15 @@ export default function NewCoursePage() {
       </Button>
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Adicionar Novo Curso</CardTitle>
+          <CardTitle className="font-headline text-3xl">Editar Curso</CardTitle>
           <CardDescription>
-            Preencha as informações básicas e deixe a IA gerar o resto do conteúdo para você.
+            Edite o conteúdo do curso <strong className="text-primary">{course.name}</strong>.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSaveCourse)} className="space-y-6">
-              <div className="space-y-6 p-4 border rounded-md">
-                <h3 className="font-semibold text-lg">1. Gerar Conteúdo Base com IA</h3>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <FormField control={form.control} name="courseName" render={({ field }) => ( <FormItem><FormLabel>Nome do Curso</FormLabel><FormControl><Input placeholder="Ex: Gestão de Projetos Ágeis" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                  <FormField control={form.control} name="courseCategory" render={({ field }) => ( <FormItem><FormLabel>Categoria</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger></FormControl><SelectContent>{courseCategories.map((c) => (<SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem> )} />
-                </div>
-                <FormField control={form.control} name="courseLevel" render={({ field }) => ( <FormItem><FormLabel>Nível do Curso</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione o nível" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Iniciante">Iniciante</SelectItem><SelectItem value="Intermediário">Intermediário</SelectItem><SelectItem value="Avançado">Avançado</SelectItem><SelectItem value="Todos os níveis">Todos os níveis</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
-                <Button type="button" onClick={form.handleSubmit(handleGenerateContent)} disabled={isGenerating} className="w-full">
-                  {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando...</> : <><Wand2 className="mr-2 h-4 w-4" /> Gerar Conteúdo</> }
-                </Button>
-              </div>
-
-              {isGenerating && (
-                <div className="text-center pt-6"><Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" /><p className="mt-2 text-muted-foreground">Aguarde...</p></div>
-              )}
-    
-              {showGeneratedContent && (
-                <div className="mt-8 pt-6 border-t space-y-6">
-                  <h3 className="font-headline text-2xl">2. Edite e Complete o Conteúdo</h3>
-                  
+                <div className="mt-8 pt-6 space-y-6">
                   {form.watch('imageDataUri') && (
                     <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-lg">
                         <Image src={form.watch('imageDataUri')!} alt="Imagem gerada para o curso" fill className="object-cover" />
@@ -251,10 +213,9 @@ export default function NewCoursePage() {
                   </div>
     
                   <Button type="submit" disabled={isSaving} className="w-full bg-green-600 hover:bg-green-700">
-                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <><Save className="mr-2 h-4 w-4" /> Salvar Curso</>}
+                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <><Save className="mr-2 h-4 w-4" /> Salvar Alterações</>}
                   </Button>
                 </div>
-              )}
             </form>
           </Form>
         </CardContent>

@@ -200,7 +200,7 @@ export default function InstructorDashboardPage() {
                                                 </DialogTrigger>
                                                 <ManageClassDialog course={course} />
                                             </Dialog>
-                                             <Button asChild variant="secondary"><Link href={`/dashboard/courses/${course.id}/edit`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
+                                             <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
                                         </div>
                                     </Card>
                                 ))}
