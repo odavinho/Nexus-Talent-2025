@@ -1,38 +1,78 @@
 
 'use client';
 
-import { getCourseById, getCourses, getCourseCategories } from "@/lib/course-service";
+import { getCourseById } from "@/lib/course-service";
 import { notFound, useParams } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar } from "lucide-react";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
-import { type Metadata } from 'next';
+import React, { useState, useEffect, useCallback } from "react";
 import type { Course, CourseModule, CourseTopic } from "@/lib/types";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/firebase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+// Helper hook for using localStorage
+function useLocalStorage(key: string, initialValue: string) {
+  const [storedValue, setStoredValue] = useState(() => {
+    if (typeof window === "undefined") {
+      return initialValue;
+    }
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.log(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: string | ((val: string) => string)) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  return [storedValue, setValue] as const;
+}
 
 
 function CoursePlayerPage({ course }: { course: Course }) {
   const [activeModule, setActiveModule] = useState<CourseModule | null>(course.modules[0] || null);
   const [activeTopic, setActiveTopic] = useState<CourseTopic | null>(course.modules[0]?.topics[0] || null);
-  const [journalNotes, setJournalNotes] = useState('');
+  const { user } = useUser();
   const { toast } = useToast();
 
+  // Create a unique key for localStorage based on user and course
+  const journalKey = `journal_${user?.uid}_${course.id}`;
+  const [journalNotes, setJournalNotes] = useLocalStorage(journalKey, '');
+  
   const handleTopicClick = (module: CourseModule, topic: CourseTopic) => {
       setActiveModule(module);
       setActiveTopic(topic);
   };
   
   const handleSaveNotes = () => {
-    // Simula o salvamento das anotações
+    // The useLocalStorage hook already saves on change, but we can use this for explicit feedback
     toast({
       title: "Diário Salvo!",
-      description: "As suas anotações foram salvas com sucesso (simulação).",
+      description: "As suas anotações foram guardadas no seu navegador.",
+    });
+  };
+
+  const handleDownload = (resourceName: string) => {
+    toast({
+      title: 'Download Iniciado (Simulado)',
+      description: `O download de "${resourceName}" foi iniciado.`,
     });
   };
 
@@ -50,37 +90,35 @@ function CoursePlayerPage({ course }: { course: Course }) {
             <div className="lg:col-span-2 flex flex-col">
                 {/* Video Player Placeholder */}
                 <div className="w-full aspect-video bg-black rounded-lg flex flex-col items-center justify-center text-white mb-6 p-4 text-center">
-                    <Video size={64} />
+                    <VideoIcon size={64} />
                     <p className="ml-4 text-xl mt-4">Simulação do Media Player</p>
                     <p className="text-muted-foreground text-sm mt-2">A mostrar conteúdo para: <strong className="text-white">{activeTopic?.title || activeModule?.title}</strong></p>
                 </div>
                 
                 {/* Tabs for Resources, Quizzes, Notes */}
                 <Tabs defaultValue="resources" className="w-full">
-                    <TabsList>
+                    <TabsList className="grid w-full grid-cols-5">
                         <TabsTrigger value="resources"><FileText className="mr-2 h-4 w-4"/>Recursos</TabsTrigger>
                         <TabsTrigger value="quiz"><Bot className="mr-2 h-4 w-4"/>Teste Rápido</TabsTrigger>
-                        <TabsTrigger value="journal"><Notebook className="mr-2 h-4 w-4"/>Diário de Aprendizagem</TabsTrigger>
+                        <TabsTrigger value="journal"><Notebook className="mr-2 h-4 w-4"/>Diário</TabsTrigger>
+                        <TabsTrigger value="forum"><MessageSquare className="mr-2 h-4 w-4"/>Fórum</TabsTrigger>
+                        <TabsTrigger value="live"><Calendar className="mr-2 h-4 w-4"/>Sessões</TabsTrigger>
                     </TabsList>
                     <TabsContent value="resources">
                         <Card>
-                            <CardContent className="p-6">
-                                <h3 className="font-semibold mb-4">Materiais para Download</h3>
+                            <CardHeader><CardTitle>Materiais para Download</CardTitle></CardHeader>
+                            <CardContent>
                                 <ul className="space-y-2">
-                                    <li className="flex items-center justify-between">
+                                    <li className="flex items-center justify-between p-2 rounded-md hover:bg-secondary">
                                         <p>Apostila do Módulo.pdf</p>
-                                        <Button variant="outline" size="sm" asChild>
-                                          <a href="/resources/Apostila.pdf" download="Apostila_do_Modulo.pdf">
+                                        <Button variant="outline" size="sm" onClick={() => handleDownload('Apostila_do_Modulo.pdf')}>
                                             <Download className="mr-2 h-4 w-4" /> Download
-                                          </a>
                                         </Button>
                                     </li>
-                                    <li className="flex items-center justify-between">
+                                    <li className="flex items-center justify-between p-2 rounded-md hover:bg-secondary">
                                         <p>Exercícios Práticos.zip</p>
-                                        <Button variant="outline" size="sm" asChild>
-                                          <a href="/resources/Exercicios.zip" download="Exercicios_Praticos.zip">
+                                        <Button variant="outline" size="sm" onClick={() => handleDownload('Exercicios_Praticos.zip')}>
                                             <Download className="mr-2 h-4 w-4" /> Download
-                                          </a>
                                         </Button>
                                     </li>
                                 </ul>
@@ -89,19 +127,19 @@ function CoursePlayerPage({ course }: { course: Course }) {
                     </TabsContent>
                     <TabsContent value="quiz">
                          <Card>
-                            <CardContent className="p-6 text-center">
-                                <h3 className="font-semibold mb-4">Quiz Interativo (Simulação)</h3>
-                                <p className="text-muted-foreground mb-4">Esta área irá conter um quiz interativo para testar os seus conhecimentos.</p>
+                           <CardHeader><CardTitle>Quiz Interativo (Simulação)</CardTitle></CardHeader>
+                            <CardContent className="text-center">
+                                <p className="text-muted-foreground mb-4">Teste os seus conhecimentos sobre o módulo atual.</p>
                                 <Button>Iniciar Quiz</Button>
                             </CardContent>
                         </Card>
                     </TabsContent>
                     <TabsContent value="journal">
                          <Card>
-                            <CardContent className="p-6">
-                                <h3 className="font-semibold mb-4">Minhas Anotações</h3>
+                            <CardHeader><CardTitle>Minhas Anotações</CardTitle></CardHeader>
+                            <CardContent>
                                 <Textarea 
-                                    placeholder="Faça as suas anotações aqui..." 
+                                    placeholder="Faça as suas anotações aqui... Elas serão salvas automaticamente no seu navegador." 
                                     className="h-32 mb-4"
                                     value={journalNotes}
                                     onChange={(e) => setJournalNotes(e.target.value)}
@@ -109,6 +147,33 @@ function CoursePlayerPage({ course }: { course: Course }) {
                                 <Button onClick={handleSaveNotes}>
                                   <Save className="mr-2 h-4 w-4"/> Guardar Anotações
                                 </Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="forum">
+                         <Card>
+                           <CardHeader><CardTitle>Fórum de Discussão</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex gap-3">
+                                  <Avatar>
+                                    <AvatarImage src={user?.photoURL || ''} />
+                                    <AvatarFallback>{user?.displayName?.[0]}</AvatarFallback>
+                                  </Avatar>
+                                  <Textarea placeholder="Comece uma nova discussão ou coloque uma dúvida..." />
+                                </div>
+                                <Button>Publicar</Button>
+                                <div className="border-t pt-4 space-y-4">
+                                  <p className="text-sm text-muted-foreground text-center">Simulação de um fórum.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                     <TabsContent value="live">
+                         <Card>
+                           <CardHeader><CardTitle>Sessões de Dúvidas ao Vivo (Q&A)</CardTitle></CardHeader>
+                            <CardContent className="text-center">
+                               <p className="text-muted-foreground mb-4">Nenhuma sessão agendada para este módulo.</p>
+                               <Button variant="outline">Sugerir um Tópico</Button>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -133,9 +198,8 @@ function CoursePlayerPage({ course }: { course: Course }) {
                                                 onClick={() => handleTopicClick(module, topic)}
                                                 className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
                                             >
-                                                <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/>
+                                                {topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
                                                 <span className="flex-grow">{topic.title}</span>
-                                                {topic.videoUrl && <Video size={16} className="text-muted-foreground"/>}
                                             </button>
                                         ))}
                                     </div>
@@ -173,5 +237,3 @@ export default function CourseDetailPage() {
   
   return <CoursePlayerPage course={course} />;
 }
-
-    

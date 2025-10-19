@@ -1,18 +1,31 @@
 
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Award, UserCircle } from "lucide-react";
+import { BookOpen, Award, UserCircle, Download } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StudentDashboardPage() {
     // Mock data for enrolled courses
     const enrolledCourses = [
-        { id: 'TA-001', name: 'Técnicas de Apresentação', progress: 75, grade: 88 },
-        { id: 'GC-002', name: 'Gestão de Conflitos', progress: 40, grade: null },
-        { id: 'EN-427', name: 'Excel Avançado', progress: 100, grade: 95 },
+        { id: 'TA-001', name: 'Técnicas de Apresentação', progress: 75, grade: null, format: 'Online' },
+        { id: 'GC-002', name: 'Gestão de Conflitos', progress: 40, grade: null, format: 'Presencial' },
+        { id: 'EN-427', name: 'Excel Avançado', progress: 100, grade: 95, format: 'Online' },
+        { id: 'GE-003', name: 'Gestão Emocional', progress: 100, grade: 92, format: 'Presencial' },
     ];
+    
+    const { toast } = useToast();
+
+    const handleCertificateRequest = (courseName: string) => {
+        toast({
+            title: "Certificado Emitido! (Simulado)",
+            description: `O seu certificado para o curso "${courseName}" foi enviado para o seu e-mail.`,
+        });
+    };
 
     return (
         <div>
@@ -33,13 +46,14 @@ export default function StudentDashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {enrolledCourses.map(course => (
-                                    <Link key={course.id} href={`/dashboard/courses/${course.id}`} className="block hover:bg-secondary/50 p-4 rounded-lg transition-colors">
+                                {enrolledCourses.filter(c => c.progress < 100).map(course => (
+                                    <Link key={course.id} href={`/dashboard/courses/${course.id}`} className="block hover:bg-secondary/50 p-4 rounded-lg transition-colors border">
                                         <div className="flex justify-between items-center mb-1">
                                             <h4 className="font-medium">{course.name}</h4>
                                             <span className="text-sm font-semibold text-primary">{course.progress}%</span>
                                         </div>
                                         <Progress value={course.progress} className="h-2" />
+                                        <p className="text-xs text-muted-foreground mt-2">Modalidade: {course.format}</p>
                                     </Link>
                                 ))}
                             </div>
@@ -80,16 +94,24 @@ export default function StudentDashboardPage() {
                             {enrolledCourses.filter(c => c.progress === 100).length > 0 ? (
                                 <div className="space-y-2">
                                   {enrolledCourses.filter(c => c.progress === 100).map(c => (
-                                    <Button key={c.name} variant="outline" className="w-full justify-between">
-                                        <span>{c.name}</span>
-                                        <span className="font-bold text-primary">{c.grade}%</span>
-                                    </Button>
+                                    <div key={c.id} className="flex items-center justify-between p-3 border rounded-md bg-secondary/30">
+                                        <div>
+                                            <p className="font-semibold text-sm">{c.name}</p>
+                                            <p className="text-xs text-muted-foreground">Nota Final: {c.grade}%</p>
+                                        </div>
+                                        <Button 
+                                            variant="default"
+                                            size="sm"
+                                            onClick={() => handleCertificateRequest(c.name)}
+                                        >
+                                            <Download className="mr-2 h-4 w-4"/> Emitir
+                                        </Button>
+                                    </div>
                                   ))}
                                 </div>
                             ) : (
                                 <p className="text-muted-foreground text-sm">Conclua cursos para ganhar certificados.</p>
                             )}
-                             <Button variant="secondary" className="w-full mt-4" disabled>Ver Todos</Button>
                         </CardContent>
                     </Card>
                 </div>
