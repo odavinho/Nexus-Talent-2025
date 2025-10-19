@@ -1,8 +1,7 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks } from "lucide-react";
+import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -12,6 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data
 const managedCourses = [
@@ -20,10 +23,92 @@ const managedCourses = [
 ];
 
 const mockStudents = [
-    { id: 'student1', name: 'Ana Pereira', email: 'ana.p@email.com', status: 'Inscrito' },
-    { id: 'student3', name: 'Carla Santos', email: 'carla.s@email.com', status: 'Inscrito' },
-    { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Inscrito' },
+    { id: 'student1', name: 'Ana Pereira', email: 'ana.p@email.com', status: 'Inscrito', grade: null },
+    { id: 'student3', name: 'Carla Santos', email: 'carla.s@email.com', status: 'Inscrito', grade: 88 },
+    { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Inscrito', grade: 92 },
 ];
+
+
+function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
+    const [students, setStudents] = useState(mockStudents);
+    const { toast } = useToast();
+
+    const handleSendMessageToAll = () => {
+        toast({
+            title: "Mensagem Enviada (Simulado)",
+            description: `A sua mensagem foi enviada para os ${students.length} alunos da turma.`,
+        });
+    };
+
+    return (
+         <DialogContent className="max-w-4xl">
+            <DialogHeader>
+                <DialogTitle>Gerir Turma: {course.name}</DialogTitle>
+                <DialogDescription>
+                    Visualize os alunos inscritos, atribua notas e comunique com a turma.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-2">
+                    <h4 className="font-semibold mb-2">Alunos Inscritos</h4>
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Aluno</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-center">Nota Final</TableHead>
+                                <TableHead className="text-right">Ações</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {students.map(student => (
+                                <TableRow key={student.id}>
+                                    <TableCell className="font-medium">{student.name}</TableCell>
+                                    <TableCell>{student.email}</TableCell>
+                                    <TableCell><Badge>{student.status}</Badge></TableCell>
+                                    <TableCell className="text-center">{student.grade ? `${student.grade}%` : 'N/A'}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon"><MoreHorizontal size={16}/></Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem><User className="mr-2 h-4 w-4" />Ver Perfil</DropdownMenuItem>
+                                                <DropdownMenuItem><Mail className="mr-2 h-4 w-4" />Enviar Mensagem</DropdownMenuItem>
+                                                <DropdownMenuItem><Award className="mr-2 h-4 w-4" />Atribuir Nota</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="md:col-span-1 space-y-4">
+                     <h4 className="font-semibold mb-2">Comunicação</h4>
+                     <Card className="bg-secondary/50">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Enviar Mensagem à Turma</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <Textarea placeholder="Escreva a sua mensagem aqui..." className="mb-2 h-24"/>
+                             <Button className="w-full" onClick={handleSendMessageToAll}>Enviar para Todos</Button>
+                        </CardContent>
+                     </Card>
+                     <Card>
+                         <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Pauta de Notas</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Button variant="outline" className="w-full"><Edit className="mr-2 h-4 w-4"/>Gerir Pauta / Notas</Button>
+                        </CardContent>
+                     </Card>
+                </div>
+            </div>
+        </DialogContent>
+    )
+}
 
 
 export default function InstructorDashboardPage() {
@@ -64,34 +149,7 @@ export default function InstructorDashboardPage() {
                                                 <DialogTrigger asChild>
                                                     <Button variant="outline">Gerir Turma</Button>
                                                 </DialogTrigger>
-                                                <DialogContent className="max-w-3xl">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Gerir Turma: {course.name}</DialogTitle>
-                                                        <DialogDescription>
-                                                            Visualize os alunos inscritos neste curso.
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                    <div className="py-4">
-                                                        <Table>
-                                                            <TableHeader>
-                                                                <TableRow>
-                                                                    <TableHead>Aluno</TableHead>
-                                                                    <TableHead>Email</TableHead>
-                                                                    <TableHead>Status</TableHead>
-                                                                </TableRow>
-                                                            </TableHeader>
-                                                            <TableBody>
-                                                                {mockStudents.map(student => (
-                                                                    <TableRow key={student.id}>
-                                                                        <TableCell className="font-medium">{student.name}</TableCell>
-                                                                        <TableCell>{student.email}</TableCell>
-                                                                        <TableCell><Badge>{student.status}</Badge></TableCell>
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </div>
-                                                </DialogContent>
+                                                <ManageClassDialog course={course} />
                                             </Dialog>
                                         </div>
                                     </Card>
