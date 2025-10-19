@@ -43,6 +43,12 @@ export default function DashboardRedirectPage() {
             return;
         }
 
+        // Special override for instructor test user
+        if (user.email === 'formador@nexustalent.com.br') {
+            router.replace('/dashboard/instructor');
+            return;
+        }
+
         // Redirect based on the role from the Firestore profile
         const role = userProfile?.userType;
 
