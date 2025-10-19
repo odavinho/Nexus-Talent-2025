@@ -43,7 +43,8 @@ const moduleSchema = z.object({
   title: z.string().min(1, "O título do módulo é obrigatório."),
   topics: z.array(z.object({ 
     title: z.string().min(1, "O tópico não pode estar vazio."),
-    videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal(''))
+    videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
+    pdfUrl: z.string().url("Insira um URL de PDF válido.").optional().or(z.literal('')),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
@@ -106,7 +107,7 @@ export default function NewCoursePage() {
       
       const modulesForForm = result.modules.map(m => ({
         ...m,
-        topics: m.topics.map(t => ({ title: t, videoUrl: '' })),
+        topics: m.topics.map(t => ({ title: t, videoUrl: '', pdfUrl: '' })),
         videoUrl: '',
       }));
       form.setValue('modules', modulesForForm);
@@ -154,7 +155,7 @@ export default function NewCoursePage() {
       whatYouWillLearn: data.whatYouWillLearn?.split('\n').filter(line => line.trim() !== '') || [],
       modules: data.modules?.map(m => ({
           title: m.title,
-          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl })),
+          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl, pdfUrl: t.pdfUrl })),
           videoUrl: m.videoUrl,
           assessment: m.assessment,
       })) || [],
@@ -243,7 +244,7 @@ export default function NewCoursePage() {
                            <ModuleField key={field.id} moduleIndex={index} form={form} onRemove={() => remove(index)} />
                         ))}
                       </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: ''}], videoUrl: '' })} className="mt-4">
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: '', pdfUrl: ''}], videoUrl: '' })} className="mt-4">
                         <PlusCircle className="mr-2 h-4 w-4"/>Adicionar Módulo
                       </Button>
                     </div>
@@ -304,6 +305,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                             )}
                         />
                         {(courseFormat === 'Online' || courseFormat === 'Híbrido') && (
+                          <div className='grid grid-cols-2 gap-2'>
                             <FormField
                                 control={form.control}
                                 name={`modules.${moduleIndex}.topics.${topicIndex}.videoUrl`}
@@ -312,21 +314,42 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                                         <div className="relative">
                                             <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <FormControl>
-                                                <Input placeholder="URL da Videoaula (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                                <Input placeholder="URL do Vídeo (opcional)" className="pl-9 text-xs h-8" {...field} />
                                             </FormControl>
                                         </div>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
+                             <FormField
+                                control={form.control}
+                                name={`modules.${moduleIndex}.topics.${topicIndex}.pdfUrl`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="relative">
+                                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <FormControl>
+                                                <Input placeholder="URL do PDF (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                            </FormControl>
+                                        </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                          </div>
                         )}
                     </div>
                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(topicIndex)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: '', videoUrl: '' })}>
-                <PlusCircle className="mr-2 h-3 w-3"/>Adicionar Tópico
-            </Button>
+            <div className='flex gap-2'>
+                <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: '', videoUrl: '', pdfUrl: '' })}>
+                    <PlusCircle className="mr-2 h-3 w-3"/>Adicionar Tópico
+                </Button>
+                 <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: 'Link Externo', videoUrl: 'https://', pdfUrl: '' })}>
+                    <LinkIcon className="mr-2 h-3 w-3"/>Adicionar Link Externo
+                </Button>
+            </div>
         </div>
         
         {(courseFormat === 'Online' || courseFormat === 'Híbrido') && (

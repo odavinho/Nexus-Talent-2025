@@ -16,6 +16,7 @@ export interface ModuleAssessment {
 export interface CourseTopic {
     title: string;
     videoUrl?: string;
+    pdfUrl?: string;
 }
 
 export interface CourseModule {

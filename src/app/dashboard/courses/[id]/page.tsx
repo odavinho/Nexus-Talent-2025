@@ -4,11 +4,11 @@
 import { getCourseById } from "@/lib/course-service";
 import { notFound, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 import type { Course, CourseModule, CourseTopic } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,11 +69,12 @@ function CoursePlayerPage({ course }: { course: Course }) {
     });
   };
 
-  const handleDownload = (resourceName: string) => {
+  const handleDownload = (resourceName: string, url: string) => {
     toast({
       title: 'Download Iniciado (Simulado)',
       description: `O download de "${resourceName}" foi iniciado.`,
     });
+    // In a real app, you would use the URL: window.open(url, '_blank');
   };
 
   return (
@@ -109,18 +110,19 @@ function CoursePlayerPage({ course }: { course: Course }) {
                             <CardHeader><CardTitle>Materiais para Download</CardTitle></CardHeader>
                             <CardContent>
                                 <ul className="space-y-2">
-                                    <li className="flex items-center justify-between p-2 rounded-md hover:bg-secondary">
-                                        <p>Apostila do Módulo.pdf</p>
-                                        <Button variant="outline" size="sm" onClick={() => handleDownload('Apostila_do_Modulo.pdf')}>
-                                            <Download className="mr-2 h-4 w-4" /> Download
-                                        </Button>
-                                    </li>
-                                    <li className="flex items-center justify-between p-2 rounded-md hover:bg-secondary">
-                                        <p>Exercícios Práticos.zip</p>
-                                        <Button variant="outline" size="sm" onClick={() => handleDownload('Exercicios_Praticos.zip')}>
-                                            <Download className="mr-2 h-4 w-4" /> Download
-                                        </Button>
-                                    </li>
+                                  {activeModule?.topics.map((topic, index) => (
+                                    topic.pdfUrl ? (
+                                      <li key={index} className="flex items-center justify-between p-2 rounded-md hover:bg-secondary">
+                                          <p className="flex items-center gap-2"><FileText size={16}/> {topic.title}.pdf</p>
+                                          <Button variant="outline" size="sm" onClick={() => handleDownload(`${topic.title}.pdf`, topic.pdfUrl!)}>
+                                              <Download className="mr-2 h-4 w-4" /> Download
+                                          </Button>
+                                      </li>
+                                    ) : null
+                                  ))}
+                                  {activeModule?.topics.every(t => !t.pdfUrl) && (
+                                    <p className="text-sm text-muted-foreground text-center p-4">Nenhum material para este módulo.</p>
+                                  )}
                                 </ul>
                             </CardContent>
                         </Card>
@@ -177,6 +179,19 @@ function CoursePlayerPage({ course }: { course: Course }) {
                             </CardContent>
                         </Card>
                     </TabsContent>
+                     <TabsContent value="library">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Biblioteca de Conteúdo</CardTitle>
+                                <CardDescription>Adicione materiais complementares para os seus formandos.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Button variant="outline" className="w-full justify-start gap-2"><FileUp size={16}/> Fazer Upload de PDF</Button>
+                                <Button variant="outline" className="w-full justify-start gap-2"><Video size={16}/> Fazer Upload de Vídeo</Button>
+                                <Button variant="outline" className="w-full justify-start gap-2"><LinkIcon size={16}/> Adicionar Link Externo</Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 </Tabs>
             </div>
 
@@ -200,6 +215,7 @@ function CoursePlayerPage({ course }: { course: Course }) {
                                             >
                                                 {topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
                                                 <span className="flex-grow">{topic.title}</span>
+                                                {topic.pdfUrl && <FileText size={16} className="text-muted-foreground"/>}
                                             </button>
                                         ))}
                                     </div>
