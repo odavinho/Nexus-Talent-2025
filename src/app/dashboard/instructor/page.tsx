@@ -37,7 +37,7 @@ export default function InstructorDashboardPage() {
 
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Coluna Principal */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-3 space-y-8">
                     <Card>
                         <CardHeader>
                             <div className="flex justify-between items-center">
@@ -49,7 +49,7 @@ export default function InstructorDashboardPage() {
                                     <Link href="/dashboard/courses/new">Criar Novo Curso</Link>
                                 </Button>
                             </div>
-                            <CardDescription>Crie novos cursos e gerencie o conteúdo e as turmas dos existentes.</CardDescription>
+                            <CardDescription>Crie novos cursos e gerencie o conteúdo e as turmas dos existentes. Clique num curso para aceder às ferramentas de gestão.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
@@ -100,96 +100,8 @@ export default function InstructorDashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><MessageCircle /> Comunicação</CardTitle>
-                            <CardDescription>Interaja com suas turmas, envie avisos e responda a dúvidas.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid sm:grid-cols-2 gap-4">
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline" className="w-full justify-start text-left h-auto py-3 items-start">
-                                        <div className="flex gap-3">
-                                            <AlertTriangle className="text-destructive h-5 w-5 mt-1"/>
-                                            <div>
-                                                <p className="font-semibold">Enviar Alerta Urgente</p>
-                                                <p className="text-xs text-muted-foreground font-normal">Notifique sobre cancelamentos ou mudanças.</p>
-                                            </div>
-                                        </div>
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Enviar Alerta Urgente</DialogTitle>
-                                        <DialogDescription>A mensagem será enviada via notificação Push/SMS para todos os alunos do curso selecionado (simulação).</DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <Textarea placeholder="Escreva a sua mensagem curta e urgente aqui..."/>
-                                        <Button className="w-full" variant="destructive">Enviar Alerta</Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                            <Button variant="outline" className="w-full justify-start text-left h-auto py-3 items-start" disabled>
-                                <div className="flex gap-3">
-                                    <MessageSquare className="text-primary h-5 w-5 mt-1"/>
-                                    <div>
-                                        <p className="font-semibold">Fórum de Dúvidas</p>
-                                        <p className="text-xs text-muted-foreground font-normal">Aceda aos fóruns para responder aos alunos.</p>
-                                    </div>
-                                </div>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
                 </div>
 
-                {/* Coluna Lateral */}
-                <div className="space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><BarChart3/> Acompanhamento e Ferramentas</CardTitle>
-                            <CardDescription>Acompanhe o progresso e utilize ferramentas de apoio.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="secondary" className="w-full justify-start gap-2">
-                                        <ListChecks /> Registrar Atividades
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                     <DialogHeader>
-                                        <DialogTitle>Registro de Atividades</DialogTitle>
-                                        <DialogDescription>Registe notas de participação e observações (simulação).</DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <Label htmlFor="notes-students">Notas sobre os alunos</Label>
-                                        <Textarea id="notes-students" placeholder="Ex: Ana Pereira demonstrou excelente participação..."/>
-                                        <Button>Salvar Notas</Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="secondary" className="w-full justify-start gap-2">
-                                        <Library /> Materiais Complementares
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Gerir Materiais Complementares</DialogTitle>
-                                        <DialogDescription>Disponibilize slides, e-books e vídeos de preparação (simulação).</DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <Label htmlFor="material-upload">Carregar ficheiro</Label>
-                                        <Input id="material-upload" type="file" />
-                                        <Button>Carregar Material</Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
         </div>
     );
