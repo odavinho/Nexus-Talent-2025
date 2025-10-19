@@ -5,7 +5,7 @@ import { getCourseById, getCourses, getCourseCategories } from "@/lib/course-ser
 import { notFound, useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { type Metadata } from 'next';
@@ -35,13 +35,6 @@ function CoursePlayerPage({ course }: { course: Course }) {
       description: "As suas anotações foram salvas com sucesso (simulação).",
     });
   };
-
-  const handleDownload = (resourceName: string) => {
-    toast({
-        title: "Download Iniciado",
-        description: `O seu download de "${resourceName}" começou (simulação).`
-    });
-  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col">
@@ -74,8 +67,22 @@ function CoursePlayerPage({ course }: { course: Course }) {
                             <CardContent className="p-6">
                                 <h3 className="font-semibold mb-4">Materiais para Download</h3>
                                 <ul className="space-y-2">
-                                    <li className="flex items-center justify-between"><p>Apostila do Módulo.pdf</p><Button variant="outline" size="sm" onClick={() => handleDownload('Apostila.pdf')}>Download</Button></li>
-                                    <li className="flex items-center justify-between"><p>Exercícios Práticos.zip</p><Button variant="outline" size="sm" onClick={() => handleDownload('Exercícios.zip')}>Download</Button></li>
+                                    <li className="flex items-center justify-between">
+                                        <p>Apostila do Módulo.pdf</p>
+                                        <Button variant="outline" size="sm" asChild>
+                                          <a href="/resources/Apostila.pdf" download="Apostila_do_Modulo.pdf">
+                                            <Download className="mr-2 h-4 w-4" /> Download
+                                          </a>
+                                        </Button>
+                                    </li>
+                                    <li className="flex items-center justify-between">
+                                        <p>Exercícios Práticos.zip</p>
+                                        <Button variant="outline" size="sm" asChild>
+                                          <a href="/resources/Exercicios.zip" download="Exercicios_Praticos.zip">
+                                            <Download className="mr-2 h-4 w-4" /> Download
+                                          </a>
+                                        </Button>
+                                    </li>
                                 </ul>
                             </CardContent>
                         </Card>
@@ -166,3 +173,5 @@ export default function CourseDetailPage() {
   
   return <CoursePlayerPage course={course} />;
 }
+
+    

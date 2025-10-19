@@ -1,7 +1,9 @@
 
+'use client';
+
 import { getCourseById, getCourseCategories, getCourses } from "@/lib/course-service";
 import { getImages } from "@/lib/site-data";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +14,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import React from "react";
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 import type { Course } from "@/lib/types";
+import { useUser } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
 
+// This function now runs on the server, but we can't use it in a 'use client' component directly for dynamic metadata.
+// We'll rely on the client page to set the title if needed, or keep it static.
+/*
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const course = getCourseById(params.id);
 
@@ -30,7 +37,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     description: course.generalObjective,
   };
 }
-
+*/
 export function generateStaticParams() {
   const courses = getCourses();
   return courses.map((course) => ({
@@ -46,6 +53,28 @@ function CourseClientPage({ course }: { course: Course }) {
   const image = getImages().find(p => p.id === course.imageId) || null;
   
   const imageSrc = course.imageDataUri || image?.imageUrl;
+
+  const { user } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleEnroll = () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Acesso Negado",
+        description: "Você precisa fazer login para se inscrever num curso.",
+      });
+      router.push('/login');
+      return;
+    }
+    // Simulate enrollment
+    toast({
+      title: "Inscrição bem-sucedida! (Simulado)",
+      description: `Você foi inscrito no curso "${course.name}".`,
+    });
+    router.push('/dashboard/student');
+  };
 
   return (
     <>
@@ -93,7 +122,7 @@ function CourseClientPage({ course }: { course: Course }) {
                                   <AccordionContent>
                                       <ul className="list-disc pl-5 space-y-2 text-base mb-4">
                                           {module.topics.map((topic, topicIndex) => (
-                                              <li key={topicIndex}>{topic}</li>
+                                              <li key={topicIndex}>{topic.title}</li>
                                           ))}
                                       </ul>
                                        {module.videoUrl && (
@@ -123,16 +152,16 @@ function CourseClientPage({ course }: { course: Course }) {
                               <BookOpen className="w-5 h-5 text-muted-foreground" />
                               <span><strong>Modalidade:</strong> {course.format}</span>
                           </div>
+                           <div className="flex items-center gap-3">
+                              <BookOpen className="w-5 h-5 text-muted-foreground" />
+                              <span><strong>Nível:</strong> Todos os níveis</span>
+                          </div>
                           <div className="flex items-center gap-3">
                               <Clock className="w-5 h-5 text-muted-foreground" />
                               <span><strong>Carga Horária:</strong> {course.duration}</span>
                           </div>
-                          <div className="flex items-center gap-3">
-                              <Users className="w-5 h-5 text-muted-foreground" />
-                              <span><strong>Nível:</strong> Todos os níveis</span>
-                          </div>
                       </div>
-                      <Button size="lg" className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground">Inscreva-se Agora</Button>
+                      <Button size="lg" className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground" onClick={handleEnroll}>Inscreva-se Agora</Button>
                   </div>
               </div>
             </div>
@@ -166,3 +195,5 @@ export default function CourseDetailPage({ params }: { params: { id: string }}) 
   
   return <CourseClientPage course={course} />;
 }
+
+    
