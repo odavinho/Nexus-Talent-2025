@@ -1,12 +1,13 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
 import { useUser } from "@/firebase";
 import { getCourseById } from "@/lib/course-service";
 import type { Course } from "@/lib/types";
+import { useState } from "react";
 
 interface CertificateGeneratorProps {
   courseId: string;
@@ -20,20 +21,46 @@ declare module 'jspdf' {
   }
 }
 
+// Helper to fetch image and convert to base64
+const toBase64 = async (url: string) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};
+
+
 export function CertificateGenerator({ courseId, grade }: CertificateGeneratorProps) {
   const { user } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
   const studentName = user?.displayName || "Formando";
   const course = getCourseById(courseId);
 
-  const generatePdf = () => {
+  const generatePdf = async () => {
     if (!course) {
         alert("Detalhes do curso não encontrados!");
         return;
     }
+    setIsLoading(true);
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const certNumber = `Nº: ${Date.now()}-${course.id.substring(0,4)}`;
+    const validationUrl = `https://nexustalent.com/validate?cert=${certNumber}`;
+
+    // --- Generate QR Code ---
+    let qrCodeBase64 = '';
+    try {
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(validationUrl)}`;
+        qrCodeBase64 = await toBase64(qrCodeUrl) as string;
+    } catch (error) {
+        console.error("Failed to generate QR code:", error);
+    }
 
     // 1. Borders
     doc.setDrawColor(33, 150, 243); // Primary color
@@ -128,16 +155,21 @@ export function CertificateGenerator({ courseId, grade }: CertificateGeneratorPr
     doc.text(`(Emitido em: ${new Date().toLocaleDateString('pt-PT')})`, pageWidth / 2, finalY, { align: 'center' });
 
 
-    // QR Code Placeholder & Certificate Number
+    // QR Code & Certificate Number
     const qrSize = 30;
     const qrX = 20;
     const qrY = pageHeight - 15 - qrSize;
-    doc.setDrawColor(0);
-    doc.rect(qrX, qrY, qrSize, qrSize);
-    doc.setFontSize(8);
-    doc.text("QR Code", qrX + qrSize/2, qrY + qrSize/2, {align: 'center'});
+    if (qrCodeBase64) {
+        doc.addImage(qrCodeBase64, 'PNG', qrX, qrY, qrSize, qrSize);
+    } else {
+        // Fallback placeholder if QR fails
+        doc.setDrawColor(0);
+        doc.rect(qrX, qrY, qrSize, qrSize);
+        doc.setFontSize(8);
+        doc.text("QR Code", qrX + qrSize/2, qrY + qrSize/2, {align: 'center'});
+    }
     
-    const certNumber = `Nº: ${Date.now()}-${course.id.substring(0,4)}`;
+    doc.setFontSize(9);
     doc.text(certNumber, qrX, qrY + qrSize + 5);
     doc.text("Valide o certificado aqui", qrX, qrY + qrSize + 9);
 
@@ -149,13 +181,14 @@ export function CertificateGenerator({ courseId, grade }: CertificateGeneratorPr
     doc.setTextColor(100, 100, 100);
     doc.text("A Direção Pedagógica", pageWidth - 50, pageHeight - 25, { align: 'center' });
 
-
+    setIsLoading(false);
     doc.save(`Certificado_${course.name.replace(/ /g, '_')}_${studentName.replace(/ /g, '_')}.pdf`);
   };
 
   return (
-    <Button variant="default" size="sm" onClick={generatePdf}>
-      <Download className="mr-2 h-4 w-4" /> Emitir
+    <Button variant="default" size="sm" onClick={generatePdf} disabled={isLoading}>
+      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />} 
+      Emitir
     </Button>
   );
 }
