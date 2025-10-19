@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -26,12 +27,12 @@ const prompt = ai.definePrompt({
 User Profile & Goals:
 "{{{userProfile}}}"
 
-Available Courses:
+Available Courses (use this as the primary source for recommendations):
 "{{{courseCatalog}}}"
 
 Based on the user's profile and the available courses, generate a structured learning plan in Portuguese. Your response must include:
 1.  A catchy and motivational title for the plan (planTitle).
-2.  A list of 2 to 4 recommended courses (recommendedCourses). For each course, provide the course name and a concise reason explaining why it is a good fit for the user's goals.
+2.  A list of 2 to 4 recommended courses FROM THE PROVIDED CATALOG. For each course, provide the course name and a concise reason explaining why it is a good fit for the user's goals.
 3.  A brief summary of the expected outcomes and benefits for the user after completing the recommended courses (summary).
 `,
 });

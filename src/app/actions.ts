@@ -27,7 +27,7 @@ import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 import { revalidatePath } from "next/cache";
 import { promises as fs } from 'fs';
 import path from 'path';
-import { addCourse } from "@/lib/course-service";
+import { getCourses, addCourse } from "@/lib/course-service";
 
 // AI Actions
 export async function analyzeResumeAction(input: AIResumeAnalysisInput): Promise<AIResumeAnalysisOutput> {
@@ -48,12 +48,13 @@ export async function extractProfileFromResumeAction(input: ExtractProfileFromRe
   }
 
 export async function getCourseRecommendationsAction(input: { userProfile: string }): Promise<PersonalizedCourseRecommendationsOutput> {
-    // This action might need to be updated to fetch courses from Firestore in the future
-    const courseCatalog: string[] = []; // Mocked for now
+    // Fetch the existing courses from the service
+    const existingCourses = getCourses();
+    const courseCatalog = existingCourses.map(course => `${course.name}: ${course.generalObjective}`).join('\n');
     
     const flowInput: PersonalizedCourseRecommendationsInput = {
         userProfile: input.userProfile,
-        courseCatalog: courseCatalog.join('\n'),
+        courseCatalog: courseCatalog,
     }
 
     try {
