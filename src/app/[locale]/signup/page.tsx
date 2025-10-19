@@ -91,17 +91,22 @@ export default function SignupPage() {
     const [firstName, ...lastNameParts] = user.displayName?.split(' ') || [additionalData?.firstName || '', ''];
     
     const userDocRef = doc(firestore, 'users', user.uid);
-    const newUserProfile: UserProfile = {
+    
+    const profileData: UserProfile = {
       id: user.uid,
       email: user.email!,
       firstName: firstName,
       lastName: lastNameParts.join(' '),
       userType: userType,
-      profilePictureUrl: user.photoURL || undefined,
       ...additionalData,
     };
+    
+    // Explicitly add photoURL only if it exists to avoid 'undefined'
+    if (user.photoURL) {
+        profileData.profilePictureUrl = user.photoURL;
+    }
 
-    setDoc(userDocRef, newUserProfile)
+    setDoc(userDocRef, profileData)
         .then(() => {
           toast({
             title: 'Conta criada com sucesso!',
@@ -113,7 +118,7 @@ export default function SignupPage() {
             const permissionError = new FirestorePermissionError({
                 path: userDocRef.path,
                 operation: 'create',
-                requestResourceData: newUserProfile
+                requestResourceData: profileData
             });
             errorEmitter.emit('permission-error', permissionError);
             setIsLoading(false);
