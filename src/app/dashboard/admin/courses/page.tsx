@@ -165,7 +165,7 @@ export default function ManageCoursesPage() {
                 </Button>
                  <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="default" onClick={handleGenerateReport} disabled>Gerar Relatório PDF</Button>
+                        <Button variant="default" onClick={handleGenerateReport}>Gerar Relatório PDF</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl h-[90vh]">
                         <DialogHeader>

@@ -178,7 +178,7 @@ export default function ManageVacanciesPage() {
                 </Button>
                  <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="default" onClick={handleGenerateReport} disabled>Gerar Relatório PDF</Button>
+                        <Button variant="default" onClick={handleGenerateReport}>Gerar Relatório PDF</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh]">
                         <DialogHeader>
