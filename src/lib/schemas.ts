@@ -18,13 +18,20 @@ export type AIResumeAnalysisOutput = z.infer<typeof AIResumeAnalysisOutputSchema
 
 
 // Schema for Personalized Course Recommendations
+const RecommendedCourseSchema = z.object({
+    courseName: z.string().describe("The name of the recommended course."),
+    reason: z.string().describe("A brief explanation of why this course is recommended for the user."),
+});
+
 export const PersonalizedCourseRecommendationsInputSchema = z.object({
   userProfile: z.string().describe("A description of the user's interests, career goals, and current skills."),
   courseCatalog: z.string().describe("A list of available courses."),
 });
 
 export const PersonalizedCourseRecommendationsOutputSchema = z.object({
-  recommendedCourses: z.string().describe("A detailed recommendation of courses, learning tracks, and potential improvements for the user."),
+  planTitle: z.string().describe("A catchy title for the personalized learning plan."),
+  summary: z.string().describe("A brief summary of the expected outcomes and benefits for the user upon completing the recommendations."),
+  recommendedCourses: z.array(RecommendedCourseSchema).describe("A list of 2 to 4 recommended courses."),
 });
 
 export type PersonalizedCourseRecommendationsInput = z.infer<typeof PersonalizedCourseRecommendationsInputSchema>;
