@@ -1,4 +1,3 @@
-
 'use client';
 
 import { getCourseCategories, getCourses } from "@/lib/course-service";
@@ -41,12 +40,8 @@ export function CourseDetailClientPage({ course }: { course: Course }) {
       router.push('/login');
       return;
     }
-    // Simulate enrollment
-    toast({
-      title: "Inscrição bem-sucedida! (Simulado)",
-      description: `Você foi inscrito no curso "${course.name}".`,
-    });
-    router.push('/dashboard/student');
+    // Redirect to the new enrollment page
+    router.push(`/courses/${course.id}/enroll`);
   };
 
   return (

@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { WishlistProvider } from '@/hooks/use-wishlist';
 
 export const metadata: Metadata = {
   title: 'NexusTalent - Cursos e Recrutamento',
@@ -26,8 +27,10 @@ export default async function RootLayout({
       </head>
       <body className={cn('font-body antialiased bg-background min-h-screen flex flex-col')}>
         <FirebaseClientProvider>
+          <WishlistProvider>
             {children}
             <Toaster />
+          </WishlistProvider>
         </FirebaseClientProvider>
       </body>
     </html>

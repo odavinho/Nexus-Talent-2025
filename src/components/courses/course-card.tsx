@@ -5,7 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getCourseCategories } from '@/lib/course-service';
 import { getImages } from '@/lib/site-data';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Heart } from 'lucide-react';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 interface CourseCardProps {
   course: Course;
@@ -18,8 +21,25 @@ export function CourseCard({ course }: CourseCardProps) {
   const image = images.find(p => p.id === course.imageId);
   const imageSrc = course.imageDataUri || image?.imageUrl;
 
+  const { wishlist, toggleWishlist } = useWishlist();
+  const isInWishlist = wishlist.includes(course.id);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(course.id);
+  }
+
   return (
-    <Link href={`/courses/${course.id}`} className="group">
+    <Link href={`/courses/${course.id}`} className="group relative">
+       <Button 
+            variant="secondary" 
+            size="icon" 
+            className="absolute top-3 right-3 z-10 rounded-full h-8 w-8"
+            onClick={handleWishlistClick}
+        >
+            <Heart className={cn("h-4 w-4", isInWishlist ? 'fill-red-500 text-red-500' : 'text-muted-foreground')} />
+        </Button>
       <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
         <div className="relative w-full h-40">
           {imageSrc ? (

@@ -1,14 +1,14 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Award, UserCircle, Download } from "lucide-react";
+import { BookOpen, Award, UserCircle, Download, Heart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
 import { useToast } from "@/hooks/use-toast";
 import { CertificateGenerator } from "@/components/student/certificate-generator";
+import { WishlistCourses } from "@/components/student/wishlist-courses";
 
 export default function StudentDashboardPage() {
     // Mock data for enrolled courses
@@ -57,6 +57,8 @@ export default function StudentDashboardPage() {
                         </CardContent>
                     </Card>
 
+                    <WishlistCourses />
+                    
                     <CourseRecommendations />
                     
                 </div>
