@@ -195,3 +195,20 @@ export const EmailCampaignContentSchema = z.object({
 
 export type GenerateEmailCampaignInput = z.infer<typeof GenerateEmailCampaignInputSchema>;
 export type EmailCampaignContent = z.infer<typeof EmailCampaignContentSchema>;
+
+// Schemas for Chatbot Assistant
+export const ChatbotAssistanceInputSchema = z.object({
+  query: z.string().describe("The user's question or message."),
+  context: z.string().optional().describe("The current page or context the user is in."),
+});
+
+export const ChatbotAssistanceOutputSchema = z.object({
+  response: z.string().describe("The chatbot's generated response to the user."),
+  suggestedLinks: z.array(z.object({
+    title: z.string(),
+    url: z.string(),
+  })).optional().describe("A list of relevant links to suggest to the user."),
+});
+
+export type ChatbotAssistanceInput = z.infer<typeof ChatbotAssistanceInputSchema>;
+export type ChatbotAssistanceOutput = z.infer<typeof ChatbotAssistanceOutputSchema>;

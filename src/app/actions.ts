@@ -9,6 +9,7 @@ import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume
 import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
 import { generateModuleAssessment } from "@/ai/flows/generate-module-assessment";
 import { generateEmailCampaign } from "@/ai/flows/generate-email-campaign";
+import { chatbotAssistance } from "@/ai/flows/chatbot-assistant";
 
 
 import type { 
@@ -19,7 +20,8 @@ import type {
     ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
     GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
     GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput,
-    GenerateEmailCampaignInput, EmailCampaignContent
+    GenerateEmailCampaignInput, EmailCampaignContent,
+    ChatbotAssistanceInput, ChatbotAssistanceOutput
 } from "@/lib/schemas";
 import type { Course } from "@/lib/types";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
@@ -130,6 +132,16 @@ export async function generateAssessmentTestAction(input: GenerateAssessmentTest
           throw new Error("Failed to generate email campaign content. Please try again.");
       }
   }
+  
+  export async function getChatbotResponseAction(input: ChatbotAssistanceInput): Promise<ChatbotAssistanceOutput> {
+    try {
+        const output = await chatbotAssistance(input);
+        return output;
+    } catch (error) {
+        console.error("Error in getChatbotResponseAction:", error);
+        throw new Error("O assistente de IA não conseguiu responder. Tente novamente.");
+    }
+}
 
 
 // JSON file actions

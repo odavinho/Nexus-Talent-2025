@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { WishlistProvider } from '@/hooks/use-wishlist.tsx';
+import { Chatbot } from '@/components/shared/chatbot';
 
 export const metadata: Metadata = {
   title: 'NexusTalent - Cursos e Recrutamento',
@@ -29,6 +30,7 @@ export default async function RootLayout({
         <FirebaseClientProvider>
           <WishlistProvider>
             {children}
+            <Chatbot />
             <Toaster />
           </WishlistProvider>
         </FirebaseClientProvider>
