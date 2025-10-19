@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Save, Trash2, PlusCircle, Link as LinkIcon, Bot } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Trash2, PlusCircle, Link as LinkIcon, Bot, FileUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateModuleAssessmentAction } from '@/app/actions';
 import Image from 'next/image';
@@ -44,7 +44,7 @@ const moduleSchema = z.object({
   topics: z.array(z.object({ 
     title: z.string().min(1, "O tópico não pode estar vazio."),
     videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
-    pdfUrl: z.string().url("Insira um URL de PDF válido.").optional().or(z.literal('')),
+    pdfUrl: z.string().optional(),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
@@ -288,9 +288,9 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="relative">
-                                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <FormControl>
-                                                <Input placeholder="URL do PDF (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                                <Input type="file" accept=".pdf" className="pl-9 text-xs h-8" />
                                             </FormControl>
                                         </div>
                                     <FormMessage />

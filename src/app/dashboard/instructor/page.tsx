@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send } from "lucide-react";
+import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -18,12 +18,16 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getCourses } from "@/lib/course-service";
+import { GeneralReport } from "@/components/admin/general-report";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis } from "recharts";
+
 
 // Mock data
 const managedCourses = [
-    { id: 'TA-001', name: 'Técnicas de Apresentação', students: 25, averageGrade: 88, status: 'Ativo' },
-    { id: 'GC-002', name: 'Gestão de Conflitos', students: 18, averageGrade: 91, status: 'Ativo' },
-    { id: 'EN-427', name: 'Excel Avançado', students: 32, averageGrade: null, status: 'Rascunho' },
+    { id: 'TA-001', name: 'Técnicas de Apresentação', students: 25, averageGrade: 88, status: 'Ativo', engagement: 85 },
+    { id: 'GC-002', name: 'Gestão de Conflitos', students: 18, averageGrade: 91, status: 'Ativo', engagement: 92 },
+    { id: 'EN-427', name: 'Excel Avançado', students: 32, averageGrade: null, status: 'Rascunho', engagement: 0 },
 ];
 
 const mockStudents = [
@@ -31,6 +35,25 @@ const mockStudents = [
     { id: 'student3', name: 'Carla Santos', email: 'carla.s@email.com', status: 'Inscrito', grade: 88 },
     { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Inscrito', grade: 92 },
 ];
+
+const KpiCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+    <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{value}</div>
+        </CardContent>
+    </Card>
+);
+
+const chartConfig = {
+  engaged: {
+    label: "Alunos Engajados",
+    color: "hsl(var(--chart-1))",
+  },
+}
 
 
 function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
@@ -158,6 +181,24 @@ function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
 
 
 export default function InstructorDashboardPage() {
+    const [reportData, setReportData] = useState<any>(null);
+
+    const handleGenerateReport = () => {
+        const studentEngagementByCourse = managedCourses.map(c => ({
+            name: c.name,
+            engaged: c.engagement,
+        }));
+
+        setReportData({
+            instructorKpis: {
+                activeStudents: managedCourses.reduce((sum, c) => sum + c.students, 0),
+                publishedCourses: managedCourses.filter(c => c.status === 'Ativo').length,
+                avgCompletionRate: 85, // Mock data
+                avgRating: 4.7, // Mock data
+            },
+            studentEngagementByCourse,
+        });
+    }
 
     return (
         <div>
@@ -166,81 +207,98 @@ export default function InstructorDashboardPage() {
                 <p className="text-muted-foreground">Crie, gira e avalie os seus cursos e formandos de forma eficiente.</p>
             </div>
 
-            <div className="grid lg:grid-cols-4 gap-8">
-                {/* Coluna Principal */}
-                <div className="lg:col-span-4 space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="flex items-center gap-2">
-                                    <BookOpen />
-                                    Meus Cursos
-                                </CardTitle>
-                                <Button asChild>
-                                    <Link href="/dashboard/courses/new">Criar Novo Curso</Link>
-                                </Button>
-                            </div>
-                            <CardDescription>Crie novos cursos e gira o conteúdo e as turmas dos existentes.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {managedCourses.map(course => (
-                                    <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
-                                        <div className="flex-grow">
-                                            <h4 className="font-semibold">{course.name} <Badge variant={course.status === 'Ativo' ? 'default' : 'secondary'}>{course.status}</Badge></h4>
-                                            <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
-                                                <span className="flex items-center gap-1"><Users size={14} /> {course.students} alunos</span>
-                                                {course.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {course.averageGrade}%</span>}
-                                            </p>
-                                        </div>
-                                        <div className="flex gap-2 shrink-0">
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="outline">Gerir Turma</Button>
-                                                </DialogTrigger>
-                                                <ManageClassDialog course={course} />
-                                            </Dialog>
-                                             <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Library /> Biblioteca de Conteúdo</CardTitle>
-                                <CardDescription>Gira os seus materiais reutilizáveis (vídeos, PDFs).</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Button variant="outline" className="w-full" disabled><FileUp className="mr-2 h-4 w-4" /> Gerir Materiais</Button>
-                            </CardContent>
-                        </Card>
-                         <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><MessageSquare /> Comunicação</CardTitle>
-                                <CardDescription>Interaja com os seus alunos e envie anúncios.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                                <Button variant="outline" className="w-full" disabled><Mail className="mr-2 h-4 w-4" /> Enviar Anúncio Geral</Button>
-                                 <Button variant="outline" className="w-full" disabled><AlertTriangle className="mr-2 h-4 w-4" /> Enviar Alerta Urgente</Button>
-                            </CardContent>
-                        </Card>
-                         <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><ListChecks /> Avaliações</CardTitle>
-                                <CardDescription>Crie trabalhos e gira a avaliação dos seus alunos.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Button variant="outline" className="w-full" disabled>Ver Trabalhos</Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <KpiCard title="Alunos Ativos" value="75" icon={Users} />
+                    <KpiCard title="Cursos Publicados" value="2" icon={BookOpen} />
+                    <KpiCard title="Taxa de Conclusão Média" value="85%" icon={Percent} />
+                    <KpiCard title="Avaliação Média" value="4.7" icon={Star} />
                 </div>
 
+                <div className="grid md:grid-cols-2 gap-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Engajamento dos Alunos por Curso</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <ChartContainer config={chartConfig} className="h-64">
+                                <BarChart accessibilityLayer data={managedCourses}>
+                                    <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} fontSize={12} interval={0} />
+                                    <YAxis />
+                                    <ChartTooltip content={<ChartTooltipContent />} />
+                                    <Bar dataKey="engagement" fill="var(--color-engaged)" radius={4} />
+                                </BarChart>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <BarChart3 />
+                                Relatórios e Análises
+                            </CardTitle>
+                            <CardDescription>Obtenha uma visão detalhada do desempenho dos seus cursos e alunos.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground mb-4">Exporte relatórios completos em PDF para as suas análises ou para partilhar.</p>
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="default" onClick={handleGenerateReport}>
+                                        <FileDown className="mr-2 h-4 w-4" /> Gerar Relatório
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl max-h-[90vh]">
+                                    <DialogHeader>
+                                        <DialogTitle>Relatório de Desempenho do Formador</DialogTitle>
+                                        <DialogDescription>
+                                            Visão geral da sua atividade na plataforma NexusTalent.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    {reportData && <GeneralReport data={reportData} reportType="instructor" />}
+                                </DialogContent>
+                            </Dialog>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="flex items-center gap-2">
+                                <BookOpen />
+                                Meus Cursos
+                            </CardTitle>
+                            <Button asChild>
+                                <Link href="/dashboard/courses/new">Criar Novo Curso</Link>
+                            </Button>
+                        </div>
+                        <CardDescription>Crie novos cursos e gira o conteúdo e as turmas dos existentes.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {managedCourses.map(course => (
+                                <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
+                                    <div className="flex-grow">
+                                        <h4 className="font-semibold">{course.name} <Badge variant={course.status === 'Ativo' ? 'default' : 'secondary'}>{course.status}</Badge></h4>
+                                        <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+                                            <span className="flex items-center gap-1"><Users size={14} /> {course.students} alunos</span>
+                                            {course.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {course.averageGrade}%</span>}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2 shrink-0">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant="outline">Gerir Turma</Button>
+                                            </DialogTrigger>
+                                            <ManageClassDialog course={course} />
+                                        </Dialog>
+                                         <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
