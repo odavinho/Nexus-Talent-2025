@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -104,18 +105,31 @@ export default function CheckoutPage() {
               </div>
               <div className="space-y-6 bg-secondary/50 p-6 rounded-lg">
                  <h3 className="font-semibold text-lg">Procedimentos de Pagamento</h3>
-                 <p className="text-sm text-muted-foreground">
-                    Para cursos presenciais e outras modalidades que exijam pagamento, siga as instruções abaixo após confirmar a sua inscrição.
-                 </p>
-                 <div className="text-sm space-y-1">
-                    <p><strong>IBAN:</strong> AO06 0000 0000 0000 0000 0000 0</p>
-                    <p><strong>Beneficiário:</strong> NexusTalent Formação & Consultoria</p>
-                    <p><strong>Referência:</strong> {course.id}-{new Date().getTime()}</p>
-                 </div>
-                 <p className="text-xs text-muted-foreground">Por favor, envie o comprovativo de pagamento para o nosso e-mail de suporte para acelerar a confirmação.</p>
+                  <Tabs defaultValue="reference" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="reference">Referência</TabsTrigger>
+                      <TabsTrigger value="express">Expresso</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="reference" className="mt-4 text-sm space-y-3">
+                      <p className="text-xs text-muted-foreground">Efetue o pagamento numa caixa Multicaixa ou no seu Internet Banking usando os dados abaixo.</p>
+                      <div className="font-mono p-4 border rounded-md bg-background">
+                        <p><strong>Entidade:</strong> 12345</p>
+                        <p><strong>Referência:</strong> {`123 456 ${new Date().getTime().toString().slice(-3)}`}</p>
+                        <p><strong>Montante:</strong> AOA 25.000,00</p>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="express" className="mt-4 text-sm space-y-3">
+                        <p className="text-xs text-muted-foreground">Efetue o pagamento através do serviço Expresso do seu banco.</p>
+                        <div className="font-mono p-4 border rounded-md bg-background">
+                            <p><strong>Telefone:</strong> +244 9XX XXX XXX</p>
+                            <p><strong>Montante:</strong> AOA 25.000,00</p>
+                            <p className="mt-2 text-xs">Por favor, envie o comprovativo para o nosso e-mail após a conclusão.</p>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                  <Button className="w-full" size="lg" onClick={handlePayment} disabled={isProcessing}>
                     {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
-                    Confirmar e Pagar
+                    Confirmar Inscrição
                 </Button>
               </div>
             </CardContent>

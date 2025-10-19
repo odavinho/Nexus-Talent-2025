@@ -23,6 +23,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
+const ENROLLMENT_STORAGE_KEY = 'nexus-enrollment-data';
+
 const enrollmentSchema = z.object({
   // Personal Info
   fullName: z.string().min(1, 'O nome completo é obrigatório.'),
@@ -97,16 +99,29 @@ export default function EnrollPage() {
   }, [id]);
 
   useEffect(() => {
-    if (user && !isUserLoading) {
-        // Find a mock user profile. In a real app, this would be a Firestore fetch.
-        const mockUserProfile = mockUsers.find(u => u.id === 'student1'); 
-        form.reset({
-            fullName: user.displayName || '',
-            email: user.email || '',
-            phone: mockUserProfile?.phoneNumber || '',
-            nationality: mockUserProfile?.nationality || '',
-            profession: mockUserProfile?.academicTitle || '',
-        });
+    if (!isUserLoading) {
+      try {
+        const storedData = localStorage.getItem(ENROLLMENT_STORAGE_KEY);
+        let dataToSet: Partial<EnrollmentFormValues> = {};
+
+        if (storedData) {
+            dataToSet = JSON.parse(storedData);
+        }
+
+        // Prioritize Firebase user profile data for core fields
+        if (user) {
+            const mockUserProfile = mockUsers.find(u => u.id === 'student1'); 
+            dataToSet.fullName = user.displayName || dataToSet.fullName || '';
+            dataToSet.email = user.email || dataToSet.email || '';
+            dataToSet.phone = mockUserProfile?.phoneNumber || dataToSet.phone || '';
+            dataToSet.nationality = mockUserProfile?.nationality || dataToSet.nationality || '';
+            dataToSet.profession = mockUserProfile?.academicTitle || dataToSet.profession || '';
+        }
+
+        form.reset(dataToSet);
+      } catch (error) {
+        console.error("Failed to load or parse enrollment data:", error);
+      }
     }
   }, [user, isUserLoading, form]);
 
@@ -114,12 +129,21 @@ export default function EnrollPage() {
   const onSubmit: SubmitHandler<EnrollmentFormValues> = (data) => {
     if (!course) return;
 
-    toast({
-        title: "Inscrição Enviada!",
-        description: "Os seus dados foram confirmados. A redirecionar para o passo final de pagamento.",
-    });
-
-    router.push(`/courses/${course.id}/checkout`);
+    try {
+        localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(data));
+        toast({
+            title: "Inscrição Enviada!",
+            description: "Os seus dados foram confirmados. A redirecionar para o passo final de pagamento.",
+        });
+        router.push(`/courses/${course.id}/checkout`);
+    } catch (error) {
+        console.error("Failed to save enrollment data:", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao Guardar",
+            description: "Não foi possível guardar os seus dados para futuras inscrições."
+        });
+    }
   };
 
   if (isLoading || isUserLoading) {
@@ -228,7 +252,7 @@ export default function EnrollPage() {
                      <h3 className="font-headline text-xl border-b pb-2">Pagamento e Termos</h3>
                      <div className="text-sm space-y-2 p-4 border rounded-md bg-secondary/50">
                         <h4 className="font-semibold">Formas de Pagamento</h4>
-                        <p>O pagamento pode ser efetuado através de cartão ou transferência/depósito. Mais detalhes serão fornecidos no próximo passo.</p>
+                        <p>O pagamento pode ser efetuado através de referência para caixas automáticas ou transferência/depósito. Mais detalhes serão fornecidos no próximo passo.</p>
                      </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="item-1">
