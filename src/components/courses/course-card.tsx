@@ -6,7 +6,7 @@ import { getCourseCategories } from '@/lib/course-service';
 import { getImages } from '@/lib/site-data';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Heart } from 'lucide-react';
-import { useWishlist } from '@/hooks/use-wishlist';
+import { useWishlist } from '@/hooks/use-wishlist.tsx';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 

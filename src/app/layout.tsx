@@ -3,7 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { WishlistProvider } from '@/hooks/use-wishlist';
+import { WishlistProvider } from '@/hooks/use-wishlist.tsx';
 
 export const metadata: Metadata = {
   title: 'NexusTalent - Cursos e Recrutamento',

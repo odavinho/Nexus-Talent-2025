@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useWishlist } from '@/hooks/use-wishlist';
+import { useWishlist } from '@/hooks/use-wishlist.tsx';
 import { getCourses } from '@/lib/course-service';
 import type { Course } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
