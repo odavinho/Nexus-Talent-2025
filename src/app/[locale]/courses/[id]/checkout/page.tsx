@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import { getCourseById } from '@/lib/course-service';
 import type { Course } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   }
 
   if (!course) {
-    return <div>Curso não encontrado</div>;
+    return notFound();
   }
 
   const image = getImages().find(p => p.id === course.imageId);

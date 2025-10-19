@@ -58,7 +58,7 @@ const enrollmentSchema = z.object({
 
   // Course Knowledge
   hasKnowledge: z.enum(['Sim', 'Nao']).optional(),
-  knowledgeLevel: z.enum(['Básico', 'Intermédio', 'Avançado']).optional(),
+  knowledgeLevel: z.enum(['Nenhum', 'Básico', 'Intermédio', 'Avançado']).optional(),
   courseReason: z.array(z.string()).optional(),
 
   // Agreement
@@ -185,7 +185,7 @@ export default function EnrollPage() {
                         <FormItem><FormLabel>Tem algum conhecimento sobre o curso?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Sim" /></FormControl><FormLabel className="font-normal">Sim</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Nao" /></FormControl><FormLabel className="font-normal">Não</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
                     )} />
                      <FormField control={form.control} name="knowledgeLevel" render={({ field }) => (
-                        <FormItem><FormLabel>Nível de conhecimento</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Básico" /></FormControl><FormLabel className="font-normal">Básico</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Intermédio" /></FormControl><FormLabel className="font-normal">Intermédio</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Avançado" /></FormControl><FormLabel className="font-normal">Avançado</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Nível de conhecimento</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-4"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Nenhum" /></FormControl><FormLabel className="font-normal">Nenhum</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Básico" /></FormControl><FormLabel className="font-normal">Básico</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Intermédio" /></FormControl><FormLabel className="font-normal">Intermédio</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="Avançado" /></FormControl><FormLabel className="font-normal">Avançado</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField
                       control={form.control}
@@ -228,9 +228,7 @@ export default function EnrollPage() {
                      <h3 className="font-headline text-xl border-b pb-2">Pagamento e Termos</h3>
                      <div className="text-sm space-y-2 p-4 border rounded-md bg-secondary/50">
                         <h4 className="font-semibold">Formas de Pagamento</h4>
-                        <p>O pagamento pode ser efetuado através de cartão ou transferência/depósito.</p>
-                        <p><strong>Beneficiário:</strong> Conexão Académica</p>
-                        <p><strong>IBAN:</strong> AO06 0044 0000 1090 2914 101 85</p>
+                        <p>O pagamento pode ser efetuado através de cartão ou transferência/depósito. Mais detalhes serão fornecidos no próximo passo.</p>
                      </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="item-1">
