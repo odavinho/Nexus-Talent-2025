@@ -9,9 +9,9 @@ import { CourseRecommendations } from "@/components/dashboard/course-recommendat
 export default function StudentDashboardPage() {
     // Mock data for enrolled courses
     const enrolledCourses = [
-        { name: 'Técnicas de Apresentação', progress: 75, grade: 88 },
-        { name: 'Gestão de Conflitos', progress: 40, grade: null },
-        { name: 'Excel Avançado', progress: 100, grade: 95 },
+        { id: 'TA-001', name: 'Técnicas de Apresentação', progress: 75, grade: 88 },
+        { id: 'GC-002', name: 'Gestão de Conflitos', progress: 40, grade: null },
+        { id: 'EN-427', name: 'Excel Avançado', progress: 100, grade: 95 },
     ];
 
     return (
@@ -32,15 +32,15 @@ export default function StudentDashboardPage() {
                             <CardDescription>Continue de onde parou e acompanhe seu progresso.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {enrolledCourses.map(course => (
-                                    <div key={course.name}>
+                                    <Link key={course.id} href={`/dashboard/courses/${course.id}`} className="block hover:bg-secondary/50 p-4 rounded-lg transition-colors">
                                         <div className="flex justify-between items-center mb-1">
                                             <h4 className="font-medium">{course.name}</h4>
                                             <span className="text-sm font-semibold text-primary">{course.progress}%</span>
                                         </div>
                                         <Progress value={course.progress} className="h-2" />
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                              <Button asChild className="mt-6">

@@ -1,168 +1,131 @@
 
-import { getCourseById, getCourseCategories, getCourses } from "@/lib/course-service";
-import { getImages } from "@/lib/site-data";
-import { notFound } from "next/navigation";
-import Image from 'next/image';
+'use client';
+
+import { getCourseById, getCourses, getCourseCategories } from "@/lib/course-service";
+import { notFound, useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook } from "lucide-react";
 import Link from "next/link";
-import { CourseCard } from "@/components/courses/course-card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { type Metadata } from 'next';
-import type { Course } from "@/lib/types";
+import type { Course, CourseModule } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const course = getCourseById(params.id);
 
-  if (!course) {
-    return {
-      title: 'Curso não encontrado',
-      description: 'O curso que você está procurando não existe.',
-    };
-  }
-
-  return {
-    title: `${course.name} | Cursos NexusTalent`,
-    description: course.generalObjective,
-  };
-}
-
-export function generateStaticParams() {
-  const courses = getCourses();
-  return courses.map((course) => ({
-    id: course.id,
-  }));
-}
-
-function CourseClientPage({ course }: { course: Course }) {
-  const category = getCourseCategories().find(c => c.id === course.category) || null;
-  const relatedCourses = getCourses()
-      .filter(c => c.category === course.category && c.id !== course.id)
-      .slice(0, 4);
-  const image = getImages().find(p => p.id === course.imageId) || null;
-  
-  const imageSrc = course.imageDataUri || image?.imageUrl;
+function CoursePlayerPage({ course }: { course: Course }) {
+  const [activeModule, setActiveModule] = useState<CourseModule | null>(course.modules[0] || null);
 
   return (
-    <>
-      <Header />
-      <main className="bg-card">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Link href="/courses" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-              <ArrowLeft size={16} /> Voltar para cursos
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col">
+       <div className="mb-6">
+         <Link href="/dashboard/student" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft size={16} /> Voltar ao Painel
           </Link>
-          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-            <div className="lg:col-span-2">
-              {category && <Badge className="mb-2">{category.name}</Badge>}
-              <h1 className="font-headline text-3xl md:text-4xl font-bold">{course.name}</h1>
-              <p className="text-lg text-muted-foreground mt-2 font-mono">{course.id}</p>
-              
-              <div className="mt-8 prose prose-lg max-w-none text-foreground/90">
-                  <div className="p-6 border rounded-lg bg-background">
-                      <div className="flex items-start gap-4">
-                          <Target className="w-8 h-8 text-primary mt-1 flex-shrink-0" />
-                          <div>
-                              <h3 className="font-headline text-xl mt-0">Objetivo Geral</h3>
-                              <p className="text-base">{course.generalObjective}</p>
-                          </div>
-                      </div>
-                  </div>
+         <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{course.name}</h1>
+       </div>
 
-                  <div className="mt-8">
-                      <h3 className="font-headline flex items-center gap-2"><CheckCircle className="w-6 h-6 text-primary" /> O que vai aprender</h3>
-                      <ul className="mt-4 space-y-2">
-                          {course.whatYouWillLearn.map((objective, index) => (
-                              <li key={index} className="flex items-start gap-3">
-                                  <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0"/>
-                                  <span>{objective}</span>
-                              </li>
-                          ))}
-                      </ul>
-                  </div>
-
-                  <div className="mt-12">
-                      <h3 className="font-headline flex items-center gap-2"><List className="w-6 h-6 text-primary"/> Conteúdo Programático (Módulos)</h3>
-                      <Accordion type="single" collapsible className="w-full mt-4">
-                          {course.modules.map((module, index) => (
-                              <AccordionItem value={`item-${index}`} key={index}>
-                                  <AccordionTrigger className="text-lg font-semibold hover:no-underline">{module.title}</AccordionTrigger>
-                                  <AccordionContent>
-                                      <ul className="list-disc pl-5 space-y-2 text-base mb-4">
-                                          {module.topics.map((topic, topicIndex) => (
-                                              <li key={topicIndex}>{topic}</li>
-                                          ))}
-                                      </ul>
-                                       {module.videoUrl && (
-                                            <Button asChild>
-                                                <a href={module.videoUrl} target="_blank" rel="noopener noreferrer">
-                                                    <Video className="mr-2 h-4 w-4" /> Assistir Aula
-                                                </a>
-                                            </Button>
-                                        )}
-                                  </AccordionContent>
-                              </AccordionItem>
-                          ))}
-                      </Accordion>
-                  </div>
-              </div>
+        <div className="grid lg:grid-cols-3 gap-8 flex-grow">
+            {/* Main Content - Video Player and Tabs */}
+            <div className="lg:col-span-2 flex flex-col">
+                {/* Video Player Placeholder */}
+                <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center text-white mb-6">
+                    <Video size={64} />
+                    <p className="ml-4 text-xl">Simulação do Media Player</p>
+                </div>
+                
+                {/* Tabs for Resources, Quizzes, Notes */}
+                <Tabs defaultValue="resources" className="w-full">
+                    <TabsList>
+                        <TabsTrigger value="resources"><FileText className="mr-2 h-4 w-4"/>Recursos</TabsTrigger>
+                        <TabsTrigger value="quiz"><Bot className="mr-2 h-4 w-4"/>Teste Rápido</TabsTrigger>
+                        <TabsTrigger value="journal"><Notebook className="mr-2 h-4 w-4"/>Diário de Aprendizagem</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="resources">
+                        <Card>
+                            <CardContent className="p-6">
+                                <h3 className="font-semibold mb-4">Materiais para Download</h3>
+                                <ul className="space-y-2">
+                                    <li className="flex items-center justify-between"><p>Apostila do Módulo.pdf</p><Button variant="outline" size="sm">Download</Button></li>
+                                    <li className="flex items-center justify-between"><p>Exercícios Práticos.zip</p><Button variant="outline" size="sm">Download</Button></li>
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="quiz">
+                         <Card>
+                            <CardContent className="p-6 text-center">
+                                <h3 className="font-semibold mb-4">Quiz Interativo (Simulação)</h3>
+                                <p className="text-muted-foreground mb-4">Esta área irá conter um quiz interativo para testar os seus conhecimentos.</p>
+                                <Button>Iniciar Quiz</Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="journal">
+                         <Card>
+                            <CardContent className="p-6">
+                                <h3 className="font-semibold mb-4">Minhas Anotações</h3>
+                                <Textarea placeholder="Faça as suas anotações aqui. Elas serão salvas automaticamente." className="h-32"/>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
             </div>
+
+            {/* Sidebar - Module List */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24">
-                  {imageSrc && (
-                      <div className="relative w-full h-56 rounded-lg overflow-hidden mb-6 shadow-lg">
-                          <Image src={imageSrc} alt={image?.description || course.name} fill className="object-cover" data-ai-hint={image?.imageHint} />
-                      </div>
-                  )}
-                  <div className="border rounded-lg p-6 bg-background">
-                      <div className="space-y-4 text-sm">
-                          <div className="flex items-center gap-3">
-                              <BookOpen className="w-5 h-5 text-muted-foreground" />
-                              <span><strong>Modalidade:</strong> {course.format}</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                              <Clock className="w-5 h-5 text-muted-foreground" />
-                              <span><strong>Carga Horária:</strong> {course.duration}</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                              <Users className="w-5 h-5 text-muted-foreground" />
-                              <span><strong>Nível:</strong> Todos os níveis</span>
-                          </div>
-                      </div>
-                      <Button size="lg" className="w-full mt-6 bg-accent hover:bg-accent/90 text-accent-foreground">Inscreva-se Agora</Button>
-                  </div>
-              </div>
+                <Card className="h-full flex flex-col">
+                    <div className="p-4 border-b">
+                        <h2 className="font-semibold text-lg">Módulos do Curso</h2>
+                    </div>
+                    <ScrollArea className="flex-grow">
+                        <div className="p-2 space-y-1">
+                            {course.modules.map((module, index) => (
+                                <button 
+                                    key={index} 
+                                    onClick={() => setActiveModule(module)}
+                                    className={`w-full text-left p-3 rounded-md transition-colors ${activeModule?.title === module.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
+                                >
+                                    <p className="flex items-center gap-2"><BookOpen size={16}/> Módulo {index + 1}: {module.title}</p>
+                                    <div className="pl-6 mt-1">
+                                        {module.topics.map((topic, topicIndex) => (
+                                            <p key={topicIndex} className="text-xs text-muted-foreground">&bull; {topic}</p>
+                                        ))}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </Card>
             </div>
-          </div>
         </div>
-        {relatedCourses.length > 0 && (
-          <div className="bg-background py-16">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                  <h2 className="font-headline text-3xl font-bold text-center mb-10">Mais cursos para carreiras Profissional de {category?.name}</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                      {relatedCourses.map(relatedCourse => (
-                          <CourseCard key={relatedCourse.id} course={relatedCourse} />
-                      ))}
-                  </div>
-              </div>
-          </div>
-        )}
-      </main>
-      <Footer />
-    </>
+    </div>
   );
 }
 
 
-export default function CourseDetailPage({ params }: { params: { id: string }}) {
-  const course = getCourseById(params.id);
+export default function CourseDetailPage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [course, setCourse] = useState<Course | null | undefined>(undefined);
 
-  if (!course) {
-    notFound();
+  useEffect(() => {
+    if (id) {
+        const foundCourse = getCourseById(id);
+        setCourse(foundCourse);
+    }
+  }, [id]);
+
+  if (course === undefined) {
+    return <div>A carregar...</div>
   }
   
-  return <CourseClientPage course={course} />;
+  if (!course) {
+    return notFound();
+  }
+  
+  return <CoursePlayerPage course={course} />;
 }
