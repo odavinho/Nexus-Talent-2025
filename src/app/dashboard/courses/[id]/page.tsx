@@ -5,7 +5,7 @@ import { getCourseById, getCourses, getCourseCategories } from "@/lib/course-ser
 import { notFound, useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { type Metadata } from 'next';
@@ -28,7 +28,7 @@ function CoursePlayerPage({ course }: { course: Course }) {
       setActiveTopic(topic);
   };
   
-  const handleNotesBlur = () => {
+  const handleSaveNotes = () => {
     // Simula o salvamento das anotações
     toast({
       title: "Diário Salvo!",
@@ -94,12 +94,14 @@ function CoursePlayerPage({ course }: { course: Course }) {
                             <CardContent className="p-6">
                                 <h3 className="font-semibold mb-4">Minhas Anotações</h3>
                                 <Textarea 
-                                    placeholder="Faça as suas anotações aqui. Elas serão salvas automaticamente quando sair do campo." 
-                                    className="h-32"
+                                    placeholder="Faça as suas anotações aqui..." 
+                                    className="h-32 mb-4"
                                     value={journalNotes}
                                     onChange={(e) => setJournalNotes(e.target.value)}
-                                    onBlur={handleNotesBlur}
                                 />
+                                <Button onClick={handleSaveNotes}>
+                                  <Save className="mr-2 h-4 w-4"/> Guardar Anotações
+                                </Button>
                             </CardContent>
                         </Card>
                     </TabsContent>
