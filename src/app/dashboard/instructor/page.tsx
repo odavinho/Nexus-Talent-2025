@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { getCourses } from "@/lib/course-service";
 
 // Mock data
 const managedCourses = [
@@ -185,13 +186,13 @@ export default function InstructorDashboardPage() {
                             <div className="space-y-3">
                                 {managedCourses.map(course => (
                                     <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
-                                        <Link href={`/dashboard/courses/${course.id}`} className="flex-grow">
+                                        <div className="flex-grow">
                                             <h4 className="font-semibold">{course.name} <Badge variant={course.status === 'Ativo' ? 'default' : 'secondary'}>{course.status}</Badge></h4>
                                             <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
                                                 <span className="flex items-center gap-1"><Users size={14} /> {course.students} alunos</span>
                                                 {course.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {course.averageGrade}%</span>}
                                             </p>
-                                        </Link>
+                                        </div>
                                         <div className="flex gap-2 shrink-0">
                                             <Dialog>
                                                 <DialogTrigger asChild>
@@ -199,7 +200,7 @@ export default function InstructorDashboardPage() {
                                                 </DialogTrigger>
                                                 <ManageClassDialog course={course} />
                                             </Dialog>
-                                            <Button asChild variant="secondary"><Link href={`/dashboard/courses/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
+                                             <Button asChild variant="secondary"><Link href={`/dashboard/courses/${course.id}/edit`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
                                         </div>
                                     </Card>
                                 ))}

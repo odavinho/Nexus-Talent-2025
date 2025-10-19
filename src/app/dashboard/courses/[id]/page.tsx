@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { getCourseById } from "@/lib/course-service";
