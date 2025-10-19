@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,12 @@ import { Download } from "lucide-react";
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
 import { useUser } from "@/firebase";
+import { getCourseById } from "@/lib/course-service";
+import type { Course } from "@/lib/types";
 
 interface CertificateGeneratorProps {
-  courseName: string;
+  courseId: string;
+  grade: number;
 }
 
 // Extend jsPDF interface to include autoTable method for TypeScript
@@ -18,11 +20,17 @@ declare module 'jspdf' {
   }
 }
 
-export function CertificateGenerator({ courseName }: CertificateGeneratorProps) {
+export function CertificateGenerator({ courseId, grade }: CertificateGeneratorProps) {
   const { user } = useUser();
   const studentName = user?.displayName || "Formando";
+  const course = getCourseById(courseId);
 
   const generatePdf = () => {
+    if (!course) {
+        alert("Detalhes do curso não encontrados!");
+        return;
+    }
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -48,45 +56,99 @@ export function CertificateGenerator({ courseName }: CertificateGeneratorProps) 
     doc.setFontSize(36);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(41, 52, 98); // Dark blue color
-    doc.text("CERTIFICADO", pageWidth / 2, 60, { align: 'center' });
-    doc.setFontSize(18);
-    doc.text("CERTIFICATE", pageWidth / 2, 70, { align: 'center' });
-
+    doc.text("CERTIFICADO", pageWidth / 2, 50, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text("CERTIFICATE OF COMPLETION", pageWidth / 2, 58, { align: 'center' });
+    
     // 4. Main Body Text
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
-    const bodyText = `Certificamos que, para os devidos efeitos, o(a) formando(a):`;
-    doc.text(bodyText, pageWidth / 2, 120, { align: 'center' });
-
+    doc.text("Este Certificado atesta que: (This is to certify that:)", pageWidth / 2, 75, { align: 'center' });
+    
     // 5. Student Name
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text(studentName, pageWidth / 2, 140, { align: 'center' });
+    doc.text(studentName.toUpperCase(), pageWidth / 2, 88, { align: 'center' });
     
     // 6. Course Conclusion Text
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
-    const courseText = `Concluiu com sucesso a formação em:`;
-    doc.text(courseText, pageWidth / 2, 160, { align: 'center' });
+    doc.text("Completou com sucesso o curso: (Has successfully completed the training course on:)", pageWidth / 2, 100, { align: 'center' });
     
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text(courseName, pageWidth / 2, 175, { align: 'center' });
+    doc.text(course.name.toUpperCase(), pageWidth / 2, 110, { align: 'center' });
+
+    doc.setFontSize(10);
+    const dates = "20.01.2025 a 24.01.2025";
+    const location = "no Centro de Formação Profissional Conexão Acadêmica em Luanda"
+    const workload = `com carga horária de ${course.duration}.`
+    doc.text(`Realizado de ${dates} ${location}, ${workload}`, pageWidth / 2, 120, { align: 'center' });
+    doc.text(`Conducted from ${dates} at Conexão Acadêmica Training Center in Luanda with a workload ${course.duration}.`, pageWidth / 2, 125, { align: 'center' });
+
+    // --- Table ---
+    const tableData = course.modules.map(module => [
+      `${module.title.split(' / ')[0]}\n${module.title.split(' / ')[1] || ''}`,
+      `${module.duration || 'N/A'}`
+    ]);
+
+    doc.autoTable({
+        startY: 135,
+        head: [['Módulos/Module', 'Carga Horária/Workload']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 52, 98], halign: 'center' },
+        columnStyles: { 1: { halign: 'center' } },
+        didParseCell: function (data) {
+            if (data.section === 'head') {
+                data.cell.styles.fontStyle = 'bold';
+            }
+        }
+    });
     
-    // 7. Signature Line
+    let finalY = (doc as any).lastAutoTable.finalY + 10;
+    
+    // Final text
+    doc.setFontSize(10);
+    const finalText1 = `Este curso foi conduzido pelo Centro de Formação Profissional Conexão Acadêmica realizado no período de 20 a 24 de Janeiro de 2025, com carga horária de ${course.duration}. Tendo obtido uma classificação final de ${grade}% numa escala de 0 a 100%.`;
+    const finalText2 = `This course was conducted by the Conexão Acadêmica Professional Training Center held from January 20th to 24th, 2025, with a 30-hour workload. Having obtained a final rating of ${grade}% on a scale of 0 to 100%.`
+
+    doc.text(doc.splitTextToSize(finalText1, pageWidth - 40), pageWidth / 2, finalY, { align: 'center', maxWidth: pageWidth - 40 });
+    finalY += 15;
+    doc.text(doc.splitTextToSize(finalText2, pageWidth - 40), pageWidth / 2, finalY, { align: 'center', maxWidth: pageWidth - 40 });
+
+    finalY += 20;
+
+    // Issue Date
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`(Emitido em: ${new Date().toLocaleDateString('pt-PT')})`, pageWidth / 2, finalY, { align: 'center' });
+
+
+    // QR Code Placeholder & Certificate Number
+    const qrSize = 30;
+    const qrX = 20;
+    const qrY = pageHeight - 15 - qrSize;
+    doc.setDrawColor(0);
+    doc.rect(qrX, qrY, qrSize, qrSize);
+    doc.setFontSize(8);
+    doc.text("QR Code", qrX + qrSize/2, qrY + qrSize/2, {align: 'center'});
+    
+    const certNumber = `Nº: ${Date.now()}-${course.id.substring(0,4)}`;
+    doc.text(certNumber, qrX, qrY + qrSize + 5);
+    doc.text("Valide o certificado aqui", qrX, qrY + qrSize + 9);
+
+
+    // Signature Line
     doc.setLineWidth(0.5);
-    doc.line(70, 220, pageWidth - 70, 220);
+    doc.line(pageWidth - 80, pageHeight - 30, pageWidth - 20, pageHeight - 30);
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text("A Direção Pedagógica", pageWidth / 2, 225, { align: 'center' });
+    doc.text("A Direção Pedagógica", pageWidth - 50, pageHeight - 25, { align: 'center' });
 
-    // 8. Footer with logos (as text placeholders)
-    doc.setFontSize(8);
-    doc.text("ANPG | mirempet | AMPP | STCW | nebosh | SpRAT | IADC | CompTIA | ISO", pageWidth / 2, pageHeight - 15, { align: 'center' });
 
-    // 9. Save the PDF
-    doc.save(`Certificado_${courseName.replace(/ /g, '_')}_${studentName.replace(/ /g, '_')}.pdf`);
+    doc.save(`Certificado_${course.name.replace(/ /g, '_')}_${studentName.replace(/ /g, '_')}.pdf`);
   };
 
   return (

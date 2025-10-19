@@ -22,6 +22,7 @@ export interface CourseModule {
   topics: CourseTopic[];
   videoUrl?: string; // This can be a general module video
   assessment?: ModuleAssessment;
+  duration?: string;
 }
 
 export interface Course {

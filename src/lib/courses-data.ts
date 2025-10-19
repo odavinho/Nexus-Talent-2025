@@ -17,10 +17,10 @@ export const courses: Course[] = [
       'Adaptar a apresentação a diferentes tipos de audiência.'
     ],
     modules: [
-      { title: 'Módulo 1: Planeamento e Estrutura', topics: [{title: 'Definição de objetivos'}, {title: 'Análise da audiência'}, {title: 'Estruturas de discurso (Storytelling)'}, {title: 'Organização do conteúdo'}] },
-      { title: 'Módulo 2: Comunicação e Expressão', topics: [{title: 'Linguagem verbal: clareza, tom e ritmo'}, {title: 'Linguagem não-verbal: postura, gestos e contacto visual'}, {title: 'Técnicas de dicção e projecção de voz'}] },
-      { title: 'Módulo 3: O Apresentador', topics: [{title: 'Gestão da ansiedade e autoconfiança'}, {title: 'Interação com a audiência'}, {title: 'Gestão de perguntas e respostas'}] },
-      { title: 'Módulo 4: Suportes Visuais', topics: [{title: 'Design de slides (PowerPoint/Google Slides)'}, {title: 'Princípios de design gráfico para apresentações'}, {title: 'Uso de imagens, gráficos e multimédia'}] }
+      { title: 'Módulo 1: Planeamento e Estrutura', duration: '6 h.', topics: [{title: 'Definição de objetivos'}, {title: 'Análise da audiência'}, {title: 'Estruturas de discurso (Storytelling)'}, {title: 'Organização do conteúdo'}] },
+      { title: 'Módulo 2: Comunicação e Expressão', duration: '8 h.', topics: [{title: 'Linguagem verbal: clareza, tom e ritmo'}, {title: 'Linguagem não-verbal: postura, gestos e contacto visual'}, {title: 'Técnicas de dicção e projecção de voz'}] },
+      { title: 'Módulo 3: O Apresentador', duration: '6 h.', topics: [{title: 'Gestão da ansiedade e autoconfiança'}, {title: 'Interação com a audiência'}, {title: 'Gestão de perguntas e respostas'}] },
+      { title: 'Módulo 4: Suportes Visuais', duration: '4 h.', topics: [{title: 'Design de slides (PowerPoint/Google Slides)'}, {title: 'Princípios de design gráfico para apresentações'}, {title: 'Uso de imagens, gráficos e multimédia'}] }
     ]
   },
   { 
@@ -39,10 +39,10 @@ export const courses: Course[] = [
       'Transformar situações de conflito em oportunidades de crescimento.'
     ],
     modules: [
-      { title: 'Módulo 1: Introdução ao Conflito', topics: [{title: 'Tipos e níveis de conflito'}, {title: 'Causas comuns de conflitos'}, {title: 'O ciclo de vida do conflito', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}] },
-      { title: 'Módulo 2: Estilos de Gestão de Conflitos', topics: [{title: 'Diagnóstico de estilos pessoais'}, {title: 'Vantagens e desvantagens de cada estilo'}] },
-      { title: 'Módulo 3: Comunicação e Negociação', topics: [{title: 'Escuta ativa e empatia'}, {title: 'Comunicação assertiva vs. agressiva'}, {title: 'Princípios da negociação de Harvard'}] },
-      { title: 'Módulo 4: Mediação e Resolução', topics: [{title: 'O papel do mediador'}, {title: 'Passos para a resolução de conflitos'}, {title: 'Criação de acordos ganha-ganha'}] }
+      { title: 'Módulo 1: Introdução ao Conflito', duration: '4 h.', topics: [{title: 'Tipos e níveis de conflito'}, {title: 'Causas comuns de conflitos'}, {title: 'O ciclo de vida do conflito', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}] },
+      { title: 'Módulo 2: Estilos de Gestão de Conflitos', duration: '6 h.', topics: [{title: 'Diagnóstico de estilos pessoais'}, {title: 'Vantagens e desvantagens de cada estilo'}] },
+      { title: 'Módulo 3: Comunicação e Negociação', duration: '6 h.', topics: [{title: 'Escuta ativa e empatia'}, {title: 'Comunicação assertiva vs. agressiva'}, {title: 'Princípios da negociação de Harvard'}] },
+      { title: 'Módulo 4: Mediação e Resolução', duration: '4 h.', topics: [{title: 'O papel do mediador'}, {title: 'Passos para a resolução de conflitos'}, {title: 'Criação de acordos ganha-ganha'}] }
     ]
   },
   { 
@@ -61,10 +61,10 @@ export const courses: Course[] = [
       'Gerir o desempenho da equipa e promover o desenvolvimento individual.'
     ], 
     modules: [
-      { title: 'Módulo 1: Fundamentos da Liderança', topics: [{title: 'Teorias de liderança'}, {title: 'Líder vs. Chefe'}] }, 
-      { title: 'Módulo 2: Inteligência Emocional', topics: [{title: 'Autoconhecimento e autogestão'}, {title: 'Empatia e gestão de relacionamentos'}] }, 
-      { title: 'Módulo 3: Comunicação e Feedback', topics: [{title: 'Comunicação assertiva'}, {title: 'Técnicas de feedback construtivo'}] }, 
-      { title: 'Módulo 4: Motivação e Gestão', topics: [{title: 'Teorias da motivação'}, {title: 'Definição de metas SMART'}] }] 
+      { title: 'Módulo 1: Fundamentos da Liderança', duration: '8 h.', topics: [{title: 'Teorias de liderança'}, {title: 'Líder vs. Chefe'}] }, 
+      { title: 'Módulo 2: Inteligência Emocional', duration: '8 h.', topics: [{title: 'Autoconhecimento e autogestão'}, {title: 'Empatia e gestão de relacionamentos'}] }, 
+      { title: 'Módulo 3: Comunicação e Feedback', duration: '7 h.', topics: [{title: 'Comunicação assertiva'}, {title: 'Técnicas de feedback construtivo'}] }, 
+      { title: 'Módulo 4: Motivação e Gestão', duration: '7 h.', topics: [{title: 'Teorias da motivação'}, {title: 'Definição de metas SMART'}] }] 
   },
   { 
     id: 'EN-427', 
@@ -82,10 +82,10 @@ export const courses: Course[] = [
       'Utilizar metodologias de gestão de projectos (PMBOK, Agile).'
     ], 
     modules: [
-      { title: 'Módulo 1: Introdução à Gestão de Projectos', topics: [{title: 'O que é um projecto?'}, {title: 'O papel do Gestor de Projectos'}] }, 
-      { title: 'Módulo 2: Iniciação e Planeamento', topics: [{title: 'Elaboração do Project Charter'}, {title: 'Definição do escopo (WBS)'}, {title: 'Criação do cronograma e orçamento'}] }, 
-      { title: 'Módulo 3: Execução e Controlo', topics: [{title: 'Gestão da equipa do projecto'}, {title: 'Monitorização do progresso (KPIs)'}] }, 
-      { title: 'Módulo 4: Encerramento e Metodologias', topics: [{title: 'Entrega do projecto'}, {title: 'Lições aprendidas'}, {title: 'Introdução ao Scrum e Kanban'}] }] 
+      { title: 'Módulo 1: Introdução à Gestão de Projectos', duration: '10 h.', topics: [{title: 'O que é um projecto?'}, {title: 'O papel do Gestor de Projectos'}] }, 
+      { title: 'Módulo 2: Iniciação e Planeamento', duration: '10 h.', topics: [{title: 'Elaboração do Project Charter'}, {title: 'Definição do escopo (WBS)'}, {title: 'Criação do cronograma e orçamento'}] }, 
+      { title: 'Módulo 3: Execução e Controlo', duration: '10 h.', topics: [{title: 'Gestão da equipa do projecto'}, {title: 'Monitorização do progresso (KPIs)'}] }, 
+      { title: 'Módulo 4: Encerramento e Metodologias', duration: '10 h.', topics: [{title: 'Entrega do projecto'}, {title: 'Lições aprendidas'}, {title: 'Introdução ao Scrum e Kanban'}] }] 
   },
   { 
     id: 'NE-74', 
@@ -103,10 +103,10 @@ export const courses: Course[] = [
       'Publicar e partilhar relatórios no serviço Power BI.'
     ], 
     modules: [
-      { title: 'Módulo 1: Introdução ao Power BI', topics: [{title: 'O que é o Power BI'}, {title: 'Instalação e interface'}] }, 
-      { title: 'Módulo 2: Obter e Transformar Dados', topics: [{title: 'Conectar a diferentes fontes'}, {title: 'Limpeza e transformação de dados'}] }, 
-      { title: 'Módulo 3: Modelação de Dados e DAX', topics: [{title: 'Criação de relacionamentos'}, {title: 'Introdução às funções DAX'}] }, 
-      { title: 'Módulo 4: Visualização e Publicação', topics: [{title: 'Criação de relatórios'}, {title: 'Publicação no Power BI Service'}] }] 
+      { title: 'Módulo 1: Introdução ao Power BI', duration: '5 h.', topics: [{title: 'O que é o Power BI'}, {title: 'Instalação e interface'}] }, 
+      { title: 'Módulo 2: Obter e Transformar Dados', duration: '10 h.', topics: [{title: 'Conectar a diferentes fontes'}, {title: 'Limpeza e transformação de dados'}] }, 
+      { title: 'Módulo 3: Modelação de Dados e DAX', duration: '10 h.', topics: [{title: 'Criação de relacionamentos'}, {title: 'Introdução às funções DAX'}] }, 
+      { title: 'Módulo 4: Visualização e Publicação', duration: '10 h.', topics: [{title: 'Criação de relatórios'}, {title: 'Publicação no Power BI Service'}] }] 
   },
   { 
     id: 'GE-003', 
@@ -124,9 +124,9 @@ export const courses: Course[] = [
       'Aplicar a inteligência emocional na resolução de problemas.'
     ], 
     modules: [
-      { title: 'Módulo 1: Pilares da Inteligência Emocional', topics: [{title: 'Definição e importância'}, {title: 'Autoconsciência emocional'}] }, 
-      { title: 'Módulo 2: Autogestão', topics: [{title: 'Controlo de impulsos'}, {title: 'Gestão do stress'}, {title: 'Automotivação'}] }, 
-      { title: 'Módulo 3: Consciência Social', topics: [{title: 'Empatia'}, {title: 'Consciência organizacional'}] }, 
-      { title: 'Módulo 4: Gestão de Relacionamentos', topics: [{title: 'Comunicação eficaz'}, {title: 'Influência e liderança'}] }] 
+      { title: 'Módulo 1: Pilares da Inteligência Emocional', duration: '4 h.', topics: [{title: 'Definição e importância'}, {title: 'Autoconsciência emocional'}] }, 
+      { title: 'Módulo 2: Autogestão', duration: '4 h.', topics: [{title: 'Controlo de impulsos'}, {title: 'Gestão do stress'}, {title: 'Automotivação'}] }, 
+      { title: 'Módulo 3: Consciência Social', duration: '4 h.', topics: [{title: 'Empatia'}, {title: 'Consciência organizacional'}] }, 
+      { title: 'Módulo 4: Gestão de Relacionamentos', duration: '4 h.', topics: [{title: 'Comunicação eficaz'}, {title: 'Influência e liderança'}] }] 
   }
 ];
