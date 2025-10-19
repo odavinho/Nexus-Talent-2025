@@ -15,7 +15,7 @@ import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, 
 import { useToast } from '@/hooks/use-toast';
 import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction } from '@/app/actions';
 import Image from 'next/image';
-import type { Course } from '@/lib/types';
+import type { Course, CourseTopic } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import {
@@ -41,7 +41,10 @@ const moduleQuestionSchema = z.object({
 
 const moduleSchema = z.object({
   title: z.string().min(1, "O título do módulo é obrigatório."),
-  topics: z.array(z.object({ value: z.string().min(1, "O tópico não pode estar vazio.") })),
+  topics: z.array(z.object({ 
+    title: z.string().min(1, "O tópico não pode estar vazio."),
+    videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal(''))
+  })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
 });
@@ -103,7 +106,7 @@ export default function NewCoursePage() {
       
       const modulesForForm = result.modules.map(m => ({
         ...m,
-        topics: m.topics.map(t => ({ value: t })),
+        topics: m.topics.map(t => ({ title: t, videoUrl: '' })),
         videoUrl: '',
       }));
       form.setValue('modules', modulesForForm);
@@ -151,7 +154,7 @@ export default function NewCoursePage() {
       whatYouWillLearn: data.whatYouWillLearn?.split('\n').filter(line => line.trim() !== '') || [],
       modules: data.modules?.map(m => ({
           title: m.title,
-          topics: m.topics.map(t => t.value),
+          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl })),
           videoUrl: m.videoUrl,
           assessment: m.assessment,
       })) || [],
@@ -240,7 +243,7 @@ export default function NewCoursePage() {
                            <ModuleField key={field.id} moduleIndex={index} form={form} onRemove={() => remove(index)} />
                         ))}
                       </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{value: ''}], videoUrl: '' })} className="mt-4">
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: ''}], videoUrl: '' })} className="mt-4">
                         <PlusCircle className="mr-2 h-4 w-4"/>Adicionar Módulo
                       </Button>
                     </div>
@@ -289,20 +292,39 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
         />
         
         <div className='space-y-2'>
-            <FormLabel>Tópicos da Aula</FormLabel>
+            <FormLabel>Tópicos da Aula (Lições)</FormLabel>
             {fields.map((topicField, topicIndex) => (
-                <div key={topicField.id} className="flex items-center gap-2">
-                    <FormField
-                        control={form.control}
-                        name={`modules.${moduleIndex}.topics.${topicIndex}.value`}
-                        render={({ field }) => (
-                           <FormItem className='flex-grow'><FormControl><Input {...field} placeholder={`Tópico ${topicIndex + 1}`} /></FormControl><FormMessage /></FormItem>
+                <div key={topicField.id} className="flex items-start gap-2 bg-background/50 p-3 rounded-md">
+                    <div className="flex-grow space-y-2">
+                        <FormField
+                            control={form.control}
+                            name={`modules.${moduleIndex}.topics.${topicIndex}.title`}
+                            render={({ field }) => (
+                            <FormItem className='flex-grow'><FormControl><Input {...field} placeholder={`Título do Tópico ${topicIndex + 1}`} /></FormControl><FormMessage /></FormItem>
+                            )}
+                        />
+                        {(courseFormat === 'Online' || courseFormat === 'Híbrido') && (
+                            <FormField
+                                control={form.control}
+                                name={`modules.${moduleIndex}.topics.${topicIndex}.videoUrl`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="relative">
+                                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <FormControl>
+                                                <Input placeholder="URL da Videoaula (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                            </FormControl>
+                                        </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         )}
-                    />
+                    </div>
                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(topicIndex)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ value: '' })}>
+            <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: '', videoUrl: '' })}>
                 <PlusCircle className="mr-2 h-3 w-3"/>Adicionar Tópico
             </Button>
         </div>
@@ -313,7 +335,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
             name={`modules.${moduleIndex}.videoUrl`}
             render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL da Videoaula</FormLabel>
+                  <FormLabel>URL da Videoaula Principal do Módulo (Opcional)</FormLabel>
                   <div className="relative">
                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
@@ -328,7 +350,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
         <ModuleAssessmentGenerator
             moduleIndex={moduleIndex} 
             moduleTitle={moduleTitle} 
-            topics={moduleTopics?.map((t: {value: string}) => t.value) || []} 
+            topics={moduleTopics?.map((t: {title: string}) => t.title) || []} 
             mainForm={form}
         />
       </div>

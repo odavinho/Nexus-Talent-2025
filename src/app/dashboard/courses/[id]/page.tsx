@@ -9,15 +9,39 @@ import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, Fi
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { type Metadata } from 'next';
-import type { Course, CourseModule } from "@/lib/types";
+import type { Course, CourseModule, CourseTopic } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 
 function CoursePlayerPage({ course }: { course: Course }) {
   const [activeModule, setActiveModule] = useState<CourseModule | null>(course.modules[0] || null);
+  const [activeTopic, setActiveTopic] = useState<CourseTopic | null>(course.modules[0]?.topics[0] || null);
+  const [journalNotes, setJournalNotes] = useState('');
+  const { toast } = useToast();
+
+  const handleTopicClick = (module: CourseModule, topic: CourseTopic) => {
+      setActiveModule(module);
+      setActiveTopic(topic);
+  };
+  
+  const handleNotesBlur = () => {
+    // Simula o salvamento das anotações
+    toast({
+      title: "Diário Salvo!",
+      description: "As suas anotações foram salvas com sucesso (simulação).",
+    });
+  };
+
+  const handleDownload = (resourceName: string) => {
+    toast({
+        title: "Download Iniciado",
+        description: `O seu download de "${resourceName}" começou (simulação).`
+    });
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col">
@@ -32,9 +56,10 @@ function CoursePlayerPage({ course }: { course: Course }) {
             {/* Main Content - Video Player and Tabs */}
             <div className="lg:col-span-2 flex flex-col">
                 {/* Video Player Placeholder */}
-                <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center text-white mb-6">
+                <div className="w-full aspect-video bg-black rounded-lg flex flex-col items-center justify-center text-white mb-6 p-4 text-center">
                     <Video size={64} />
-                    <p className="ml-4 text-xl">Simulação do Media Player</p>
+                    <p className="ml-4 text-xl mt-4">Simulação do Media Player</p>
+                    <p className="text-muted-foreground text-sm mt-2">A mostrar conteúdo para: <strong className="text-white">{activeTopic?.title || activeModule?.title}</strong></p>
                 </div>
                 
                 {/* Tabs for Resources, Quizzes, Notes */}
@@ -49,8 +74,8 @@ function CoursePlayerPage({ course }: { course: Course }) {
                             <CardContent className="p-6">
                                 <h3 className="font-semibold mb-4">Materiais para Download</h3>
                                 <ul className="space-y-2">
-                                    <li className="flex items-center justify-between"><p>Apostila do Módulo.pdf</p><Button variant="outline" size="sm">Download</Button></li>
-                                    <li className="flex items-center justify-between"><p>Exercícios Práticos.zip</p><Button variant="outline" size="sm">Download</Button></li>
+                                    <li className="flex items-center justify-between"><p>Apostila do Módulo.pdf</p><Button variant="outline" size="sm" onClick={() => handleDownload('Apostila.pdf')}>Download</Button></li>
+                                    <li className="flex items-center justify-between"><p>Exercícios Práticos.zip</p><Button variant="outline" size="sm" onClick={() => handleDownload('Exercícios.zip')}>Download</Button></li>
                                 </ul>
                             </CardContent>
                         </Card>
@@ -68,7 +93,13 @@ function CoursePlayerPage({ course }: { course: Course }) {
                          <Card>
                             <CardContent className="p-6">
                                 <h3 className="font-semibold mb-4">Minhas Anotações</h3>
-                                <Textarea placeholder="Faça as suas anotações aqui. Elas serão salvas automaticamente." className="h-32"/>
+                                <Textarea 
+                                    placeholder="Faça as suas anotações aqui. Elas serão salvas automaticamente quando sair do campo." 
+                                    className="h-32"
+                                    value={journalNotes}
+                                    onChange={(e) => setJournalNotes(e.target.value)}
+                                    onBlur={handleNotesBlur}
+                                />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -79,23 +110,27 @@ function CoursePlayerPage({ course }: { course: Course }) {
             <div className="lg:col-span-1">
                 <Card className="h-full flex flex-col">
                     <div className="p-4 border-b">
-                        <h2 className="font-semibold text-lg">Módulos do Curso</h2>
+                        <h2 className="font-semibold text-lg">Conteúdo do Curso</h2>
                     </div>
                     <ScrollArea className="flex-grow">
-                        <div className="p-2 space-y-1">
+                        <div className="p-2">
                             {course.modules.map((module, index) => (
-                                <button 
-                                    key={index} 
-                                    onClick={() => setActiveModule(module)}
-                                    className={`w-full text-left p-3 rounded-md transition-colors ${activeModule?.title === module.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
-                                >
-                                    <p className="flex items-center gap-2"><BookOpen size={16}/> Módulo {index + 1}: {module.title}</p>
-                                    <div className="pl-6 mt-1">
+                                <div key={index} className='py-2'>
+                                    <h3 className='font-semibold px-3 py-2 text-primary/80'>{module.title}</h3>
+                                    <div className='space-y-1'>
                                         {module.topics.map((topic, topicIndex) => (
-                                            <p key={topicIndex} className="text-xs text-muted-foreground">&bull; {topic}</p>
+                                            <button 
+                                                key={topicIndex} 
+                                                onClick={() => handleTopicClick(module, topic)}
+                                                className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
+                                            >
+                                                <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/>
+                                                <span className="flex-grow">{topic.title}</span>
+                                                {topic.videoUrl && <Video size={16} className="text-muted-foreground"/>}
+                                            </button>
                                         ))}
                                     </div>
-                                </button>
+                                </div>
                             ))}
                         </div>
                     </ScrollArea>

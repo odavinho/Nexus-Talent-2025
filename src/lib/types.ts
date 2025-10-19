@@ -12,10 +12,15 @@ export interface ModuleAssessment {
   questions: ModuleQuestion[];
 }
 
+export interface CourseTopic {
+    title: string;
+    videoUrl?: string;
+}
+
 export interface CourseModule {
   title: string;
-  topics: string[];
-  videoUrl?: string;
+  topics: CourseTopic[];
+  videoUrl?: string; // This can be a general module video
   assessment?: ModuleAssessment;
 }
 
