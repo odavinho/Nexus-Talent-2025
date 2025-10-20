@@ -5,7 +5,7 @@
 import { getCourseById } from "@/lib/course-service";
 import { notFound, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation, Inbox } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation, Library, Inbox } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 import type { Course, CourseModule, CourseTopic } from "@/lib/types";
