@@ -29,6 +29,8 @@ export interface CourseModule {
   duration?: string;
 }
 
+export type CourseStatus = 'Ativo' | 'Pendente' | 'Rejeitado' | 'Rascunho';
+
 export interface Course {
     id: string;
     name: string;
@@ -40,6 +42,7 @@ export interface Course {
     generalObjective: string;
     whatYouWillLearn: string[];
     modules: CourseModule[];
+    status: CourseStatus;
   }
   
   export interface CourseCategory {

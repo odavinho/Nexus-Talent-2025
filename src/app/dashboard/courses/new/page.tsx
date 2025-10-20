@@ -55,7 +55,7 @@ const moduleSchema = z.object({
   topics: z.array(z.object({ 
     title: z.string().min(1, "O tópico não pode estar vazio."),
     videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
-    pdfUrl: z.string().optional(),
+    pdfUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
     powerpointUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
@@ -199,7 +199,7 @@ export default function NewCoursePage() {
         return;
     }
 
-    const courseData: Course = {
+    const courseData: Omit<Course, 'status'> = {
       id: data.id,
       name: data.courseName,
       category: data.courseCategory,
@@ -227,8 +227,8 @@ export default function NewCoursePage() {
 
       if (result.success) {
         toast({
-            title: "Curso salvo!",
-            description: "O curso foi adicionado com sucesso.",
+            title: "Curso Submetido para Aprovação!",
+            description: "O seu curso foi enviado para revisão pelo administrador.",
         });
         // Force a refresh to ensure new localStorage data is loaded on the next page
         router.push('/dashboard/instructor');
@@ -240,7 +240,7 @@ export default function NewCoursePage() {
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Erro ao salvar o curso',
+        title: 'Erro ao submeter o curso',
         description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
       });
     } finally {
@@ -343,7 +343,7 @@ export default function NewCoursePage() {
                   </div>
     
                   <Button type="submit" disabled={isSaving} className="w-full bg-green-600 hover:bg-green-700">
-                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <><Save className="mr-2 h-4 w-4" /> Salvar Curso</>}
+                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <><Save className="mr-2 h-4 w-4" /> Submeter para Aprovação</>}
                   </Button>
                 </div>
               )}

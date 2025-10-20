@@ -1,7 +1,7 @@
 
 import { courses as initialCourses } from './courses';
 import { courseCategories as allCourseCategories } from './courses';
-import type { Course, CourseCategory } from './types';
+import type { Course, CourseCategory, CourseStatus } from './types';
 
 // In-memory store for courses, acting as a cache for localStorage
 let courses: Course[] | null = null;
@@ -51,9 +51,10 @@ const saveCourses = (newCourses: Course[]): void => {
 
 
 // Function to get all courses
-export const getCourses = (): Course[] => {
+export const getCourses = (includePending: boolean = false): Course[] => {
     const allCourses = loadCourses();
-    return [...allCourses].sort((a, b) => a.name.localeCompare(b.name));
+    const activeCourses = includePending ? allCourses : allCourses.filter(c => c.status === 'Ativo');
+    return [...activeCourses].sort((a, b) => a.name.localeCompare(b.name));
 };
 
 // Function to get all course categories
@@ -68,23 +69,28 @@ export const getCourseById = (id: string): Course | undefined => {
 };
 
 // Function to add a new course
-export const addCourse = (courseData: Course): Course => {
+export const addCourse = (courseData: Omit<Course, 'status'>): Course => {
     const currentCourses = loadCourses();
     
     if (currentCourses.some(c => c.id === courseData.id)) {
         throw new Error(`Um curso com o ID '${courseData.id}' já existe.`);
     }
 
-    const newCourses = [courseData, ...currentCourses];
+    const newCourse: Course = {
+        ...courseData,
+        status: 'Pendente',
+    };
+
+    const newCourses = [newCourse, ...currentCourses];
     saveCourses(newCourses);
     
-    return courseData;
+    return newCourse;
 };
 
 
 // Function to update an existing course
 export const updateCourse = (id: string, updatedData: Partial<Course>): Course | null => {
-    const currentCourses = getCourses();
+    const currentCourses = loadCourses();
     const courseIndex = currentCourses.findIndex(c => c.id === id);
     if (courseIndex === -1) {
         return null; // Course not found
@@ -102,11 +108,13 @@ export const updateCourse = (id: string, updatedData: Partial<Course>): Course |
     return updatedCourse;
 }
 
+export const updateCourseStatus = (id: string, status: CourseStatus): Course | null => {
+    return updateCourse(id, { status });
+}
+
 // Function to delete a course
 export const deleteCourse = (id: string): void => {
     const currentCourses = getCourses();
     const newCourses = currentCourses.filter(c => c.id !== id);
     saveCourses(newCourses);
 };
-
-    

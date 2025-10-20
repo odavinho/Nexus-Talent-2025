@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail, AreaChart, DollarSign, Repeat, FileDown } from "lucide-react";
+import { BookMarked, User, Briefcase, GraduationCap, Settings, Files, BarChart, Mail, AreaChart, DollarSign, Repeat, FileDown, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -105,6 +105,20 @@ export default function AdminDashboardPage() {
                             </Button>
                             <Button asChild variant="outline">
                                 <Link href="/dashboard/admin/courses">Gerir Cursos</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <ClipboardCheck />
+                                Aprovações de Cursos
+                            </CardTitle>
+                            <CardDescription>Reveja e aprove os cursos submetidos pelos formadores.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <Button asChild>
+                                <Link href="/dashboard/admin/approvals">Gerir Aprovações</Link>
                             </Button>
                         </CardContent>
                     </Card>

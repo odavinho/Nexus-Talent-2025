@@ -91,14 +91,15 @@ export async function generateCourseImageAction(imageHint: string): Promise<stri
 }
 
 
-export async function addCourseAction(course: Course): Promise<{ success: boolean; message: string; course?: Course }> {
+export async function addCourseAction(course: Omit<Course, 'status'>): Promise<{ success: boolean; message: string; course?: Course }> {
     try {
         const newCourse = addCourse(course);
         // Revalidate paths where courses are listed to reflect the change
         revalidatePath('/courses');
         revalidatePath('/dashboard/admin/courses');
         revalidatePath('/dashboard/instructor');
-        return { success: true, message: 'Curso adicionado com sucesso!', course: newCourse };
+        revalidatePath('/dashboard/admin/approvals');
+        return { success: true, message: 'Curso submetido com sucesso!', course: newCourse };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Falha ao adicionar o curso.';
         console.error("Error in addCourseAction:", error);

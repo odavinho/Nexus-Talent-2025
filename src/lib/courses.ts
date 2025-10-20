@@ -1,3 +1,4 @@
+
 import type { Course, CourseCategory } from './types';
 
 export const courseCategories: CourseCategory[] = [
@@ -20,6 +21,7 @@ export const courses: Course[] = [
     name: 'Técnicas de Apresentação', 
     category: 'dev-pessoal', 
     imageId: 'course-presentation',
+    status: 'Ativo',
     duration: '24 horas',
     format: 'Presencial',
     generalObjective: 'Desenvolver as competências de comunicação e apresentação em público, permitindo realizar apresentações eficazes e de alto impacto.',
@@ -42,6 +44,7 @@ export const courses: Course[] = [
     name: 'Gestão de Conflitos', 
     category: 'dev-pessoal', 
     imageId: 'course-conflict',
+    status: 'Ativo',
     duration: '20 horas',
     format: 'Online',
     generalObjective: 'Capacitar os participantes com ferramentas e técnicas para identificar, gerir e resolver conflitos de forma construtiva no ambiente de trabalho.',
@@ -64,6 +67,7 @@ export const courses: Course[] = [
     name: 'Liderança e Motivação de Pessoas', 
     category: 'rh-gestao', 
     imageId: 'course-leadership', 
+    status: 'Ativo',
     duration: '30 horas', 
     format: 'Híbrido',
     generalObjective: 'Capacitar os participantes com as competências essenciais para liderar e motivar equipas, promovendo um ambiente de trabalho produtivo e positivo.', 
@@ -85,6 +89,7 @@ export const courses: Course[] = [
     name: 'Gestão de Projectos', 
     category: 'rh-gestao', 
     imageId: 'course-project-management', 
+    status: 'Ativo',
     duration: '40 horas', 
     format: 'Online',
     generalObjective: 'Fornecer aos participantes os conhecimentos, ferramentas e técnicas fundamentais para gerir projectos de forma eficaz, desde o início até à conclusão.', 
@@ -106,6 +111,7 @@ export const courses: Course[] = [
     name: 'Power BI Microsoft', 
     category: 'informatica-it', 
     imageId: 'course-power-bi', 
+    status: 'Ativo',
     duration: '35 horas', 
     format: 'Online',
     generalObjective: 'Capacitar os participantes a transformar dados brutos em dashboards e relatórios interactivos e visualmente apelativos, utilizando o Microsoft Power BI.', 
@@ -127,6 +133,7 @@ export const courses: Course[] = [
     name: 'Gestão Emocional', 
     category: 'dev-pessoal', 
     imageId: 'course-emotional', 
+    status: 'Ativo',
     duration: '16 horas', 
     format: 'Presencial',
     generalObjective: 'Desenvolver a inteligência emocional dos participantes para melhorarem o autoconhecimento, a autogestão, a empatia e os relacionamentos interpessoais.', 

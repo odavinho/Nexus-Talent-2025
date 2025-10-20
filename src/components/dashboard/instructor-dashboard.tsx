@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import { getCourses } from "@/lib/course-service";
 import { GeneralReport } from "@/components/admin/general-report";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import type { UserProfile, Course } from "@/lib/types";
+import type { UserProfile, Course, CourseStatus } from "@/lib/types";
 import { users as mockAllUsers } from "@/lib/users";
 import { getImages } from '@/lib/site-data';
 import Image from "next/image";
@@ -69,12 +70,20 @@ const chartConfig = {
   },
 }
 
+const statusVariantMap: Record<CourseStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  'Ativo': 'default',
+  'Pendente': 'secondary',
+  'Rejeitado': 'destructive',
+  'Rascunho': 'outline',
+};
+
 export function InstructorDashboard() {
     const [reportData, setReportData] = useState<any>(null);
     const [managedCourses, setManagedCourses] = useState<Course[]>([]);
     
     useEffect(() => {
-        setManagedCourses(getCourses());
+        // We pass `true` to get all courses, including pending ones, for the instructor's view.
+        setManagedCourses(getCourses(true)); 
     }, []);
 
     const handleGenerateReport = () => {
@@ -116,8 +125,8 @@ export function InstructorDashboard() {
             <div className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <KpiCard title="Alunos Ativos" value="75" icon={Users} />
-                    <KpiCard title="Cursos Publicados" value={managedCoursesData.length.toString()} icon={BookOpen} />
-                    <KpiCard title="Taxa de Conclusão Média" value="85%" icon={Percent} />
+                    <KpiCard title="Cursos Publicados" value={managedCourses.filter(c => c.status === 'Ativo').length.toString()} icon={BookOpen} />
+                    <KpiCard title="Cursos Pendentes" value={managedCourses.filter(c => c.status === 'Pendente').length.toString()} icon={Activity} />
                     <KpiCard title="Avaliação Média" value="4.7" icon={Star} />
                 </div>
 
@@ -167,7 +176,7 @@ export function InstructorDashboard() {
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <h4 className="font-semibold">{course.name} <Badge variant={courseMockData?.status === 'Ativo' ? 'default' : 'secondary'}>{courseMockData?.status || 'Rascunho'}</Badge></h4>
+                                                        <h4 className="font-semibold">{course.name} <Badge variant={statusVariantMap[course.status]}>{course.status}</Badge></h4>
                                                         <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
                                                             <span className="flex items-center gap-1"><Users size={14} /> {courseMockData?.students || 0} alunos</span>
                                                             {courseMockData?.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {courseMockData.averageGrade}%</span>}
