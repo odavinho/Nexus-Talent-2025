@@ -97,6 +97,7 @@ export async function addCourseAction(course: Course): Promise<{ success: boolea
         // Revalidate paths where courses are listed to reflect the change
         revalidatePath('/courses');
         revalidatePath('/dashboard/admin/courses');
+        revalidatePath('/dashboard/instructor');
         return { success: true, message: 'Curso adicionado com sucesso!', course: newCourse };
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Falha ao adicionar o curso.';

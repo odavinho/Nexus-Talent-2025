@@ -224,7 +224,7 @@ export default function NewCoursePage() {
             title: "Curso salvo!",
             description: "O curso foi adicionado com sucesso.",
         });
-        router.push('/dashboard/admin/courses');
+        router.push('/dashboard/instructor');
       } else {
         throw new Error(result.message);
       }
