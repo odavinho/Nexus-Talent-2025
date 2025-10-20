@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX } from "lucide-react";
+import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +21,8 @@ import { getCourses } from "@/lib/course-service";
 import { GeneralReport } from "@/components/admin/general-report";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import type { UserProfile } from "@/lib/types";
+import { users as mockAllUsers } from "@/lib/users";
 
 
 // Mock data
@@ -30,11 +32,14 @@ const managedCourses = [
     { id: 'EN-427', name: 'Excel Avançado', students: 32, averageGrade: null, status: 'Rascunho', engagement: 0 },
 ];
 
-const mockStudents = [
-    { id: 'student1', name: 'Ana Pereira', email: 'ana.p@email.com', status: 'Inscrito', grade: null },
+const mockStudentData = [
+    { id: 'student1', name: 'Ana Pereira', email: 'ana.p@email.com', status: 'Inscrito', grade: 92 },
     { id: 'student3', name: 'Carla Santos', email: 'carla.s@email.com', status: 'Inscrito', grade: 88 },
-    { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Inscrito', grade: 92 },
+    { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Concluído', grade: 95 },
+    { id: 'student7', name: 'Sofia Nunes', email: 'sofia.n@email.com', status: 'Inscrito', grade: null },
+    { id: 'student9', name: 'Inês Lopes', email: 'ines.l@email.com', status: 'Concluído', grade: 85 },
 ];
+
 
 const mockActivityFeed = [
     { id: 1, type: 'enrollment', text: 'Ana Pereira inscreveu-se em "Técnicas de Apresentação".', time: '2h atrás' },
@@ -44,8 +49,8 @@ const mockActivityFeed = [
 ];
 
 const mockTopStudents = [
-    { id: 'student5', name: 'Elisa Fernandes', course: 'Gestão de Conflitos', grade: 92 },
-    { id: 'student3', name: 'Carla Santos', course: 'Técnicas de Apresentação', grade: 88 },
+    { id: 'student5', name: 'Elisa Fernandes', course: 'Gestão de Conflitos', grade: 95 },
+    { id: 'student3', name: 'Carla Santos', course: 'Técnicas de Apresentação', grade: 92 },
 ];
 
 const mockAtRiskStudents = [
@@ -73,8 +78,64 @@ const chartConfig = {
 
 
 function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
-    const [students, setStudents] = useState(mockStudents);
+    const [students, setStudents] = useState(mockStudentData);
     const { toast } = useToast();
+    const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
+    const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+    const [isGradeDialogOpen, setIsGradeDialogOpen] = useState(false);
+    const [message, setMessage] = useState('');
+    const [grade, setGrade] = useState('');
+
+
+    const handleOpenMessageDialog = (studentId: string) => {
+        const student = mockAllUsers.find(u => u.id === studentId);
+        if (student) {
+            setSelectedStudent(student);
+            setIsMessageDialogOpen(true);
+        }
+    };
+    
+    const handleOpenGradeDialog = (studentId: string) => {
+        const student = mockAllUsers.find(u => u.id === studentId);
+        if (student) {
+            setSelectedStudent(student);
+            const studentData = students.find(s => s.id === studentId);
+            setGrade(studentData?.grade?.toString() || '');
+            setIsGradeDialogOpen(true);
+        }
+    };
+
+
+    const handleSendMessage = () => {
+        // Simulate sending message
+        setIsMessageDialogOpen(false);
+        toast({
+            title: "Mensagem Enviada (Simulado)",
+            description: `A sua mensagem para ${selectedStudent?.firstName} foi enviada.`,
+        });
+        setMessage('');
+    };
+    
+    const handleSetGrade = () => {
+        if (!selectedStudent) return;
+        const newGrade = parseInt(grade, 10);
+        if (!isNaN(newGrade) && newGrade >= 0 && newGrade <= 100) {
+            setStudents(prev => prev.map(s => s.id === selectedStudent.id ? { ...s, grade: newGrade } : s));
+            setIsGradeDialogOpen(false);
+            toast({
+                title: "Nota Atribuída!",
+                description: `A nota de ${selectedStudent.firstName} foi atualizada para ${newGrade}%.`,
+            });
+            setGrade('');
+        } else {
+             toast({
+                variant: 'destructive',
+                title: "Nota Inválida",
+                description: `Por favor, insira um valor entre 0 e 100.`,
+            });
+        }
+    };
+
 
     const handleSendMessageToAll = () => {
         toast({
@@ -88,6 +149,7 @@ function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
     }
 
     return (
+        <>
          <DialogContent className="max-w-5xl">
             <DialogHeader>
                 <DialogTitle>Gerir Turma: {course.name}</DialogTitle>
@@ -129,9 +191,17 @@ function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
                                                         <Button variant="ghost" size="icon"><MoreHorizontal size={16}/></Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
-                                                        <DropdownMenuItem><User className="mr-2 h-4 w-4" />Ver Perfil</DropdownMenuItem>
-                                                        <DropdownMenuItem><Mail className="mr-2 h-4 w-4" />Enviar Mensagem</DropdownMenuItem>
-                                                        <DropdownMenuItem><Award className="mr-2 h-4 w-4" />Atribuir Nota</DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
+                                                          <Link href={`/dashboard/recruiter/candidates/${student.id}`} target="_blank">
+                                                            <User className="mr-2 h-4 w-4" />Ver Perfil
+                                                          </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenMessageDialog(student.id)}>
+                                                          <Mail className="mr-2 h-4 w-4" />Enviar Mensagem
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenGradeDialog(student.id)}>
+                                                          <Award className="mr-2 h-4 w-4" />Atribuir Nota
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -192,6 +262,57 @@ function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
                 </TabsContent>
             </Tabs>
         </DialogContent>
+
+        <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Enviar Mensagem para {selectedStudent?.firstName}</DialogTitle>
+                    <DialogDescription>A sua mensagem será enviada por e-mail e notificação push (simulado).</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <Textarea 
+                        placeholder={`Escreva a sua mensagem para ${selectedStudent?.firstName}...`}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        className="h-32"
+                    />
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsMessageDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleSendMessage}>
+                        <Send className="mr-2 h-4 w-4" /> Enviar Mensagem
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+         <Dialog open={isGradeDialogOpen} onOpenChange={setIsGradeDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Atribuir Nota Final para {selectedStudent?.firstName}</DialogTitle>
+                    <DialogDescription>Insira a nota final (0-100) para este aluno no curso.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <Label htmlFor="grade-input">Nota Final (%)</Label>
+                    <Input 
+                        id="grade-input"
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="Ex: 88"
+                        value={grade}
+                        onChange={(e) => setGrade(e.target.value)}
+                    />
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsGradeDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleSetGrade}>
+                        <Award className="mr-2 h-4 w-4" /> Atribuir Nota
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+     </>
     )
 }
 
