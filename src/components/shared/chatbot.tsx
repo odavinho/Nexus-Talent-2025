@@ -79,7 +79,7 @@ export function Chatbot() {
     <>
       <div className={cn("fixed bottom-4 right-4 z-50 transition-all duration-300", isOpen ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100")}>
         <Button size="lg" className="rounded-full h-16 w-16 shadow-lg" onClick={() => setIsOpen(true)}>
-          <Bot size={32} />
+          <Bot size={32} className="text-primary-foreground" />
         </Button>
       </div>
 
