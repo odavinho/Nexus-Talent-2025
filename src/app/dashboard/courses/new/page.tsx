@@ -230,7 +230,9 @@ export default function NewCoursePage() {
             title: "Curso salvo!",
             description: "O curso foi adicionado com sucesso.",
         });
+        // Force a refresh to ensure new localStorage data is loaded on the next page
         router.push('/dashboard/instructor');
+        router.refresh();
       } else {
         throw new Error(result.message);
       }
@@ -448,10 +450,10 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                 </div>
             ))}
             <div className='flex gap-2'>
-                <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: '', videoUrl: '', pdfUrl: '' })}>
+                <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: '', videoUrl: '', pdfUrl: '', powerpointUrl: '' })}>
                     <PlusCircle className="mr-2 h-3 w-3"/>Adicionar Tópico
                 </Button>
-                 <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: 'Link Externo', videoUrl: 'https://', pdfUrl: '' })}>
+                 <Button type="button" variant="outline" size="sm" className="text-xs h-8" onClick={() => append({ title: 'Link Externo', videoUrl: 'https://', pdfUrl: '', powerpointUrl: '' })}>
                     <LinkIcon className="mr-2 h-3 w-3"/>Adicionar Link Externo
                 </Button>
             </div>

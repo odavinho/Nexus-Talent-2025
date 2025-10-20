@@ -70,16 +70,16 @@ export const getCourseById = (id: string): Course | undefined => {
 export const addCourse = (courseData: Course): Course => {
     const currentCourses = getCourses();
     
-    // Ensure no duplicate IDs
     if (currentCourses.some(c => c.id === courseData.id)) {
-        // If ID exists, update it instead of adding a duplicate
-        return updateCourse(courseData.id, courseData) || courseData;
-    } else {
-       const newCourses = [courseData, ...currentCourses];
-       saveCourses(newCourses);
+        throw new Error(`Um curso com o ID '${courseData.id}' já existe.`);
     }
+
+    const newCourses = [courseData, ...currentCourses];
+    saveCourses(newCourses);
+    
     return courseData;
 };
+
 
 // Function to update an existing course
 export const updateCourse = (id: string, updatedData: Partial<Course>): Course | null => {
