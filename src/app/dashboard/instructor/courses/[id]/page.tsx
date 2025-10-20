@@ -5,10 +5,10 @@
 import { getCourseById } from "@/lib/course-service";
 import { notFound, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation, Library, Inbox } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation, Library, Inbox, Settings, ListChecks, Mail, Award } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
-import type { Course, CourseModule, CourseTopic } from "@/lib/types";
+import type { Course, CourseModule, CourseTopic, UserProfile } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { users as mockAllUsers } from '@/lib/users';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+
 
 // Helper hook for using localStorage
 function useLocalStorage(key: string, initialValue: string) {
@@ -46,14 +55,23 @@ function useLocalStorage(key: string, initialValue: string) {
   return [storedValue, setValue] as const;
 }
 
+const mockStudents = mockAllUsers.slice(0, 5).map((user, index) => ({
+    ...user,
+    status: index < 3 ? 'Em Curso' : 'Concluído',
+    quizGrade: Math.floor(Math.random() * (95 - 60 + 1)) + 60,
+    finalGrade: index < 3 ? null : Math.floor(Math.random() * (98 - 75 + 1)) + 75,
+}));
 
 function CoursePlayerPage({ course }: { course: Course }) {
   const [activeModule, setActiveModule] = useState<CourseModule | null>(course.modules[0] || null);
   const [activeTopic, setActiveTopic] = useState<CourseTopic | null>(course.modules[0]?.topics[0] || null);
   const { user } = useUser();
   const { toast } = useToast();
+  const [students, setStudents] = useState(mockStudents);
+  const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
+  const [isGradeDialogOpen, setIsGradeDialogOpen] = useState(false);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
 
-  // Create a unique key for localStorage based on user and course
   const journalKey = `journal_instructor_${user?.uid}_${course.id}`;
   const [journalNotes, setJournalNotes] = useLocalStorage(journalKey, '');
   
@@ -63,7 +81,6 @@ function CoursePlayerPage({ course }: { course: Course }) {
   };
   
   const handleSaveNotes = () => {
-    // The useLocalStorage hook already saves on change, but we can use this for explicit feedback
     toast({
       title: "Diário Salvo!",
       description: "As suas anotações foram guardadas no seu navegador.",
@@ -75,7 +92,28 @@ function CoursePlayerPage({ course }: { course: Course }) {
       title: 'Download Iniciado (Simulado)',
       description: `O download de "${resourceName}" foi iniciado.`,
     });
-    // In a real app, you would use the URL: window.open(url, '_blank');
+  };
+
+  const handleOpenGradeDialog = (student: UserProfile) => {
+    setSelectedStudent(student);
+    setIsGradeDialogOpen(true);
+  };
+  
+  const handleOpenMessageDialog = (student: UserProfile) => {
+    setSelectedStudent(student);
+    setIsMessageDialogOpen(true);
+  };
+
+  const handleAssignGrade = () => {
+      // Logic to assign grade
+      toast({ title: "Nota Atribuída!", description: `A nota para ${selectedStudent?.firstName} foi guardada (simulado).` });
+      setIsGradeDialogOpen(false);
+  };
+  
+  const handleSendMessage = () => {
+      // Logic to send message
+      toast({ title: "Mensagem Enviada!", description: `A sua mensagem para ${selectedStudent?.firstName} foi enviada (simulado).` });
+      setIsMessageDialogOpen(false);
   };
   
   const renderMedia = () => {
@@ -129,8 +167,9 @@ function CoursePlayerPage({ course }: { course: Course }) {
                 </div>
                 
                 {/* Tabs for Resources, Quizzes, Notes */}
-                <Tabs defaultValue="resources" className="w-full">
-                    <TabsList className="grid w-full grid-cols-6">
+                <Tabs defaultValue="class-management" className="w-full">
+                    <TabsList className="grid w-full grid-cols-7">
+                        <TabsTrigger value="class-management"><Settings className="mr-2 h-4 w-4"/>Gerir Turma</TabsTrigger>
                         <TabsTrigger value="resources"><Library className="mr-2 h-4 w-4"/>Recursos</TabsTrigger>
                         <TabsTrigger value="quiz"><Bot className="mr-2 h-4 w-4"/>Testes</TabsTrigger>
                         <TabsTrigger value="assignments"><Inbox className="mr-2 h-4 w-4"/>Trabalhos</TabsTrigger>
@@ -138,6 +177,70 @@ function CoursePlayerPage({ course }: { course: Course }) {
                         <TabsTrigger value="forum"><MessageSquare className="mr-2 h-4 w-4"/>Fórum</TabsTrigger>
                         <TabsTrigger value="live"><Calendar className="mr-2 h-4 w-4"/>Sessões</TabsTrigger>
                     </TabsList>
+                    
+                    <TabsContent value="class-management">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Gestão da Turma: {course.name}</CardTitle>
+                                <CardDescription>Visualize os alunos, atribua notas, comunique e gira a logística da turma.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Tabs defaultValue="students" className="w-full">
+                                    <TabsList>
+                                        <TabsTrigger value="students">Alunos</TabsTrigger>
+                                        <TabsTrigger value="grades">Pauta de Notas</TabsTrigger>
+                                        <TabsTrigger value="communication">Comunicação</TabsTrigger>
+                                        <TabsTrigger value="logistics">Logística</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="students" className="mt-4">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Aluno</TableHead>
+                                                    <TableHead>Email</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>Nota (Quizzes)</TableHead>
+                                                    <TableHead>Nota Final</TableHead>
+                                                    <TableHead className="text-right">Ações</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {students.map(student => (
+                                                    <TableRow key={student.id}>
+                                                        <TableCell className="font-medium">{student.firstName} {student.lastName}</TableCell>
+                                                        <TableCell>{student.email}</TableCell>
+                                                        <TableCell><Badge variant={student.status === 'Concluído' ? 'default' : 'secondary'}>{student.status}</Badge></TableCell>
+                                                        <TableCell>{student.quizGrade}%</TableCell>
+                                                        <TableCell>{student.finalGrade || 'N/A'}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                                                                <DropdownMenuContent>
+                                                                    <DropdownMenuItem onSelect={() => router.push(`/dashboard/recruiter/candidates/${student.id}`)}>Ver Perfil</DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => handleOpenGradeDialog(student)}>Atribuir Nota Final</DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => handleOpenMessageDialog(student)}>Enviar Mensagem</DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TabsContent>
+                                    <TabsContent value="grades" className="mt-4">
+                                        <p>Funcionalidade de pauta de notas em desenvolvimento.</p>
+                                    </TabsContent>
+                                    <TabsContent value="communication" className="mt-4">
+                                         <p>Funcionalidade de comunicação em desenvolvimento.</p>
+                                    </TabsContent>
+                                     <TabsContent value="logistics" className="mt-4">
+                                         <p>Funcionalidade de logística em desenvolvimento.</p>
+                                    </TabsContent>
+                                </Tabs>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
                     <TabsContent value="resources">
                         <Card>
                             <CardHeader>
@@ -157,7 +260,9 @@ function CoursePlayerPage({ course }: { course: Course }) {
                            <CardHeader><CardTitle>Gestão de Testes</CardTitle></CardHeader>
                             <CardContent className="text-center">
                                 <p className="text-muted-foreground mb-4">Crie testes, veja as submissões dos alunos e analise os resultados.</p>
-                                <Button>Gerir Testes do Módulo</Button>
+                                <Button asChild>
+                                  <Link href={`/dashboard/courses/edit/${course.id}`}>Gerir Testes do Módulo</Link>
+                                </Button>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -250,6 +355,41 @@ function CoursePlayerPage({ course }: { course: Course }) {
                 </Card>
             </div>
         </div>
+        
+        {/* Dialogs for actions */}
+         <Dialog open={isGradeDialogOpen} onOpenChange={setIsGradeDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Atribuir Nota Final</DialogTitle>
+                    <DialogDescription>Atribua a nota final para {selectedStudent?.firstName} no curso.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2">
+                    <Label htmlFor="finalGrade">Nota Final (%)</Label>
+                    <Input id="finalGrade" type="number" min="0" max="100" />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsGradeDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleAssignGrade}>Guardar Nota</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Enviar Mensagem</DialogTitle>
+                    <DialogDescription>Envie uma mensagem privada para {selectedStudent?.firstName}.</DialogDescription>
+                </DialogHeader>
+                 <div className="space-y-2">
+                    <Label htmlFor="messageContent">Mensagem</Label>
+                    <Textarea id="messageContent" placeholder="Escreva a sua mensagem..." rows={5} />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsMessageDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleSendMessage}>Enviar Mensagem</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }

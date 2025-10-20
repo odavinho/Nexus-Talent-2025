@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BarChart3, MessageSquare, Library, AlertTriangle, MessageCircle, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX, Loader2 } from "lucide-react";
+import { BookOpen, Users, BarChart3, MessageSquare, Library, AlertTriangle, MessageCircle, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX, Loader2, Settings } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -33,13 +33,6 @@ const managedCoursesData = [
     { id: 'GC-002', name: 'Gestão de Conflitos', students: 18, averageGrade: 91, status: 'Ativo', engagement: 92 },
     { id: 'EN-427', name: 'Excel Avançado', students: 32, averageGrade: null, status: 'Rascunho', engagement: 0 },
 ];
-
-const mockStudents = mockAllUsers.slice(0, 5).map((user, index) => ({
-    ...user,
-    status: index < 3 ? 'Em Curso' : 'Concluído',
-    finalGrade: index < 3 ? null : Math.floor(Math.random() * (98 - 75 + 1)) + 75,
-}));
-
 
 const mockActivityFeed = [
     { id: 1, type: 'enrollment', text: 'Ana Pereira inscreveu-se em "Técnicas de Apresentação".', time: '2h atrás' },
