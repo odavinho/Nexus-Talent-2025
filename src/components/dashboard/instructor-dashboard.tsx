@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, BarChart3, MessageCircle, Library, AlertTriangle, MessageSquare, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX, Loader2 } from "lucide-react";
+import { BookOpen, Users, BarChart3, MessageSquare, Library, AlertTriangle, MessageCircle, ListChecks, Mail, Award, User, Edit, FileUp, Calendar, Video, Link as LinkIcon, Download, Send, Percent, Star, FileDown, Activity, UserCheck, UserX, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -176,10 +176,10 @@ export function InstructorDashboard() {
                                                 </div>
                                                 <div className="flex gap-2 shrink-0 self-end sm:self-center">
                                                      <Button asChild variant="outline">
-                                                        <Link href={`/dashboard/instructor/courses/${course.id}`}>Gerir Turma</Link>
+                                                        <Link href={`/dashboard/courses/${course.id}`}>Gerir/Ver Curso</Link>
                                                     </Button>
                                                     <Button asChild variant="secondary">
-                                                        <Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link>
+                                                        <Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Editar</Link>
                                                     </Button>
                                                 </div>
                                             </Card>

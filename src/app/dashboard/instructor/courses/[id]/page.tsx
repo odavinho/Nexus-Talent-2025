@@ -1,286 +1,279 @@
+
+
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, notFound, useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
-import { getCourseById } from '@/lib/course-service';
-import { users as mockAllUsers } from '@/lib/users';
-import type { Course, UserProfile } from '@/lib/types';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, Award, Mail, MoreHorizontal, Download, Send, Calendar } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+import { getCourseById } from "@/lib/course-service";
+import { notFound, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, BookOpen, Clock, Users, CheckCircle, Target, List, Video, FileText, Bot, Notebook, Save, Download, MessageSquare, VideoIcon, Calendar, Link as LinkIcon, FileUp, Presentation, Inbox } from "lucide-react";
+import Link from "next/link";
+import React, { useState, useEffect, useCallback } from "react";
+import type { Course, CourseModule, CourseTopic } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/firebase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Mock data for students in this specific course
-const mockStudentData = [
-    { id: 'student1', name: 'Ana Pereira', email: 'ana.p@email.com', status: 'Inscrito', grade: 92 },
-    { id: 'student3', name: 'Carla Santos', email: 'carla.s@email.com', status: 'Inscrito', grade: 88 },
-    { id: 'student5', name: 'Elisa Fernandes', email: 'elisa.f@email.com', status: 'Concluído', grade: 95 },
-    { id: 'student7', name: 'Sofia Nunes', email: 'sofia.n@email.com', status: 'Inscrito', grade: null },
-    { id: 'student9', name: 'Inês Lopes', email: 'ines.l@email.com', status: 'Concluído', grade: 85 },
-];
+// Helper hook for using localStorage
+function useLocalStorage(key: string, initialValue: string) {
+  const [storedValue, setStoredValue] = useState(() => {
+    if (typeof window === "undefined") {
+      return initialValue;
+    }
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.log(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: string | ((val: string) => string)) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  return [storedValue, setValue] as const;
+}
 
 
-export default function ManageCoursePage() {
-    const params = useParams();
-    const courseId = Array.isArray(params.id) ? params.id[0] : params.id;
-    const router = useRouter();
-    const { toast } = useToast();
-    
-    const [course, setCourse] = useState<Course | null | undefined>(undefined);
-    const [students, setStudents] = useState(mockStudentData);
-    const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
-    const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-    const [isGradeDialogOpen, setIsGradeDialogOpen] = useState(false);
-    const [message, setMessage] = useState('');
-    const [grade, setGrade] = useState('');
+function CoursePlayerPage({ course }: { course: Course }) {
+  const [activeModule, setActiveModule] = useState<CourseModule | null>(course.modules[0] || null);
+  const [activeTopic, setActiveTopic] = useState<CourseTopic | null>(course.modules[0]?.topics[0] || null);
+  const { user } = useUser();
+  const { toast } = useToast();
 
-    useEffect(() => {
-        if (courseId) {
-            setCourse(getCourseById(courseId));
-        }
-    }, [courseId]);
+  // Create a unique key for localStorage based on user and course
+  const journalKey = `journal_instructor_${user?.uid}_${course.id}`;
+  const [journalNotes, setJournalNotes] = useLocalStorage(journalKey, '');
+  
+  const handleTopicClick = (module: CourseModule, topic: CourseTopic) => {
+      setActiveModule(module);
+      setActiveTopic(topic);
+  };
+  
+  const handleSaveNotes = () => {
+    // The useLocalStorage hook already saves on change, but we can use this for explicit feedback
+    toast({
+      title: "Diário Salvo!",
+      description: "As suas anotações foram guardadas no seu navegador.",
+    });
+  };
 
-    const handleOpenMessageDialog = (studentId: string) => {
-        const student = mockAllUsers.find(u => u.id === studentId);
-        if (student) {
-            setSelectedStudent(student);
-            setIsMessageDialogOpen(true);
-        }
-    };
-    
-    const handleOpenGradeDialog = (studentId: string) => {
-        const student = mockAllUsers.find(u => u.id === studentId);
-        if (student) {
-            setSelectedStudent(student);
-            const studentData = students.find(s => s.id === studentId);
-            setGrade(studentData?.grade?.toString() || '');
-            setIsGradeDialogOpen(true);
-        }
-    };
-
-    const handleSendMessage = () => {
-        setIsMessageDialogOpen(false);
-        toast({
-            title: "Mensagem Enviada (Simulado)",
-            description: `A sua mensagem para ${selectedStudent?.firstName} foi enviada.`,
-        });
-        setMessage('');
-    };
-    
-    const handleSetGrade = () => {
-        if (!selectedStudent) return;
-        const newGrade = parseInt(grade, 10);
-        if (!isNaN(newGrade) && newGrade >= 0 && newGrade <= 100) {
-            setStudents(prev => prev.map(s => s.id === selectedStudent.id ? { ...s, grade: newGrade } : s));
-            setIsGradeDialogOpen(false);
-            toast({
-                title: "Nota Atribuída!",
-                description: `A nota de ${selectedStudent.firstName} foi atualizada para ${newGrade}%.`,
-            });
-            setGrade('');
-        } else {
-             toast({
-                variant: 'destructive',
-                title: "Nota Inválida",
-                description: `Por favor, insira um valor entre 0 e 100.`,
-            });
-        }
-    };
-
-    const handleSendMessageToAll = () => {
-        toast({
-            title: "Mensagem Enviada (Simulado)",
-            description: `A sua mensagem foi enviada para os ${students.length} alunos da turma.`,
-        });
-    };
-    
-    const handleExport = () => {
-        toast({ title: 'Exportação Iniciada', description: 'A sua pauta de notas está a ser exportada como XLS.' });
+  const handleDownload = (resourceName: string, url: string) => {
+    toast({
+      title: 'Download Iniciado (Simulado)',
+      description: `O download de "${resourceName}" foi iniciado.`,
+    });
+    // In a real app, you would use the URL: window.open(url, '_blank');
+  };
+  
+  const renderMedia = () => {
+    if (activeTopic?.powerpointUrl) {
+      const officeViewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(activeTopic.powerpointUrl)}`;
+      return (
+        <iframe
+          src={officeViewerUrl}
+          className="w-full h-full border-0"
+          title="PowerPoint Viewer"
+          allowFullScreen
+        ></iframe>
+      );
     }
 
-    if (course === undefined) {
-        // You can return a loading skeleton here
-        return <div>A carregar...</div>;
-    }
-
-    if (!course) {
-        return notFound();
+    if (activeTopic?.videoUrl) {
+      return (
+        <div className="w-full h-full bg-black flex flex-col items-center justify-center text-white text-center">
+            <VideoIcon size={64} />
+            <p className="ml-4 text-xl mt-4">Simulação do Media Player de Vídeo</p>
+            <p className="text-muted-foreground text-sm mt-2">A mostrar vídeo para: <strong className="text-white">{activeTopic?.title}</strong></p>
+        </div>
+      )
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-             <Button variant="outline" onClick={() => router.back()} className="mb-6">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar ao Painel
-            </Button>
-            <CardHeader className="px-0">
-                <CardTitle className="font-headline text-3xl">Gerir Turma: {course.name}</CardTitle>
-                <CardDescription>
-                    Visualize os alunos, atribua notas, comunique e gira a logística da turma.
-                </CardDescription>
-            </CardHeader>
-            <Tabs defaultValue="students" className="w-full mt-6">
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="students">Alunos</TabsTrigger>
-                    <TabsTrigger value="grades">Pauta de Notas</TabsTrigger>
-                    <TabsTrigger value="communication">Comunicação</TabsTrigger>
-                    <TabsTrigger value="logistics">Logística</TabsTrigger>
-                </TabsList>
-                <TabsContent value="students" className="mt-4">
-                    <Card>
-                        <CardHeader><CardTitle>Alunos Inscritos ({students.length})</CardTitle></CardHeader>
-                        <CardContent>
-                             <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Aluno</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-center">Nota Final</TableHead>
-                                        <TableHead className="text-right">Ações</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {students.map(student => (
-                                        <TableRow key={student.id}>
-                                            <TableCell className="font-medium">{student.name}</TableCell>
-                                            <TableCell>{student.email}</TableCell>
-                                            <TableCell><Badge>{student.status}</Badge></TableCell>
-                                            <TableCell className="text-center">{student.grade ? `${student.grade}%` : 'N/A'}</TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><MoreHorizontal size={16}/></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem asChild>
-                                                          <Link href={`/dashboard/recruiter/candidates/${student.id}`} target="_blank">
-                                                            <User className="mr-2 h-4 w-4" />Ver Perfil
-                                                          </Link>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleOpenMessageDialog(student.id)}>
-                                                          <Mail className="mr-2 h-4 w-4" />Enviar Mensagem
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleOpenGradeDialog(student.id)}>
-                                                          <Award className="mr-2 h-4 w-4" />Atribuir Nota
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="grades" className="mt-4">
-                     <Card>
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle>Pauta de Notas</CardTitle>
-                                <Button variant="outline" onClick={handleExport}><Download className="mr-2 h-4 w-4"/>Exportar (XLS)</Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">Aqui você poderá inserir e editar as notas de trabalhos, testes e a nota final de cada aluno.</p>
-                            {/* Placeholder for grade management UI */}
-                        </CardContent>
-                     </Card>
-                </TabsContent>
-                 <TabsContent value="communication" className="mt-4">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Enviar Anúncio para a Turma</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             <Textarea placeholder="Escreva a sua mensagem aqui..." className="h-32"/>
-                             <Button className="w-full" onClick={handleSendMessageToAll}><Send className="mr-2 h-4 w-4"/>Enviar para Todos</Button>
-                        </CardContent>
-                     </Card>
-                </TabsContent>
-                <TabsContent value="logistics" className="mt-4">
-                    <Card>
-                        <CardHeader><CardTitle>Agendamento de Aulas</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                             <p className="text-sm text-muted-foreground">Gira a logística para aulas presenciais ou sessões online.</p>
-                             <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="sala">Sala/Local</Label>
-                                    <Input id="sala" placeholder="Ex: Sala 3, Auditório Principal"/>
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="vagas">Nº de Vagas</Label>
-                                    <Input id="vagas" type="number" placeholder="25"/>
-                                </div>
-                             </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="horario">Horários</Label>
-                                <Textarea id="horario" placeholder="Ex: Segunda e Quarta, 18h-20h"/>
-                             </div>
-                             <Button><Calendar className="mr-2 h-4 w-4"/>Guardar Agendamento</Button>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
-             <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Enviar Mensagem para {selectedStudent?.firstName}</DialogTitle>
-                        <DialogDescription>A sua mensagem será enviada por e-mail e notificação push (simulado).</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <Textarea 
-                            placeholder={`Escreva a sua mensagem para ${selectedStudent?.firstName}...`}
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            className="h-32"
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsMessageDialogOpen(false)}>Cancelar</Button>
-                        <Button onClick={handleSendMessage}>
-                            <Send className="mr-2 h-4 w-4" /> Enviar Mensagem
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isGradeDialogOpen} onOpenChange={setIsGradeDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Atribuir Nota Final para {selectedStudent?.firstName}</DialogTitle>
-                        <DialogDescription>Insira a nota final (0-100) para este aluno no curso.</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <Label htmlFor="grade-input">Nota Final (%)</Label>
-                        <Input 
-                            id="grade-input"
-                            type="number"
-                            min="0"
-                            max="100"
-                            placeholder="Ex: 88"
-                            value={grade}
-                            onChange={(e) => setGrade(e.target.value)}
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsGradeDialogOpen(false)}>Cancelar</Button>
-                        <Button onClick={handleSetGrade}>
-                            <Award className="mr-2 h-4 w-4" /> Atribuir Nota
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+        <div className="w-full h-full bg-secondary flex flex-col items-center justify-center text-center p-4">
+            <BookOpen size={64} className="text-muted-foreground" />
+            <p className="text-xl mt-4 text-foreground">Conteúdo da Aula</p>
+            <p className="text-muted-foreground text-sm mt-2">Nenhum conteúdo multimédia para este tópico. Consulte os recursos abaixo.</p>
         </div>
-    )
+    );
+  };
+
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col">
+       <div className="mb-6">
+         <Link href="/dashboard/instructor" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft size={16} /> Voltar ao Painel
+          </Link>
+         <h1 className="font-headline text-3xl md:text-4xl font-bold mt-2">{course.name}</h1>
+       </div>
+
+        <div className="grid lg:grid-cols-3 gap-8 flex-grow">
+            {/* Main Content - Video Player and Tabs */}
+            <div className="lg:col-span-2 flex flex-col">
+                {/* Media Player Placeholder */}
+                <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center mb-6 overflow-hidden">
+                    {renderMedia()}
+                </div>
+                
+                {/* Tabs for Resources, Quizzes, Notes */}
+                <Tabs defaultValue="resources" className="w-full">
+                    <TabsList className="grid w-full grid-cols-6">
+                        <TabsTrigger value="resources"><Library className="mr-2 h-4 w-4"/>Recursos</TabsTrigger>
+                        <TabsTrigger value="quiz"><Bot className="mr-2 h-4 w-4"/>Testes</TabsTrigger>
+                        <TabsTrigger value="assignments"><Inbox className="mr-2 h-4 w-4"/>Trabalhos</TabsTrigger>
+                        <TabsTrigger value="journal"><Notebook className="mr-2 h-4 w-4"/>Diário</TabsTrigger>
+                        <TabsTrigger value="forum"><MessageSquare className="mr-2 h-4 w-4"/>Fórum</TabsTrigger>
+                        <TabsTrigger value="live"><Calendar className="mr-2 h-4 w-4"/>Sessões</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="resources">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Gerir Materiais para Download</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                  <Button variant="outline" className="w-full justify-start gap-2"><FileUp size={16}/> Carregar PDF</Button>
+                                  <Button variant="outline" className="w-full justify-start gap-2"><Video size={16}/> Carregar Vídeo</Button>
+                                  <Button variant="outline" className="w-full justify-start gap-2"><LinkIcon size={16}/> Adicionar Link Externo</Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="quiz">
+                         <Card>
+                           <CardHeader><CardTitle>Gestão de Testes</CardTitle></CardHeader>
+                            <CardContent className="text-center">
+                                <p className="text-muted-foreground mb-4">Crie testes, veja as submissões dos alunos e analise os resultados.</p>
+                                <Button>Gerir Testes do Módulo</Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                     <TabsContent value="assignments">
+                         <Card>
+                           <CardHeader><CardTitle>Gestão de Trabalhos (Em Breve)</CardTitle></CardHeader>
+                            <CardContent className="text-center">
+                                <p className="text-muted-foreground mb-4">Receba, visualize e avalie os trabalhos submetidos pelos alunos.</p>
+                                <Button disabled>Ver Entregas</Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="journal">
+                         <Card>
+                            <CardHeader><CardTitle>Anotações do Formador</CardTitle></CardHeader>
+                            <CardContent>
+                                <Textarea 
+                                    placeholder="Faça as suas anotações privadas aqui... Elas serão salvas automaticamente no seu navegador." 
+                                    className="h-32 mb-4"
+                                    value={journalNotes}
+                                    onChange={(e) => setJournalNotes(e.target.value)}
+                                />
+                                <Button onClick={handleSaveNotes}>
+                                  <Save className="mr-2 h-4 w-4"/> Guardar Anotações
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="forum">
+                         <Card>
+                           <CardHeader><CardTitle>Fórum de Discussão do Módulo</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex gap-3">
+                                  <Avatar>
+                                    <AvatarImage src={user?.photoURL || ''} />
+                                    <AvatarFallback>{user?.displayName?.[0]}</AvatarFallback>
+                                  </Avatar>
+                                  <Textarea placeholder="Comece uma nova discussão ou coloque uma dúvida..." />
+                                </div>
+                                <Button>Publicar</Button>
+                                <div className="border-t pt-4 space-y-4">
+                                  <p className="text-sm text-muted-foreground text-center">Simulação de um fórum.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                     <TabsContent value="live">
+                         <Card>
+                           <CardHeader><CardTitle>Sessões de Dúvidas ao Vivo (Q&A)</CardTitle></CardHeader>
+                            <CardContent className="text-center">
+                               <p className="text-muted-foreground mb-4">Nenhuma sessão agendada para este módulo.</p>
+                               <Button variant="outline">Agendar Nova Sessão</Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+            </div>
+
+            {/* Sidebar - Module List */}
+            <div className="lg:col-span-1">
+                <Card className="h-full flex flex-col">
+                    <div className="p-4 border-b flex justify-between items-center">
+                        <h2 className="font-semibold text-lg">Conteúdo do Curso</h2>
+                        <Button variant="secondary" size="sm" asChild>
+                            <Link href={`/dashboard/courses/edit/${course.id}`}>Editar</Link>
+                        </Button>
+                    </div>
+                    <ScrollArea className="flex-grow">
+                        <div className="p-2">
+                            {course.modules.map((module, index) => (
+                                <div key={index} className='py-2'>
+                                    <h3 className='font-semibold px-3 py-2 text-primary/80'>{module.title}</h3>
+                                    <div className='space-y-1'>
+                                        {module.topics.map((topic, topicIndex) => (
+                                            <button 
+                                                key={topicIndex} 
+                                                onClick={() => handleTopicClick(module, topic)}
+                                                className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
+                                            >
+                                                {topic.powerpointUrl ? <Presentation size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
+                                                <span className="flex-grow">{topic.title}</span>
+                                                {topic.pdfUrl && <FileText size={16} className="text-muted-foreground"/>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </Card>
+            </div>
+        </div>
+    </div>
+  );
+}
+
+
+export default function CourseDetailPage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [course, setCourse] = useState<Course | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (id) {
+        const foundCourse = getCourseById(id);
+        setCourse(foundCourse);
+    }
+  }, [id]);
+
+  if (course === undefined) {
+    return <div>A carregar...</div>
+  }
+  
+  if (!course) {
+    return notFound();
+  }
+  
+  return <CoursePlayerPage course={course} />;
 }
