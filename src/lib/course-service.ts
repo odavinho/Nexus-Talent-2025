@@ -1,3 +1,4 @@
+
 import { courses as initialCourses } from './courses';
 import { courseCategories as allCourseCategories } from './courses';
 import type { Course, CourseCategory } from './types';
@@ -68,7 +69,7 @@ export const getCourseById = (id: string): Course | undefined => {
 
 // Function to add a new course
 export const addCourse = (courseData: Course): Course => {
-    const currentCourses = getCourses();
+    const currentCourses = loadCourses();
     
     if (currentCourses.some(c => c.id === courseData.id)) {
         throw new Error(`Um curso com o ID '${courseData.id}' já existe.`);
@@ -107,3 +108,5 @@ export const deleteCourse = (id: string): void => {
     const newCourses = currentCourses.filter(c => c.id !== id);
     saveCourses(newCourses);
 };
+
+    
