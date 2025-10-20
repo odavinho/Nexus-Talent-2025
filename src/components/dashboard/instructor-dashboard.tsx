@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -410,30 +409,33 @@ export function InstructorDashboard() {
                                         const courseMockData = managedCoursesData.find(c => c.id === course.id);
 
                                         return (
-                                            <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
-                                                <div className="flex-grow flex items-center gap-4">
-                                                    {imageSrc && (
-                                                        <div className="relative w-24 h-16 rounded-md overflow-hidden flex-shrink-0">
-                                                            <Image src={imageSrc} alt={course.name} fill className="object-cover" />
+                                            <Dialog key={course.id}>
+                                                <Card className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
+                                                    <div className="flex-grow flex items-center gap-4">
+                                                        {imageSrc && (
+                                                            <div className="relative w-24 h-16 rounded-md overflow-hidden flex-shrink-0">
+                                                                <Image src={imageSrc} alt={course.name} fill className="object-cover" />
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <h4 className="font-semibold">{course.name} <Badge variant={courseMockData?.status === 'Ativo' ? 'default' : 'secondary'}>{courseMockData?.status || 'Rascunho'}</Badge></h4>
+                                                            <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+                                                                <span className="flex items-center gap-1"><Users size={14} /> {courseMockData?.students || 0} alunos</span>
+                                                                {courseMockData?.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {courseMockData.averageGrade}%</span>}
+                                                            </p>
                                                         </div>
-                                                    )}
-                                                    <div>
-                                                        <h4 className="font-semibold">{course.name} <Badge variant={courseMockData?.status === 'Ativo' ? 'default' : 'secondary'}>{courseMockData?.status || 'Rascunho'}</Badge></h4>
-                                                        <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
-                                                            <span className="flex items-center gap-1"><Users size={14} /> {courseMockData?.students || 0} alunos</span>
-                                                            {courseMockData?.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {courseMockData.averageGrade}%</span>}
-                                                        </p>
                                                     </div>
-                                                </div>
-                                                <div className="flex gap-2 shrink-0 self-end sm:self-center">
-                                                    <Button asChild variant="outline">
-                                                        <Link href={`/dashboard/courses/${course.id}`}>Gerir Turma</Link>
-                                                    </Button>
-                                                    <Button asChild variant="secondary">
-                                                        <Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link>
-                                                    </Button>
-                                                </div>
-                                            </Card>
+                                                    <div className="flex gap-2 shrink-0 self-end sm:self-center">
+                                                        <DialogTrigger asChild>
+                                                            <Button variant="outline">Gerir Turma</Button>
+                                                        </DialogTrigger>
+                                                        <Button asChild variant="secondary">
+                                                            <Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link>
+                                                        </Button>
+                                                    </div>
+                                                </Card>
+                                                <ManageClassDialog course={course} />
+                                            </Dialog>
                                         )
                                     })}
                                 </div>
