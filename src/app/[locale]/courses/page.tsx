@@ -30,6 +30,7 @@ export default function CoursesPage() {
 
   useEffect(() => {
     // This function will now read from localStorage if available
+    // The default for getCourses() is to only fetch active courses
     setCourses(getCourses());
     setCourseCategories(getCourseCategories());
   }, []);
@@ -94,7 +95,7 @@ export default function CoursesPage() {
                 <SelectContent>
                     <SelectItem value="all">Todas as Categorias</SelectItem>
                     {courseCategories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem key={category.id} value={category.name}>
                         {category.name}
                     </SelectItem>
                     ))}
