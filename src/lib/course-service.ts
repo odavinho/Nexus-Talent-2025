@@ -1,4 +1,4 @@
-import { courses as initialCourses } from './courses-data';
+import { courses as initialCourses } from './courses';
 import { courseCategories as allCourseCategories } from './courses';
 import type { Course, CourseCategory } from './types';
 

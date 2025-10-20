@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -44,7 +45,7 @@ const moduleSchema = z.object({
   topics: z.array(z.object({ 
     title: z.string().min(1, "O tópico não pode estar vazio."),
     videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
-    pdfUrl: z.string().url("Insira um URL de PDF válido.").optional().or(z.literal('')),
+    pdfUrl: z.string().optional(),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
