@@ -21,12 +21,14 @@ import { getCourses } from "@/lib/course-service";
 import { GeneralReport } from "@/components/admin/general-report";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import type { UserProfile } from "@/lib/types";
+import type { UserProfile, Course } from "@/lib/types";
 import { users as mockAllUsers } from "@/lib/users";
+import { getImages } from '@/lib/site-data';
+import Image from "next/image";
 
 
 // Mock data
-const managedCourses = [
+const managedCoursesData = [
     { id: 'TA-001', name: 'Técnicas de Apresentação', students: 25, averageGrade: 88, status: 'Ativo', engagement: 85 },
     { id: 'GC-002', name: 'Gestão de Conflitos', students: 18, averageGrade: 91, status: 'Ativo', engagement: 92 },
     { id: 'EN-427', name: 'Excel Avançado', students: 32, averageGrade: null, status: 'Rascunho', engagement: 0 },
@@ -77,7 +79,7 @@ const chartConfig = {
 }
 
 
-function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
+function ManageClassDialog({ course }: { course: Course }) {
     const [students, setStudents] = useState(mockStudentData);
     const { toast } = useToast();
     const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
@@ -319,17 +321,22 @@ function ManageClassDialog({ course }: { course: typeof managedCourses[0] }) {
 
 export function InstructorDashboard() {
     const [reportData, setReportData] = useState<any>(null);
+    const [managedCourses, setManagedCourses] = useState<Course[]>([]);
+    
+    useEffect(() => {
+        setManagedCourses(getCourses());
+    }, []);
 
     const handleGenerateReport = () => {
-        const studentEngagementByCourse = managedCourses.map(c => ({
+        const studentEngagementByCourse = managedCoursesData.map(c => ({
             name: c.name,
             engaged: c.engagement,
         }));
 
         setReportData({
             instructorKpis: {
-                activeStudents: managedCourses.reduce((sum, c) => sum + c.students, 0),
-                publishedCourses: managedCourses.filter(c => c.status === 'Ativo').length,
+                activeStudents: managedCoursesData.reduce((sum, c) => sum + c.students, 0),
+                publishedCourses: managedCoursesData.filter(c => c.status === 'Ativo').length,
                 avgCompletionRate: 85, // Mock data
                 avgRating: 4.7, // Mock data
             },
@@ -345,6 +352,8 @@ export function InstructorDashboard() {
             default: return <Activity className="h-4 w-4 text-gray-500" />;
         }
     }
+    
+    const allImages = getImages();
 
 
     return (
@@ -357,7 +366,7 @@ export function InstructorDashboard() {
             <div className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <KpiCard title="Alunos Ativos" value="75" icon={Users} />
-                    <KpiCard title="Cursos Publicados" value="2" icon={BookOpen} />
+                    <KpiCard title="Cursos Publicados" value={managedCoursesData.length.toString()} icon={BookOpen} />
                     <KpiCard title="Taxa de Conclusão Média" value="85%" icon={Percent} />
                     <KpiCard title="Avaliação Média" value="4.7" icon={Star} />
                 </div>
@@ -370,11 +379,11 @@ export function InstructorDashboard() {
                             </CardHeader>
                             <CardContent>
                                 <ChartContainer config={chartConfig} className="h-64">
-                                    <BarChart accessibilityLayer data={managedCourses}>
+                                    <BarChart accessibilityLayer data={managedCoursesData}>
                                         <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} fontSize={12} interval={0} />
                                         <YAxis />
                                         <ChartTooltip content={<ChartTooltipContent />} />
-                                        <Bar dataKey="engagement" fill="var(--color-engaged)" radius={4} />
+                                        <Bar dataKey="engagement" fill="var(--color-engaged)" radius={4} name="Engajamento"/>
                                     </BarChart>
                                 </ChartContainer>
                             </CardContent>
@@ -394,26 +403,39 @@ export function InstructorDashboard() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
-                                    {managedCourses.map(course => (
-                                        <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
-                                            <div className="flex-grow">
-                                                <h4 className="font-semibold">{course.name} <Badge variant={course.status === 'Ativo' ? 'default' : 'secondary'}>{course.status}</Badge></h4>
-                                                <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
-                                                    <span className="flex items-center gap-1"><Users size={14} /> {course.students} alunos</span>
-                                                    {course.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {course.averageGrade}%</span>}
-                                                </p>
-                                            </div>
-                                            <div className="flex gap-2 shrink-0">
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button variant="outline">Gerir Turma</Button>
-                                                    </DialogTrigger>
-                                                    <ManageClassDialog course={course} />
-                                                </Dialog>
-                                                <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
-                                            </div>
-                                        </Card>
-                                    ))}
+                                    {managedCourses.map(course => {
+                                        const image = allImages.find(p => p.id === course.imageId);
+                                        const imageSrc = course.imageDataUri || image?.imageUrl;
+                                        const courseMockData = managedCoursesData.find(c => c.id === course.id);
+
+                                        return (
+                                            <Card key={course.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-secondary/50 transition-colors">
+                                                <div className="flex-grow flex items-center gap-4">
+                                                    {imageSrc && (
+                                                        <div className="relative w-24 h-16 rounded-md overflow-hidden flex-shrink-0">
+                                                            <Image src={imageSrc} alt={course.name} fill className="object-cover" />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <h4 className="font-semibold">{course.name} <Badge variant={courseMockData?.status === 'Ativo' ? 'default' : 'secondary'}>{courseMockData?.status || 'Rascunho'}</Badge></h4>
+                                                        <p className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+                                                            <span className="flex items-center gap-1"><Users size={14} /> {courseMockData?.students || 0} alunos</span>
+                                                            {courseMockData?.averageGrade && <span className="flex items-center gap-1"><Award size={14} /> Média de {courseMockData.averageGrade}%</span>}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 shrink-0 self-end sm:self-center">
+                                                    <Dialog>
+                                                        <DialogTrigger asChild>
+                                                            <Button variant="outline">Gerir Turma</Button>
+                                                        </DialogTrigger>
+                                                        <ManageClassDialog course={course} />
+                                                    </Dialog>
+                                                    <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
+                                                </div>
+                                            </Card>
+                                        )
+                                    })}
                                 </div>
                             </CardContent>
                         </Card>
