@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, Bot, Upload, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, Bot, Upload, Image as ImageIcon, Presentation } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction, generateCourseImageAction } from '@/app/actions';
 import Image from 'next/image';
@@ -56,6 +56,7 @@ const moduleSchema = z.object({
     title: z.string().min(1, "O tópico não pode estar vazio."),
     videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
     pdfUrl: z.string().optional(),
+    powerpointUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   })),
   videoUrl: z.string().url("Insira um URL válido.").optional().or(z.literal('')),
   assessment: z.object({ questions: z.array(moduleQuestionSchema) }).optional(),
@@ -120,7 +121,7 @@ export default function NewCoursePage() {
       
       const modulesForForm = result.modules.map(m => ({
         ...m,
-        topics: m.topics.map(t => ({ title: t, videoUrl: '', pdfUrl: '' })),
+        topics: m.topics.map(t => ({ title: t, videoUrl: '', pdfUrl: '', powerpointUrl: '' })),
         videoUrl: '',
       }));
       form.setValue('modules', modulesForForm);
@@ -210,7 +211,12 @@ export default function NewCoursePage() {
       whatYouWillLearn: data.whatYouWillLearn?.split('\n').filter(line => line.trim() !== '') || [],
       modules: data.modules?.map(m => ({
           title: m.title,
-          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl, pdfUrl: t.pdfUrl })),
+          topics: m.topics.map(t => ({ 
+            title: t.title, 
+            videoUrl: t.videoUrl, 
+            pdfUrl: t.pdfUrl, 
+            powerpointUrl: t.powerpointUrl 
+          })),
           videoUrl: m.videoUrl,
           assessment: m.assessment,
       })) || [],
@@ -328,7 +334,7 @@ export default function NewCoursePage() {
                            <ModuleField key={field.id} moduleIndex={index} form={form} onRemove={() => remove(index)} />
                         ))}
                       </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: '', pdfUrl: ''}], videoUrl: '' })} className="mt-4">
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: '', pdfUrl: '', powerpointUrl: ''}], videoUrl: '' })} className="mt-4">
                         <PlusCircle className="mr-2 h-4 w-4"/>Adicionar Módulo
                       </Button>
                     </div>
@@ -389,7 +395,7 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                             )}
                         />
                         {(courseFormat === 'Online' || courseFormat === 'Híbrido') && (
-                          <div className='grid grid-cols-2 gap-2'>
+                          <div className='grid grid-cols-1 md:grid-cols-3 gap-2'>
                             <FormField
                                 control={form.control}
                                 name={`modules.${moduleIndex}.topics.${topicIndex}.videoUrl`}
@@ -399,6 +405,21 @@ function ModuleField({ moduleIndex, form, onRemove }: { moduleIndex: number; for
                                             <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <FormControl>
                                                 <Input placeholder="URL do Vídeo (opcional)" className="pl-9 text-xs h-8" {...field} />
+                                            </FormControl>
+                                        </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`modules.${moduleIndex}.topics.${topicIndex}.powerpointUrl`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="relative">
+                                            <Presentation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <FormControl>
+                                                <Input placeholder="URL do PowerPoint" className="pl-9 text-xs h-8" {...field} />
                                             </FormControl>
                                         </div>
                                     <FormMessage />
@@ -677,3 +698,5 @@ function ModuleAssessmentGenerator({ moduleIndex, moduleTitle, topics, mainForm 
     </Dialog>
   );
 }
+
+    

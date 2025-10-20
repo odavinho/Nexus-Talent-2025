@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -130,7 +131,12 @@ export default function EditCoursePage() {
       whatYouWillLearn: data.whatYouWillLearn?.split('\n').filter(line => line.trim() !== '') || [],
       modules: data.modules?.map(m => ({
           title: m.title,
-          topics: m.topics.map(t => ({ title: t.title, videoUrl: t.videoUrl, pdfUrl: t.pdfUrl, powerpointUrl: t.powerpointUrl })),
+          topics: m.topics.map(t => ({ 
+            title: t.title, 
+            videoUrl: t.videoUrl, 
+            pdfUrl: t.pdfUrl, 
+            powerpointUrl: t.powerpointUrl 
+          })),
           videoUrl: m.videoUrl,
           assessment: m.assessment,
       })) || [],
@@ -207,7 +213,7 @@ export default function EditCoursePage() {
                            <ModuleField key={field.id} moduleIndex={index} form={form} onRemove={() => remove(index)} />
                         ))}
                       </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: '', pdfUrl: ''}], videoUrl: '' })} className="mt-4">
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', topics: [{title: '', videoUrl: '', pdfUrl: '', powerpointUrl: ''}], videoUrl: '' })} className="mt-4">
                         <PlusCircle className="mr-2 h-4 w-4"/>Adicionar Módulo
                       </Button>
                     </div>
@@ -568,3 +574,5 @@ function ModuleAssessmentGenerator({ moduleIndex, moduleTitle, topics, mainForm 
     </Dialog>
   );
 }
+
+    
