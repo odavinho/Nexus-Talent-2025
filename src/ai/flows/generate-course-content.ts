@@ -25,7 +25,7 @@ export async function generateCourseContent(input: GenerateCourseContentInput): 
 export async function generateCourseImage(imageHint: string): Promise<string> {
     const { media } = await ai.generate({
         model: 'googleai/imagen-4.0-fast-generate-001',
-        prompt: await imagePrompt.render({input: {imageHint}}),
+        prompt: `Uma imagem de cabeçalho profissional e moderna para um e-mail sobre: ${imageHint}. A imagem deve ser limpa, atrativa e adequada para um contexto de negócios. Evite texto na imagem.`
       });
     if (!media.url) {
         throw new Error("AI failed to generate an image.");
@@ -49,13 +49,6 @@ Course Title: {{{courseName}}}
 Category: {{{courseCategory}}}
 Level: {{{courseLevel}}}
 `,
-});
-
-
-const imagePrompt = ai.definePrompt({
-  name: 'generateCourseImagePrompt',
-  input: {schema: z.object({ imageHint: z.string() })},
-  prompt: 'A professional and modern image for a course catalog, related to: {{{imageHint}}}. The image should be clean, visually appealing, and suitable for an educational platform. Avoid text and people.',
 });
 
 

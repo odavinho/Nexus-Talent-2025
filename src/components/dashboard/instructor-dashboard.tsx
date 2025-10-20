@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -425,13 +426,12 @@ export function InstructorDashboard() {
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 shrink-0 self-end sm:self-center">
-                                                    <Dialog>
-                                                        <DialogTrigger asChild>
-                                                            <Button variant="outline">Gerir Turma</Button>
-                                                        </DialogTrigger>
-                                                        <ManageClassDialog course={course} />
-                                                    </Dialog>
-                                                    <Button asChild variant="secondary"><Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link></Button>
+                                                    <Button asChild variant="outline">
+                                                        <Link href={`/dashboard/courses/${course.id}`}>Gerir Turma</Link>
+                                                    </Button>
+                                                    <Button asChild variant="secondary">
+                                                        <Link href={`/dashboard/courses/edit/${course.id}`}><Edit size={16}/> Gerir Conteúdo</Link>
+                                                    </Button>
                                                 </div>
                                             </Card>
                                         )
