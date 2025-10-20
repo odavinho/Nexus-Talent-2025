@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI-powered course content generation.
@@ -8,20 +9,34 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z}from 'genkit';
+import {z} from 'genkit';
 import { GenerateCourseContentInputSchema, GenerateCourseContentOutputSchema } from '@/lib/schemas';
 
 export type GenerateCourseContentInput = z.infer<typeof GenerateCourseContentInputSchema>;
 export type GenerateCourseContentOutput = z.infer<typeof GenerateCourseContentOutputSchema>;
 
-export async function generateCourseContent(input: GenerateCourseContentInput): Promise<GenerateCourseContentOutput> {
+const GenerateCourseContentOutputSchemaWithoutImage = GenerateCourseContentOutputSchema.omit({ imageDataUri: true });
+
+
+export async function generateCourseContent(input: GenerateCourseContentInput): Promise<z.infer<typeof GenerateCourseContentOutputSchemaWithoutImage>> {
   return generateCourseContentFlow(input);
+}
+
+export async function generateCourseImage(imageHint: string): Promise<string> {
+    const { media } = await ai.generate({
+        model: 'googleai/imagen-4.0-fast-generate-001',
+        prompt: await imagePrompt.render({input: {imageHint}}),
+      });
+    if (!media.url) {
+        throw new Error("AI failed to generate an image.");
+    }
+    return media.url;
 }
 
 const prompt = ai.definePrompt({
   name: 'generateCourseContentPrompt',
   input: {schema: GenerateCourseContentInputSchema},
-  output: {schema: GenerateCourseContentOutputSchema},
+  output: {schema: GenerateCourseContentOutputSchemaWithoutImage},
   prompt: `You are an expert instructional designer. Based on the course title, category, and level, generate the following content in Portuguese:
 - A unique and descriptive course ID (e.g., 'XY-123').
 - A detailed general objective.
@@ -48,7 +63,7 @@ const generateCourseContentFlow = ai.defineFlow(
   {
     name: 'generateCourseContentFlow',
     inputSchema: GenerateCourseContentInputSchema,
-    outputSchema: GenerateCourseContentOutputSchema,
+    outputSchema: GenerateCourseContentOutputSchemaWithoutImage,
   },
   async input => {
     const {output: textOutput} = await prompt(input);
@@ -56,24 +71,7 @@ const generateCourseContentFlow = ai.defineFlow(
     if(!textOutput) {
         throw new Error("Failed to generate course content text.");
     }
-    
-    let imageDataUri: string | undefined = undefined;
 
-    try {
-      const { media } = await ai.generate({
-          model: 'googleai/imagen-4.0-fast-generate-001',
-          prompt: await imagePrompt.render({input: {imageHint: textOutput.imageHint}}),
-        });
-      imageDataUri = media.url;
-    } catch (error) {
-      console.error("Image generation failed, but continuing without it:", error);
-      // Opcional: pode-se adicionar um log ou notificação aqui
-      // A imagem não será adicionada, mas o resto do conteúdo do curso será retornado.
-    }
-
-    return {
-      ...textOutput,
-      imageDataUri: imageDataUri
-    };
+    return textOutput;
   }
 );

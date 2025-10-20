@@ -12,9 +12,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, Bot } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Link as LinkIcon, PlusCircle, Trash2, Save, Bot, Upload, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction } from '@/app/actions';
+import { addCourseAction, generateCourseContentAction, generateModuleAssessmentAction, generateCourseImageAction } from '@/app/actions';
 import Image from 'next/image';
 import type { Course } from '@/lib/types';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,16 @@ import {
 import { ModuleAssessmentFormSchema, GenerateModuleAssessmentInputSchema, type GenerateModuleAssessmentInput } from '@/lib/schemas';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+
+const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+});
+
 
 const moduleQuestionSchema = z.object({
     question: z.string().min(1, "A pergunta não pode estar em branco."),
@@ -61,6 +71,7 @@ const formSchema = z.object({
   generalObjective: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
   imageDataUri: z.string().optional(),
+  imageHint: z.string().optional(),
   modules: z.array(moduleSchema).optional(),
 });
 
@@ -71,6 +82,7 @@ type ModuleAssessmentFormValues = z.infer<typeof ModuleAssessmentFormSchema>;
 export default function NewCoursePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [showGeneratedContent, setShowGeneratedContent] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -104,7 +116,7 @@ export default function NewCoursePage() {
       form.setValue('duration', result.duration);
       form.setValue('generalObjective', result.generalObjective);
       form.setValue('whatYouWillLearn', result.whatYouWillLearn.join('\n'));
-      form.setValue('imageDataUri', result.imageDataUri);
+      form.setValue('imageHint', result.imageHint);
       
       const modulesForForm = result.modules.map(m => ({
         ...m,
@@ -116,7 +128,7 @@ export default function NewCoursePage() {
       setShowGeneratedContent(true);
       toast({
         title: "Conteúdo Gerado!",
-        description: "O conteúdo base para o seu curso foi criado. Edite e salve quando estiver pronto.",
+        description: "O conteúdo base para o seu curso foi criado. Agora, adicione uma imagem de capa e salve.",
       });
     } catch (error) {
       toast({
@@ -126,6 +138,48 @@ export default function NewCoursePage() {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    const imageHint = form.getValues('imageHint');
+    if (!imageHint) {
+        toast({ variant: 'destructive', title: 'Falta a dica da imagem', description: 'Gere o conteúdo primeiro.' });
+        return;
+    }
+    setIsGeneratingImage(true);
+    try {
+        const imageDataUri = await generateCourseImageAction(imageHint);
+        if (imageDataUri) {
+            form.setValue('imageDataUri', imageDataUri);
+            toast({ title: 'Imagem Gerada!', description: 'A imagem de capa foi criada pela IA.' });
+        } else {
+            throw new Error('A IA não conseguiu gerar uma imagem.');
+        }
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Erro ao Gerar Imagem',
+            description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
+        });
+    } finally {
+        setIsGeneratingImage(false);
+    }
+  }
+  
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const dataUri = await fileToDataUri(file);
+        form.setValue('imageDataUri', dataUri);
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao carregar imagem',
+          description: 'Não foi possível ler o ficheiro da imagem.',
+        });
+      }
     }
   };
 
@@ -223,11 +277,40 @@ export default function NewCoursePage() {
                 <div className="mt-8 pt-6 border-t space-y-6">
                   <h3 className="font-headline text-2xl">2. Edite e Complete o Conteúdo</h3>
                   
-                  {form.watch('imageDataUri') && (
-                    <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-lg">
-                        <Image src={form.watch('imageDataUri')!} alt="Imagem gerada para o curso" fill className="object-cover" />
-                    </div>
-                  )}
+                  <Card>
+                    <CardHeader>
+                        <CardTitle>Imagem de Capa do Curso</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                       {form.watch('imageDataUri') && (
+                        <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-lg mb-6">
+                            <Image src={form.watch('imageDataUri')!} alt="Imagem gerada para o curso" fill className="object-cover" />
+                        </div>
+                      )}
+                      <Tabs defaultValue="ai" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="ai"><Wand2 className="mr-2 h-4 w-4"/>Gerar com IA</TabsTrigger>
+                          <TabsTrigger value="upload"><Upload className="mr-2 h-4 w-4"/>Carregar</TabsTrigger>
+                          <TabsTrigger value="url"><LinkIcon className="mr-2 h-4 w-4"/>URL</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="ai" className="pt-4">
+                            <div className="flex items-center gap-2">
+                                <Input value={form.watch('imageHint')} readOnly placeholder="Dica da IA para imagem..."/>
+                                <Button type="button" onClick={handleGenerateImage} disabled={isGeneratingImage}>
+                                    {isGeneratingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Wand2 className="mr-2 h-4 w-4" />} Gerar
+                                </Button>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="upload" className="pt-4">
+                             <Input type="file" accept="image/*" onChange={handleImageUpload} />
+                        </TabsContent>
+                        <TabsContent value="url" className="pt-4">
+                             <Input placeholder="https://exemplo.com/imagem.jpg" onChange={(e) => form.setValue('imageDataUri', e.target.value)} />
+                        </TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </Card>
+
 
                   <div className="space-y-4">
                     <FormField control={form.control} name="format" render={({ field }) => ( <FormItem><FormLabel>Formato do Curso</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione o formato" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Online">Online</SelectItem><SelectItem value="Presencial">Presencial</SelectItem><SelectItem value="Híbrido">Híbrido</SelectItem></SelectContent></Select><FormMessage /></FormItem>)}/>

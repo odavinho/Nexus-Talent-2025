@@ -3,7 +3,7 @@
 
 import { aiResumeAnalysis } from "@/ai/flows/ai-resume-analysis";
 import { personalizedCourseRecommendations } from "@/ai/flows/personalized-course-recommendations";
-import { generateCourseContent } from "@/ai/flows/generate-course-content";
+import { generateCourseContent, generateCourseImage } from "@/ai/flows/generate-course-content";
 import { generateVacancyContent } from "@/ai/flows/generate-vacancy-content";
 import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume";
 import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
@@ -15,7 +15,7 @@ import { chatbotAssistance } from "@/ai/flows/chatbot-assistant";
 import type { 
     AIResumeAnalysisInput, AIResumeAnalysisOutput, 
     PersonalizedCourseRecommendationsInput, PersonalizedCourseRecommendationsOutput,
-    GenerateCourseContentInput, GenerateCourseContentOutput,
+    GenerateCourseContentInput,
     GenerateVacancyContentInput, GenerateVacancyContentOutput,
     ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
     GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
@@ -23,6 +23,7 @@ import type {
     GenerateEmailCampaignInput, EmailCampaignContent,
     ChatbotAssistanceInput, ChatbotAssistanceOutput
 } from "@/lib/schemas";
+import { GenerateCourseContentOutputSchema } from "@/lib/schemas";
 import type { Course } from "@/lib/types";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 
@@ -30,6 +31,7 @@ import { revalidatePath } from "next/cache";
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getCourses, addCourse } from "@/lib/course-service";
+import { z } from "zod";
 
 // AI Actions
 export async function analyzeResumeAction(input: AIResumeAnalysisInput): Promise<AIResumeAnalysisOutput> {
@@ -68,7 +70,7 @@ export async function getCourseRecommendationsAction(input: { userProfile: strin
     }
 }
 
-export async function generateCourseContentAction(input: GenerateCourseContentInput): Promise<GenerateCourseContentOutput | null> {
+export async function generateCourseContentAction(input: GenerateCourseContentInput): Promise<z.infer<typeof GenerateCourseContentOutputSchema.omit<{ imageDataUri: true }>>> {
     try {
         const output = await generateCourseContent(input);
         return output;
@@ -77,6 +79,17 @@ export async function generateCourseContentAction(input: GenerateCourseContentIn
         throw new Error("Failed to generate course content. Please try again.");
     }
 }
+
+export async function generateCourseImageAction(imageHint: string): Promise<string | null> {
+    try {
+        const imageDataUri = await generateCourseImage(imageHint);
+        return imageDataUri;
+    } catch (error) {
+        console.error("Error in generateCourseImageAction:", error);
+        throw new Error("Failed to generate course image. Please try again.");
+    }
+}
+
 
 export async function addCourseAction(course: Course): Promise<{ success: boolean; message: string; course?: Course }> {
     try {
