@@ -35,6 +35,7 @@ export default function NewAssessmentPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(GenerateAssessmentTestInputSchema),
     defaultValues: {
+      jobDescription: '', // Will be populated from vacancy
       testType: 'knowledge',
       numMultipleChoice: 5,
       numShortAnswer: 2,
@@ -45,20 +46,19 @@ export default function NewAssessmentPage() {
     if (vacancyId) {
       const foundVacancy = getVacancyById(vacancyId);
       setVacancy(foundVacancy);
+      if (foundVacancy) {
+         const fullJobDescription = `${foundVacancy.title}\n\n${foundVacancy.description}\n\nResponsabilidades:\n${foundVacancy.responsibilities.join('\n')}\n\nRequisitos:\n${foundVacancy.requirements.join('\n')}`;
+         form.setValue('jobDescription', fullJobDescription);
+      }
     }
-  }, [vacancyId]);
+  }, [vacancyId, form]);
 
   const handleGenerateTest: SubmitHandler<FormValues> = async (data) => {
     if (!vacancy) return;
     setIsGenerating(true);
     setGeneratedTest(null);
     try {
-      const fullJobDescription = `${vacancy.title}\n\n${vacancy.description}\n\nResponsabilidades:\n${vacancy.responsibilities.join('\n')}\n\nRequisitos:\n${vacancy.requirements.join('\n')}`;
-
-      const result = await generateAssessmentTestAction({
-        jobDescription: fullJobDescription,
-        ...data,
-      });
+      const result = await generateAssessmentTestAction(data);
       
       if (!result || !result.questions) {
         throw new Error("A geração do teste não retornou um resultado válido.");
