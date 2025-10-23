@@ -33,25 +33,13 @@ Test Requirements:
 - Number of Multiple-Choice Questions: {{{numMultipleChoice}}}
 - Number of Short-Answer Questions: {{{numShortAnswer}}}
 
-Please generate the following:
-1.  A concise and relevant title for the test.
-2.  A unique ID for the test (e.g., 'test-followed-by-random-chars').
-3.  A list of questions, each with its own unique ID (e.g., 'q1', 'q2').
-
-{{#if (eq testType "knowledge")}}
-For this 'knowledge' test, create questions that assess the technical skills and knowledge required for the job.
-- Use a mix of {{{numMultipleChoice}}} multiple-choice and {{{numShortAnswer}}} short-answer questions.
-- The questions should require the application of knowledge, not just memorization.
-- For short-answer questions, ask the candidate to explain their reasoning or provide a code snippet if applicable.
-{{/if}}
-
-{{#if (eq testType "psychometric")}}
-For this 'psychometric' test, create questions that evaluate logical reasoning, problem-solving abilities, and behavioral traits relevant to the role.
-- All questions should be multiple-choice.
-- The questions should present hypothetical scenarios or logical puzzles. Do not ask for personal opinions or feelings.
-{{/if}}
-
-IMPORTANT: Ensure all multiple-choice questions have exactly 4 plausible options.`,
+Instructions:
+1.  Generate a concise and relevant title for the test.
+2.  Generate a unique ID for the test (e.g., 'test-followed-by-random-chars').
+3.  Generate a list of questions, each with its own unique ID (e.g., 'q1', 'q2').
+4.  If the 'testType' is 'knowledge', create questions that assess the technical skills and knowledge required for the job. Use a mix of {{{numMultipleChoice}}} multiple-choice and {{{numShortAnswer}}} short-answer questions. For short-answer questions, ask the candidate to explain their reasoning or provide a code snippet if applicable.
+5.  If the 'testType' is 'psychometric', create questions that evaluate logical reasoning, problem-solving abilities, and behavioral traits relevant to the role. All questions in this case should be multiple-choice.
+6.  IMPORTANT: Ensure all multiple-choice questions have exactly 4 plausible options.`,
 });
 
 const generateAssessmentTestFlow = ai.defineFlow(
