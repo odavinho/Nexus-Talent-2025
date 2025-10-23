@@ -57,7 +57,7 @@ export function DashboardHeader() {
     return initials.slice(0, 2).toUpperCase();
   }
 
-  const getProfileLink = () => {
+  const getSettingsLink = () => {
     if (!userProfile) return '/dashboard/student/profile'; // Default fallback
     switch (userProfile.userType) {
       case 'recruiter':
@@ -67,7 +67,7 @@ export function DashboardHeader() {
       case 'instructor':
         return '/dashboard/instructor'; // Or a specific instructor profile page
       case 'admin':
-        return '/dashboard/admin'; // Or a specific admin profile page
+        return '/dashboard/settings'; // Admin has site-wide settings
       default:
         return '/dashboard';
     }
@@ -121,13 +121,8 @@ export function DashboardHeader() {
                     <Link href="/dashboard">Painel</Link>
                   </DropdownMenuItem>
                    <DropdownMenuItem asChild>
-                    <Link href={getProfileLink()}>Meu Perfil</Link>
+                    <Link href={getSettingsLink()}><Settings className="mr-2 h-4 w-4"/>Configurações</Link>
                   </DropdownMenuItem>
-                  {userProfile?.userType === 'admin' && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/settings"><Settings className="mr-2 h-4 w-4"/>Configurações do Site</Link>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-500">
                     <LogOut className="mr-2 h-4 w-4"/>
