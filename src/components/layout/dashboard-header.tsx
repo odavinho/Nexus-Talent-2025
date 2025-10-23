@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/shared/logo';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -123,11 +123,14 @@ export function DashboardHeader() {
                    <DropdownMenuItem asChild>
                     <Link href={getProfileLink()}>Meu Perfil</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings">Configurações</Link></DropdownMenuItem>
+                  {userProfile?.userType === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/settings"><Settings className="mr-2 h-4 w-4"/>Configurações do Site</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-                    <LogOut className="mr-2"/>
+                    <LogOut className="mr-2 h-4 w-4"/>
                     Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>

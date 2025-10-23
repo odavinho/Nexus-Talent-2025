@@ -1,6 +1,6 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, Building, Award, ArrowLeft, Loader2, Save } from "lucide-react";
+import { Star, Building, Award, ArrowLeft, Loader2, Save, ShieldAlert } from "lucide-react";
 import { EditableImageGrid } from "@/components/dashboard/settings/editable-image-grid";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import { getSiteData, updateSiteData } from "@/app/actions";
 import type { SiteData, ImagePlaceholder } from "@/lib/site-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
 
 
 const statSchema = z.object({
@@ -106,18 +109,39 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const [siteData, setSiteData] = useState<SiteData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, `users/${user.uid}`);
+  }, [user, firestore]);
+    
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
 
   useEffect(() => {
-    async function loadData() {
-        try {
-            const data = await getSiteData();
-            setSiteData(data);
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro ao carregar dados', description: 'Não foi possível carregar as configurações do site.'});
-        }
+    const userIsLoading = isUserLoading || isProfileLoading;
+    if (!userIsLoading) {
+      if (!user || userProfile?.userType !== 'admin') {
+        router.replace('/dashboard');
+        return;
+      }
+      
+      async function loadData() {
+          try {
+              const data = await getSiteData();
+              setSiteData(data);
+          } catch (error) {
+              toast({ variant: 'destructive', title: 'Erro ao carregar dados', description: 'Não foi possível carregar as configurações do site.'});
+          } finally {
+              setIsLoading(false);
+          }
+      }
+      loadData();
     }
-    loadData();
-  }, [toast]);
+  }, [user, userProfile, isUserLoading, isProfileLoading, router, toast]);
   
 
   const handleFormSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -151,7 +175,7 @@ export default function SettingsPage() {
       setSiteData(newSiteData);
   }
 
-  if (!siteData) {
+  if (isLoading || isUserLoading || isProfileLoading) {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="space-y-8">
@@ -162,6 +186,22 @@ export default function SettingsPage() {
         </div>
     )
   }
+
+  if (!userProfile || userProfile.userType !== 'admin') {
+    return (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+            <ShieldAlert className="mx-auto h-16 w-16 text-destructive mb-4" />
+            <h1 className="font-headline text-2xl font-bold">Acesso Negado</h1>
+            <p className="text-muted-foreground mt-2">Você não tem permissão para aceder a esta página.</p>
+             <Button onClick={() => router.push('/dashboard')} className="mt-6">Voltar ao Painel</Button>
+        </div>
+    )
+  }
+  
+  if (!siteData) {
+      return <div>Erro ao carregar os dados do site.</div>
+  }
+
 
   const partners = siteData.images.filter(p => p.id.startsWith('partner-'));
   const certifications = siteData.images.filter(p => p.id.startsWith('cert-'));
