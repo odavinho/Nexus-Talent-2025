@@ -26,6 +26,7 @@ const formSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
   template: z.string().min(1, "É obrigatório selecionar um template."), // Now stores template ID
+  subject: z.string().optional(),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   imageUrl2: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   buttonText: z.string().optional(),
@@ -51,6 +52,7 @@ export default function EmailMarketingPage() {
       tone: 'Profissional',
       language: 'Português',
       template: 'newsletter',
+      subject: '',
       imageUrl: 'https://picsum.photos/seed/1/600/300',
       imageUrl2: 'https://picsum.photos/seed/2/600/300',
       buttonText: "Saber Mais",
@@ -95,6 +97,7 @@ export default function EmailMarketingPage() {
         .replace(/\[IMAGE_URL_2\]/g, data.imageUrl2 || 'https://placehold.co/600x300?text=Imagem+2');
       
       // Update the main form fields based on AI generation
+      form.setValue('subject', result.subject);
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
 
@@ -139,152 +142,154 @@ export default function EmailMarketingPage() {
         Voltar
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-3xl flex items-center gap-2"><Mail /> Criador de Campanhas de E-mail</CardTitle>
-          <CardDescription>Gere e envie campanhas de e-mail profissionais com o poder da IA, escolhendo o seu template visual preferido.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-8">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-3xl flex items-center gap-2"><Mail /> Criador de Campanhas de E-mail</CardTitle>
+              <CardDescription>Gere e envie campanhas de e-mail profissionais com o poder da IA, escolhendo o seu template visual preferido.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">1. Selecione um Template</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {templates.map((template) => (
+                      <div
+                        key={template.id}
+                        className={cn(
+                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2",
+                          selectedTemplateId === template.id ? 'border-primary' : 'border-transparent'
+                        )}
+                        onClick={() => form.setValue('template', template.id)}
+                      >
+                        <div className='bg-white rounded-md overflow-hidden'>
+                          <div className="aspect-[4/3] scale-[0.2] origin-top-left">
+                              <iframe 
+                                  srcDoc={template.html}
+                                  title={template.name}
+                                  className="w-[1200px] h-[900px] border-0"
+                                  sandbox=""
+                              />
+                          </div>
+                          <p className="text-center font-medium p-2 text-sm">{template.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <FormField control={form.control} name="template" render={({ field }) => ( <FormItem><FormMessage className="mt-2" /></FormItem> )} />
+                </div>
 
-              <div>
-                <h3 className="text-xl font-semibold mb-4">1. Selecione um Template</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={cn(
-                        "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2",
-                        selectedTemplateId === template.id ? 'border-primary' : 'border-transparent'
-                      )}
-                      onClick={() => form.setValue('template', template.id)}
-                    >
-                      <div className='bg-white rounded-md overflow-hidden'>
-                        <div className="aspect-[4/3] scale-[0.2] origin-top-left">
-                            <iframe 
-                                srcDoc={template.html}
-                                title={template.name}
-                                className="w-[1200px] h-[900px] border-0"
-                                sandbox=""
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">2. Defina o Conteúdo</h3>
+                  <div className='space-y-6'>
+                      <FormField control={form.control} name="topic" render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Tópico ou Objetivo do E-mail</FormLabel>
+                          <FormControl><Textarea placeholder="Ex: Promover o novo curso de Power BI" {...field} /></FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}/>
+                      <div className="grid md:grid-cols-2 gap-4">
+                          <FormField control={form.control} name="tone" render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Tom</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent><SelectItem value="Profissional">Profissional</SelectItem><SelectItem value="Amigável">Amigável</SelectItem><SelectItem value="Urgente">Urgente</SelectItem></SelectContent>
+                              </Select>
+                          </FormItem>
+                          )}/>
+                          <FormField control={form.control} name="language" render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Idioma</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                              <SelectContent><SelectItem value="Português">Português</SelectItem><SelectItem value="Inglês">Inglês</SelectItem></SelectContent>
+                              </Select>
+                          </FormItem>
+                          )}/>
+                      </div>
+                  </div>
+                </div>
+                
+                <Button type="button" onClick={form.handleSubmit(handleGenerateContent)} disabled={isGenerating} className="w-full text-lg py-6">
+                  {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Gerar Texto do E-mail com IA
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+      
+          <Separator className="my-8" />
+
+          {isGenerating ? (
+            <div className="text-center py-10">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="mt-2 text-muted-foreground">A IA está a criar o seu e-mail profissional...</p>
+            </div>
+          ) : generatedContent && (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <h2 className='font-headline text-2xl'>3. Reveja, Edite e Envie</h2>
+                    <Button type="button" onClick={handleSendCampaign} disabled={!generatedContent || isSending}>
+                        {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Enviar Campanha
+                    </Button>
+                </div>
+
+                <Card>
+                    <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <FormField control={form.control} name="subject" render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Assunto do E-mail</FormLabel>
+                                <FormControl>
+                                  <Input {...field} onChange={e => {
+                                    field.onChange(e);
+                                    if (generatedContent) {
+                                      setGeneratedContent({...generatedContent, subject: e.target.value});
+                                    }
+                                  }}/>
+                                </FormControl>
+                              </FormItem>
+                            )}/>
+                          {selectedTemplate?.imageCount === 1 && (
+                            <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem.png" {...field} /></FormControl></FormItem>)}/>
+                          )}
+                          {selectedTemplate?.imageCount === 2 && (
+                            <>
+                              <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem1.png" {...field} /></FormControl></FormItem>)}/>
+                              <FormField control={form.control} name="imageUrl2" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 2</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem2.png" {...field} /></FormControl></FormItem>)}/>
+                            </>
+                          )}
+                            <FormField control={form.control} name="buttonText" render={({ field }) => (<FormItem><FormLabel>Texto do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
+                            <FormField control={form.control} name="buttonLink" render={({ field }) => (<FormItem><FormLabel>Link do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="html-editor" className='flex items-center gap-2'><Code size={16}/> Editor HTML</Label>
+                            <Textarea 
+                                id="html-editor"
+                                value={generatedContent.bodyHtml}
+                                onChange={(e) => setGeneratedContent(prev => prev ? {...prev, bodyHtml: e.target.value} : null)}
+                                className="h-[60vh] font-mono text-xs"
+                                placeholder="O código HTML do seu e-mail aparecerá aqui."
                             />
                         </div>
-                        <p className="text-center font-medium p-2 text-sm">{template.name}</p>
-                      </div>
-                    </div>
-                  ))}
+                    </CardContent>
+                </Card>
+
+                <h3 className="font-headline text-xl">Pré-visualização</h3>
+                <div className="border rounded-lg h-[80vh] overflow-hidden">
+                    <iframe 
+                        srcDoc={generatedContent.bodyHtml}
+                        title="Pré-visualização do E-mail"
+                        className="w-full h-full border-0"
+                        sandbox=""
+                    />
                 </div>
-                 <FormField control={form.control} name="template" render={({ field }) => ( <FormItem><FormMessage className="mt-2" /></FormItem> )} />
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold mb-4">2. Defina o Conteúdo</h3>
-                <div className='space-y-6'>
-                    <FormField control={form.control} name="topic" render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Tópico ou Objetivo do E-mail</FormLabel>
-                        <FormControl><Textarea placeholder="Ex: Promover o novo curso de Power BI" {...field} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}/>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="tone" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Tom</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent><SelectItem value="Profissional">Profissional</SelectItem><SelectItem value="Amigável">Amigável</SelectItem><SelectItem value="Urgente">Urgente</SelectItem></SelectContent>
-                            </Select>
-                        </FormItem>
-                        )}/>
-                        <FormField control={form.control} name="language" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Idioma</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                            <SelectContent><SelectItem value="Português">Português</SelectItem><SelectItem value="Inglês">Inglês</SelectItem></SelectContent>
-                            </Select>
-                        </FormItem>
-                        )}/>
-                    </div>
-                </div>
-              </div>
-              
-              <Button type="submit" disabled={isGenerating} className="w-full text-lg py-6">
-                {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Gerar Texto do E-mail com IA
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      
-      <Separator className="my-8" />
-
-      {isGenerating ? (
-         <div className="text-center py-10">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="mt-2 text-muted-foreground">A IA está a criar o seu e-mail profissional...</p>
-        </div>
-      ) : generatedContent && (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className='font-headline text-2xl'>3. Reveja, Edite e Envie</h2>
-                 <Button onClick={handleSendCampaign} disabled={!generatedContent || isSending}>
-                    {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Enviar Campanha
-                </Button>
             </div>
-
-            <Card>
-                <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div className="space-y-4">
-                        <FormField control={form.control} name="subject" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Assunto do E-mail</FormLabel>
-                            <FormControl>
-                              <Input {...field} onChange={e => {
-                                field.onChange(e);
-                                setGeneratedContent({...generatedContent, subject: e.target.value});
-                              }}/>
-                            </FormControl>
-                          </FormItem>
-                        )}/>
-                       {selectedTemplate?.imageCount === 1 && (
-                         <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem.png" {...field} /></FormControl></FormItem>)}/>
-                       )}
-                       {selectedTemplate?.imageCount === 2 && (
-                         <>
-                           <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem1.png" {...field} /></FormControl></FormItem>)}/>
-                           <FormField control={form.control} name="imageUrl2" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 2</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem2.png" {...field} /></FormControl></FormItem>)}/>
-                         </>
-                       )}
-                        <FormField control={form.control} name="buttonText" render={({ field }) => (<FormItem><FormLabel>Texto do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
-                        <FormField control={form.control} name="buttonLink" render={({ field }) => (<FormItem><FormLabel>Link do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="html-editor" className='flex items-center gap-2'><Code size={16}/> Editor HTML</Label>
-                        <Textarea 
-                            id="html-editor"
-                            value={generatedContent.bodyHtml}
-                            onChange={(e) => setGeneratedContent(prev => prev ? {...prev, bodyHtml: e.target.value} : null)}
-                            className="h-[60vh] font-mono text-xs"
-                            placeholder="O código HTML do seu e-mail aparecerá aqui."
-                        />
-                    </div>
-                </CardContent>
-            </Card>
-
-            <h3 className="font-headline text-xl">Pré-visualização</h3>
-            <div className="border rounded-lg h-[80vh] overflow-hidden">
-                <iframe 
-                    srcDoc={generatedContent.bodyHtml}
-                    title="Pré-visualização do E-mail"
-                    className="w-full h-full border-0"
-                    sandbox=""
-                />
-            </div>
-        </div>
-      )}
-      
+          )}
+        </form>
+      </Form>
     </div>
   );
 }
