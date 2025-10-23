@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Schema for AI Resume Analysis
@@ -71,11 +70,16 @@ export const GenerateVacancyContentInputSchema = z.object({
     demandLevel: z.string().describe("The seniority or demand level for the job (e.g., Júnior, Pleno, Sénior)."),
 });
 
+const AIScreeningQuestionSchema = z.object({
+  question: z.string().describe("The text of the screening question."),
+  requiredAnswer: z.enum(['sim', 'nao']).describe("The mandatory answer for the candidate to be considered."),
+});
+
 export const GenerateVacancyContentOutputSchema = z.object({
     description: z.string().describe("A general summary of the job vacancy."),
     responsibilities: z.array(z.string()).describe("A list of key responsibilities."),
     requirements: z.array(z.string()).describe("A list of required qualifications and skills."),
-    aiScreeningQuestions: z.array(z.string()).describe("A list of 3-5 open-ended screening questions for the candidate, suggested by AI."),
+    aiScreeningQuestions: z.array(AIScreeningQuestionSchema).describe("A list of 3-5 Yes/No screening questions for the candidate, suggested by AI."),
 });
 
 export type GenerateVacancyContentInput = z.infer<typeof GenerateVacancyContentInputSchema>;
@@ -124,6 +128,7 @@ const QuestionSchema = z.object({
 export const GenerateAssessmentTestInputSchema = z.object({
     jobDescription: z.string().describe('The full job description for the vacancy.'),
     testType: z.enum(['knowledge', 'psychometric']).describe('The type of test to generate.'),
+    level: z.enum(['Fácil', 'Médio', 'Difícil']).describe('The difficulty level of the test.'),
     numMultipleChoice: z.coerce.number().describe('The number of multiple-choice questions.'),
     numShortAnswer: z.coerce.number().describe('The number of short-answer questions.'),
 });
@@ -214,5 +219,3 @@ export const ChatbotAssistanceOutputSchema = z.object({
 
 export type ChatbotAssistanceInput = z.infer<typeof ChatbotAssistanceInputSchema>;
 export type ChatbotAssistanceOutput = z.infer<typeof ChatbotAssistanceOutputSchema>;
-
-    

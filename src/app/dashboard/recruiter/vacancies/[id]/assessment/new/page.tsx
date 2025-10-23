@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GenerateAssessmentTestInputSchema } from '@/lib/schemas';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 type FormValues = z.infer<typeof GenerateAssessmentTestInputSchema>;
@@ -37,6 +38,7 @@ export default function NewAssessmentPage() {
     defaultValues: {
       jobDescription: '', // Will be populated from vacancy
       testType: 'knowledge',
+      level: 'Médio',
       numMultipleChoice: 5,
       numShortAnswer: 2,
     },
@@ -147,6 +149,26 @@ export default function NewAssessmentPage() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="level"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nível de Dificuldade</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                            <SelectContent>
+                                <SelectItem value="Fácil">Fácil</SelectItem>
+                                <SelectItem value="Médio">Médio</SelectItem>
+                                <SelectItem value="Difícil">Difícil</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
 
                   <FormField
                     control={form.control}

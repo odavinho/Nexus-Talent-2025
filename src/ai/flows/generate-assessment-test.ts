@@ -23,23 +23,24 @@ const prompt = ai.definePrompt({
   name: 'generateAssessmentTestPrompt',
   input: { schema: GenerateAssessmentTestInputSchema },
   output: { schema: GenerateAssessmentTestOutputSchema },
-  prompt: `You are an expert in creating professional assessments for job candidates. Your task is to generate a test based on the provided job description and requirements.
+  prompt: `You are an expert in creating professional assessments for job candidates. Your task is to generate a test in Portuguese based on the provided job description, requirements, and desired difficulty.
 
-Job Description:
+**Job Description:**
 {{{jobDescription}}}
 
-Test Requirements:
+**Test Requirements:**
 - Test Type: {{{testType}}}
+- Difficulty Level: {{{level}}}
 - Number of Multiple-Choice Questions: {{{numMultipleChoice}}}
 - Number of Short-Answer Questions: {{{numShortAnswer}}}
 
-Instructions:
+**Instructions:**
 1.  Generate a concise and relevant title for the test.
 2.  Generate a unique ID for the test (e.g., 'test-followed-by-random-chars').
-3.  Generate a list of questions, each with its own unique ID (e.g., 'q1', 'q2').
-4.  If the 'testType' is 'knowledge', create questions that assess the technical skills and knowledge required for the job. Use a mix of {{{numMultipleChoice}}} multiple-choice and {{{numShortAnswer}}} short-answer questions. For short-answer questions, ask the candidate to explain their reasoning or provide a code snippet if applicable.
-5.  If the 'testType' is 'psychometric', create questions that evaluate logical reasoning, problem-solving abilities, and behavioral traits relevant to the role. All questions in this case should be multiple-choice.
-6.  IMPORTANT: Ensure all multiple-choice questions have exactly 4 plausible options.`,
+3.  For each question, generate a unique ID (e.g., 'q1', 'q2').
+4.  If the **testType** is 'knowledge', create questions that assess the technical skills and knowledge required for the job, adjusting the complexity based on the specified **difficulty level**. Use a mix of {{{numMultipleChoice}}} multiple-choice and {{{numShortAnswer}}} short-answer questions. For short-answer questions, ask the candidate to explain their reasoning or provide a code snippet if applicable.
+5.  If the **testType** is 'psychometric', create questions that evaluate logical reasoning, problem-solving abilities, and behavioral traits relevant to the role, again considering the **difficulty level**. All questions in this case should be multiple-choice.
+6.  **IMPORTANT:** Ensure all multiple-choice questions have exactly 4 plausible options and specify the correct answer by setting 'correctAnswerIndex'.`,
 });
 
 const generateAssessmentTestFlow = ai.defineFlow(
