@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap, LinkIcon, LayoutTemplate } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Users, Briefcase, GraduationCap, Link as LinkIcon, LayoutTemplate } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
@@ -34,8 +34,8 @@ const formSchema = z.object({
   language: z.enum(['Português', 'Inglês']),
   template: z.enum(['simple', 'withImage', 'promotional']),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
-  buttonText: z.string().min(1, "O texto do botão é obrigatório."),
-  buttonLink: z.string().url("Por favor, insira um URL válido."),
+  buttonText: z.string().optional(),
+  buttonLink: z.string().url("Por favor, insira um URL válido.").optional().or(z.literal('')),
   audienceType: z.enum(['all', 'course_students', 'vacancy_candidates', 'candidates_by_area']),
   targetCourseId: z.string().optional(),
   targetVacancyId: z.string().optional(),
@@ -52,7 +52,7 @@ const formSchema = z.object({
 
 
 type FormValues = z.infer<typeof formSchema>;
-type GeneratedContent = Omit<EmailCampaignContent, 'imageDataUri'> & { imageUrl?: string };
+type GeneratedContent = EmailCampaignContent;
 
 export default function EmailMarketingPage() {
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
@@ -119,19 +119,21 @@ export default function EmailMarketingPage() {
     setAudienceCount(count);
   }, [watchedValues]);
 
+  // Effect to update the preview when imageUrl changes
   useEffect(() => {
-      const [_type, _courseId, _vacancyId, _areas, template, imageUrl] = watchedValues;
+      const [_t, _c, _v, _a, template, imageUrl] = watchedValues;
       if (generatedContent) {
           let updatedHtml = generatedContent.bodyHtml;
-          if (template === 'withImage' && imageUrl) {
-              updatedHtml = updatedHtml.replace('[IMAGE_URL]', imageUrl);
-          } else if (template === 'withImage' && !imageUrl) {
-              // If URL is removed, put placeholder back
-              updatedHtml = updatedHtml.replace(/src="https?:\/\/[^"]*"/, 'src="[IMAGE_URL]"');
+          if (template === 'withImage' || template === 'promotional') {
+              if (imageUrl) {
+                 updatedHtml = updatedHtml.replace(/\[IMAGE_URL\]/g, imageUrl);
+              } else {
+                 updatedHtml = updatedHtml.replace(/src="https?:\/\/[^"]*"/, 'src="[IMAGE_URL]"');
+              }
           }
           setGeneratedContent(prev => prev ? {...prev, bodyHtml: updatedHtml} : null);
       }
-  }, [watchedValues[4], watchedValues[5]]);
+  }, [watchedValues[4], watchedValues[5]]); // Watch template and imageUrl
 
 
   const audienceType = form.watch('audienceType');
@@ -144,9 +146,10 @@ export default function EmailMarketingPage() {
       const result = await generateEmailCampaignAction(data);
       if (!result) throw new Error("A IA não retornou conteúdo.");
       
+      // Update the main form fields based on AI generation, if they are optional
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
-      setGeneratedContent({...result, imageUrl: data.imageUrl});
+      setGeneratedContent(result);
 
       toast({
         title: "Conteúdo Gerado com Sucesso!",
@@ -173,6 +176,7 @@ export default function EmailMarketingPage() {
         description: `O e-mail "${generatedContent.subject}" foi enviado para ${audienceCount} destinatário(s).`,
       });
       setIsSending(false);
+      router.push('/dashboard/admin/campaigns');
     }, 1500);
   };
 
@@ -233,7 +237,7 @@ export default function EmailMarketingPage() {
                 )}/>
               </div>
 
-               {templateType === 'withImage' && (
+               {(templateType === 'withImage' || templateType === 'promotional') && (
                 <FormField
                   control={form.control}
                   name="imageUrl"

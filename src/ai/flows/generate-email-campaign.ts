@@ -56,8 +56,8 @@ const generateEmailCampaignFlow = ai.defineFlow(
     let finalBodyHtml = output.bodyHtml;
 
     // Replace the placeholder with the user-provided URL if it exists
-    if (input.template === 'withImage' && input.imageUrl) {
-      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', input.imageUrl);
+    if ((input.template === 'withImage' || input.template === 'promotional') && input.imageUrl) {
+      finalBodyHtml = finalBodyHtml.replace(/\[IMAGE_URL\]/g, input.imageUrl);
     }
     
     return {

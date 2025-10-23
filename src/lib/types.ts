@@ -162,6 +162,5 @@ export interface Course {
     bodyHtml: string;
     buttonText: string;
     buttonLink: string;
-    imageUrl?: string;
-    imageDataUri?: string;
   }
+
