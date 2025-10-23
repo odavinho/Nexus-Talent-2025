@@ -14,13 +14,13 @@ import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, C
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import type { EmailCampaignContent, Course, Vacancy } from '@/lib/types';
+import type { EmailCampaignContent, Course, Vacancy, UserProfile } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { getTemplates, type EmailTemplate } from '@/lib/email-templates';
 import { users as allUsers } from '@/lib/users';
-import { getCourses } from '@/lib/course-service';
+import { getCourses, getCourseCategories } from '@/lib/course-service';
 import { getVacancies } from '@/lib/vacancy-service';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -35,8 +35,10 @@ const formSchema = z.object({
   segments: z.array(z.string()).optional(),
   targetCourses: z.array(z.string()).optional(),
   targetVacancies: z.array(z.string()).optional(),
+  functionalAreas: z.array(z.string()).optional(),
   // Editable fields
   subject: z.string().optional(),
+  logoUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   imageUrl2: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   buttonText: z.string().optional(),
@@ -57,6 +59,7 @@ export default function EmailMarketingPage() {
   const [audienceCount, setAudienceCount] = useState(0);
   const [courses, setCourses] = useState<Course[]>([]);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [functionalAreas, setFunctionalAreas] = useState<string[]>([]);
 
 
   const form = useForm<FormValues>({
@@ -69,7 +72,9 @@ export default function EmailMarketingPage() {
       segments: [],
       targetCourses: [],
       targetVacancies: [],
+      functionalAreas: [],
       subject: '',
+      logoUrl: 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png',
       imageUrl: '',
       imageUrl2: '',
       buttonText: "",
@@ -80,34 +85,56 @@ export default function EmailMarketingPage() {
   const selectedTemplateId = form.watch('template');
   const imageUrl1 = form.watch('imageUrl');
   const imageUrl2 = form.watch('imageUrl2');
+  const logoUrl = form.watch('logoUrl');
   const [currentBodyHtml, setCurrentBodyHtml] = useState<string | null>(null);
 
   const watchSegments = form.watch('segments');
   const watchCourses = form.watch('targetCourses');
   const watchVacancies = form.watch('targetVacancies');
+  const watchFunctionalAreas = form.watch('functionalAreas');
 
   useEffect(() => {
     setCourses(getCourses());
     setVacancies(getVacancies(true));
+    const allAreas = [...new Set(allUsers.map(u => u.functionalArea).filter(Boolean))];
+    setFunctionalAreas(allAreas as string[]);
   }, []);
 
   useEffect(() => {
     const selectedSegments = watchSegments || [];
-    // This is a placeholder for a more complex logic
+    const selectedCourses = watchCourses || [];
+    const selectedVacancies = watchVacancies || [];
+    const selectedAreas = watchFunctionalAreas || [];
+
     const addedUsers = new Set<string>();
 
-    if(selectedSegments.includes('all')) {
-        allUsers.forEach(u => addedUsers.add(u.id));
-    } else {
-        if (selectedSegments.includes('students')) {
-            allUsers.filter(u => u.userType === 'student').forEach(u => addedUsers.add(u.id));
-        }
-        if (selectedSegments.includes('recruiters')) {
-            allUsers.filter(u => u.userType === 'recruiter').forEach(u => addedUsers.add(u.id));
-        }
+    if(selectedSegments.length === 0 && selectedCourses.length === 0 && selectedVacancies.length === 0 && selectedAreas.length === 0) {
+        setAudienceCount(0);
+        return;
     }
+
+    let filteredUsers = allUsers;
+
+    // Filter by segments
+    if (selectedSegments.length > 0) {
+        filteredUsers = filteredUsers.filter(u => selectedSegments.includes(u.userType));
+    }
+    
+    // Filter by functional areas
+    if (selectedAreas.length > 0) {
+        filteredUsers = filteredUsers.filter(u => u.functionalArea && selectedAreas.includes(u.functionalArea));
+    }
+    
+    // In a real app, course/vacancy enrollments would be checked. Here we just add all users for simplicity if any are selected.
+    if (selectedCourses.length > 0 || selectedVacancies.length > 0) {
+        allUsers.forEach(u => addedUsers.add(u.id));
+    }
+
+    filteredUsers.forEach(u => addedUsers.add(u.id));
+    
     setAudienceCount(addedUsers.size);
-  }, [watchSegments, watchCourses, watchVacancies]);
+
+  }, [watchSegments, watchCourses, watchVacancies, watchFunctionalAreas]);
 
 
   // Effect to update the preview when image URLs change or generated content is set
@@ -115,12 +142,13 @@ export default function EmailMarketingPage() {
     if (generatedContent) {
       let updatedHtml = generatedContent.bodyHtml;
       
+      updatedHtml = updatedHtml.replace(/\[LOGO_URL\]/g, logoUrl || 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png');
       updatedHtml = updatedHtml.replace(/\[IMAGE_URL_1\]/g, imageUrl1 || 'https://placehold.co/600x300?text=Imagem+Principal');
-      updatedHtml = updatedHtml.replace(/\[IMAGE_URL_2\]/g, imageUrl2 || 'https://placehold.co/600x300?text=Imagem+Secundária');
+      updatedHtml = updatedHtml.replace(/\[IMAGE_URL_2\]/g, imageUrl2 || 'https://placehold.co/280x200?text=Imagem+Secundária');
       
       setCurrentBodyHtml(updatedHtml);
     }
-  }, [generatedContent, imageUrl1, imageUrl2]);
+  }, [generatedContent, logoUrl, imageUrl1, imageUrl2]);
 
 
   const handleGenerateContent: SubmitHandler<Pick<FormValues, 'topic' | 'tone' | 'language' | 'template'>> = async (data) => {
@@ -139,10 +167,12 @@ export default function EmailMarketingPage() {
       if (!result) throw new Error("A IA não retornou conteúdo.");
       
       setGeneratedContent(result);
-      // This is the fix: immediately update the preview HTML state after generation
+      
+      // Update preview HTML after generation
       let updatedHtml = result.bodyHtml
+        .replace(/\[LOGO_URL\]/g, form.getValues('logoUrl') || 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png')
         .replace(/\[IMAGE_URL_1\]/g, form.getValues('imageUrl') || 'https://placehold.co/600x300?text=Imagem+Principal')
-        .replace(/\[IMAGE_URL_2\]/g, form.getValues('imageUrl2') || 'https://placehold.co/600x300?text=Imagem+Secundária');
+        .replace(/\[IMAGE_URL_2\]/g, form.getValues('imageUrl2') || 'https://placehold.co/280x200?text=Imagem+Secundária');
       setCurrentBodyHtml(updatedHtml);
 
 
@@ -284,19 +314,48 @@ export default function EmailMarketingPage() {
                            <Tabs defaultValue="segments" className="w-full">
                                 <TabsList>
                                     <TabsTrigger value="segments">Segmentos</TabsTrigger>
+                                    <TabsTrigger value="interests">Interesses</TabsTrigger>
                                     <TabsTrigger value="courses">Cursos</TabsTrigger>
                                     <TabsTrigger value="vacancies">Vagas</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="segments" className='pt-4'>
+                                <TabsContent value="segments" className='pt-4 max-h-48 overflow-y-auto space-y-2'>
+                                    <p className='text-sm text-muted-foreground mb-2'>Enviar para grupos de utilizadores específicos.</p>
                                     <div className="space-y-2">
                                         <FormField control={form.control} name="segments" render={({ field }) => (
                                             <>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-all" checked={field.value?.includes('all')} onCheckedChange={(checked) => checked ? field.onChange(['all', 'students', 'recruiters']) : field.onChange([])} /><label htmlFor="seg-all" className='cursor-pointer'>Todos os Utilizadores</label></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-students" checked={field.value?.includes('students')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'students']) : field.onChange(field.value?.filter(v => v !== 'students'))} /><label htmlFor="seg-students" className='cursor-pointer'>Apenas Formandos</label></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-recruiters" checked={field.value?.includes('recruiters')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'recruiters']) : field.onChange(field.value?.filter(v => v !== 'recruiters'))} /><label htmlFor="seg-recruiters" className='cursor-pointer'>Apenas Recrutadores</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-student" checked={field.value?.includes('student')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'student']) : field.onChange(field.value?.filter(v => v !== 'student'))} /><label htmlFor="seg-student" className='cursor-pointer'>Apenas Formandos/Candidatos</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-recruiter" checked={field.value?.includes('recruiter')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'recruiter']) : field.onChange(field.value?.filter(v => v !== 'recruiter'))} /><label htmlFor="seg-recruiter" className='cursor-pointer'>Apenas Recrutadores</label></FormItem>
+                                                 <FormItem className="flex items-center space-x-2"><Checkbox id="seg-instructor" checked={field.value?.includes('instructor')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'instructor']) : field.onChange(field.value?.filter(v => v !== 'instructor'))} /><label htmlFor="seg-instructor" className='cursor-pointer'>Apenas Formadores</label></FormItem>
                                             </>
                                         )}/>
                                     </div>
+                                </TabsContent>
+                                <TabsContent value="interests" className='pt-4 max-h-48 overflow-y-auto space-y-2'>
+                                     <p className='text-sm text-muted-foreground mb-2'>Enviar para utilizadores com base nas suas áreas funcionais de interesse.</p>
+                                     <FormField control={form.control} name="functionalAreas" render={() => (
+                                        <>
+                                            {functionalAreas.map(area => (
+                                                <FormField
+                                                    key={area}
+                                                    control={form.control}
+                                                    name="functionalAreas"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center space-x-2">
+                                                            <Checkbox 
+                                                                checked={field.value?.includes(area)}
+                                                                onCheckedChange={(checked) => {
+                                                                    return checked
+                                                                    ? field.onChange([...field.value || [], area])
+                                                                    : field.onChange(field.value?.filter(v => v !== area))
+                                                                }}
+                                                            />
+                                                            <label className='cursor-pointer'>{area}</label>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            ))}
+                                        </>
+                                     )}/>
                                 </TabsContent>
                                 <TabsContent value="courses" className='pt-4 max-h-48 overflow-y-auto space-y-2'>
                                     <p className='text-sm text-muted-foreground mb-2'>Enviar para formandos inscritos em cursos específicos.</p>
@@ -379,6 +438,7 @@ export default function EmailMarketingPage() {
                                 <FormControl><Input {...field} /></FormControl>
                               </FormItem>
                             )}/>
+                            <FormField control={form.control} name="logoUrl" render={({ field }) => (<FormItem><FormLabel>URL do Logotipo</FormLabel><FormControl><Input placeholder="https://exemplo.com/logo.png" {...field} /></FormControl></FormItem>)}/>
                           {selectedTemplate?.imageCount >= 1 && (
                             <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem Principal</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem.png" {...field} /></FormControl></FormItem>)}/>
                           )}

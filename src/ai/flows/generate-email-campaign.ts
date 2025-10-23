@@ -58,7 +58,6 @@ const generateEmailCampaignFlow = ai.defineFlow(
     
     // Replace generic placeholders with more specific ones from our app's context
     const finalHtml = output.bodyHtml
-        .replace(/\[LOGO_URL\]/g, 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png')
         .replace(/\[UNSUBSCRIBE_LINK\]/g, '#')
         .replace(/\[COMPANY_NAME\]/g, 'NexusTalent')
         .replace(/\[COMPANY_ADDRESS\]/g, 'Luanda, Angola');
