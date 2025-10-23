@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, Percent, MousePointerClick, Eye, BarChart } from "lucide-react";
+import { ArrowLeft, Mail, Percent, MousePointerClick, Eye, BarChart, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ResponsiveContainer, BarChart as RechartsBarChart, XAxis, YAxis, Tooltip, Bar } from 'recharts';
+
 
 // Mock data
 const mockCampaigns = [
@@ -38,6 +41,53 @@ const mockCampaigns = [
         clickRate: 2.1
     }
 ];
+
+const ReportDialog = ({ campaign }: { campaign: typeof mockCampaigns[0] }) => {
+    const reportData = [
+        { name: 'Aberturas', value: campaign.openRate, fill: 'var(--color-opens)' },
+        { name: 'Cliques', value: campaign.clickRate, fill: 'var(--color-clicks)' },
+    ];
+
+    return (
+        <DialogContent className="max-w-2xl">
+            <DialogHeader>
+                <DialogTitle>Relatório da Campanha</DialogTitle>
+                <DialogDescription>{campaign.subject}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+                 <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Destinatários</p>
+                        <p className="text-2xl font-bold">{campaign.recipients}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Taxa de Abertura</p>
+                        <p className="text-2xl font-bold text-blue-600">{campaign.openRate}%</p>
+                    </div>
+                     <div>
+                        <p className="text-sm text-muted-foreground">Taxa de Cliques</p>
+                        <p className="text-2xl font-bold text-green-600">{campaign.clickRate}%</p>
+                    </div>
+                </div>
+                <div className="h-64 w-full">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <RechartsBarChart data={reportData} layout="vertical">
+                            <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
+                            <YAxis type="category" dataKey="name" width={80} />
+                            <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} formatter={(value) => `${value}%`} />
+                            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
+                                 {reportData.map((entry, index) => (
+                                    <path key={`cell-${index}`} fill={entry.fill} />
+                                 ))}
+                            </Bar>
+                        </RechartsBarChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        </DialogContent>
+    )
+}
+
 
 export default function CampaignsPage() {
     const router = useRouter();
@@ -90,9 +140,14 @@ export default function CampaignsPage() {
                                         <Badge variant="outline">{campaign.clickRate}%</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                         <Button variant="ghost" size="sm" disabled>
-                                            <BarChart className="mr-2 h-4 w-4" /> Ver Relatório
-                                         </Button>
+                                         <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant="ghost" size="sm">
+                                                    <BarChart className="mr-2 h-4 w-4" /> Ver Relatório
+                                                </Button>
+                                            </DialogTrigger>
+                                            <ReportDialog campaign={campaign} />
+                                        </Dialog>
                                     </TableCell>
                                 </TableRow>
                             ))}

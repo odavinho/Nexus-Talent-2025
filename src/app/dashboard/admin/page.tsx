@@ -179,10 +179,7 @@ export default function AdminDashboardPage() {
                         </CardHeader>
                         <CardContent className="flex flex-wrap gap-2">
                             <Button asChild>
-                                <Link href="/dashboard/admin/email-marketing">Criar Campanha</Link>
-                            </Button>
-                            <Button asChild variant="outline">
-                                <Link href="/dashboard/admin/campaigns">Ver Campanhas</Link>
+                                <Link href="/dashboard/admin/campaigns">Gerir Campanhas</Link>
                             </Button>
                         </CardContent>
                     </Card>

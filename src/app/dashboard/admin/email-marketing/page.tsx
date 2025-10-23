@@ -93,20 +93,21 @@ export default function EmailMarketingPage() {
 
   useEffect(() => {
     const selectedSegments = watchSegments || [];
-    const selectedCourses = watchCourses || [];
     // This is a placeholder for a more complex logic
     let count = 0;
+    const addedUsers = new Set<string>();
+
     if(selectedSegments.includes('all')) {
-        count = allUsers.length;
+        allUsers.forEach(u => addedUsers.add(u.id));
     } else {
         if (selectedSegments.includes('students')) {
-            count += allUsers.filter(u => u.userType === 'student').length;
+            allUsers.filter(u => u.userType === 'student').forEach(u => addedUsers.add(u.id));
         }
         if (selectedSegments.includes('recruiters')) {
-            count += allUsers.filter(u => u.userType === 'recruiter').length;
+            allUsers.filter(u => u.userType === 'recruiter').forEach(u => addedUsers.add(u.id));
         }
     }
-    setAudienceCount(count);
+    setAudienceCount(addedUsers.size);
   }, [watchSegments, watchCourses, watchVacancies]);
 
 
@@ -137,8 +138,11 @@ export default function EmailMarketingPage() {
       });
       
       if (!result) throw new Error("A IA não retornou conteúdo.");
-
+      
       setGeneratedContent(result);
+      // This is the fix: immediately update the preview HTML state after generation
+      setCurrentBodyHtml(result.bodyHtml);
+
       form.setValue('subject', result.subject);
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
@@ -182,7 +186,7 @@ export default function EmailMarketingPage() {
       </Button>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleGenerateContent)} className="space-y-8">
+        <form className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-3xl flex items-center gap-2"><Mail /> Criador de Campanhas de E-mail</CardTitle>
@@ -284,9 +288,9 @@ export default function EmailMarketingPage() {
                                     <div className="space-y-2">
                                         <FormField control={form.control} name="segments" render={({ field }) => (
                                             <>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-all" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'all']) : field.onChange(field.value?.filter(v => v !== 'all'))} /><label htmlFor="seg-all">Todos os Utilizadores</label></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-students" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'students']) : field.onChange(field.value?.filter(v => v !== 'students'))} /><label htmlFor="seg-students">Apenas Formandos</label></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-recruiters" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'recruiters']) : field.onChange(field.value?.filter(v => v !== 'recruiters'))} /><label htmlFor="seg-recruiters">Apenas Recrutadores</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-all" checked={field.value?.includes('all')} onCheckedChange={(checked) => checked ? field.onChange(['all', 'students', 'recruiters']) : field.onChange([])} /><label htmlFor="seg-all" className='cursor-pointer'>Todos os Utilizadores</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-students" checked={field.value?.includes('students')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'students']) : field.onChange(field.value?.filter(v => v !== 'students'))} /><label htmlFor="seg-students" className='cursor-pointer'>Apenas Formandos</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-recruiters" checked={field.value?.includes('recruiters')} onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'recruiters']) : field.onChange(field.value?.filter(v => v !== 'recruiters'))} /><label htmlFor="seg-recruiters" className='cursor-pointer'>Apenas Recrutadores</label></FormItem>
                                             </>
                                         )}/>
                                     </div>
