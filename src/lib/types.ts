@@ -65,7 +65,7 @@ export interface Course {
     closingDate?: Timestamp | Date;
     responsibilities: string[];
     requirements: string[];
-    aiScreeningQuestions?: ScreeningQuestion[];
+    aiScreeningQuestions?: string[];
     screeningQuestions?: ScreeningQuestion[];
     industry?: string;
     minExperience?: string;

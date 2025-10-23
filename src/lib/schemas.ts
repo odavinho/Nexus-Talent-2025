@@ -70,16 +70,11 @@ export const GenerateVacancyContentInputSchema = z.object({
     demandLevel: z.string().describe("The seniority or demand level for the job (e.g., Júnior, Pleno, Sénior)."),
 });
 
-const AIScreeningQuestionSchema = z.object({
-  question: z.string().describe("The text of the screening question."),
-  requiredAnswer: z.enum(['sim', 'nao']).describe("The mandatory answer for the candidate to be considered."),
-});
-
 export const GenerateVacancyContentOutputSchema = z.object({
     description: z.string().describe("A general summary of the job vacancy."),
     responsibilities: z.array(z.string()).describe("A list of key responsibilities."),
     requirements: z.array(z.string()).describe("A list of required qualifications and skills."),
-    aiScreeningQuestions: z.array(AIScreeningQuestionSchema).describe("A list of 3-5 Yes/No screening questions for the candidate, suggested by AI."),
+    aiScreeningQuestions: z.array(z.string()).describe("A list of 3-5 insightful, open-ended screening questions to help filter candidates."),
 });
 
 export type GenerateVacancyContentInput = z.infer<typeof GenerateVacancyContentInputSchema>;

@@ -202,6 +202,9 @@ export default function RecruiterVacanciesPage() {
                                             <ClipboardCheck className='mr-2 h-4 w-4' /> Criar Teste
                                         </Link>
                                     </Button>
+                                     <Button variant="outline" size="sm" asChild>
+                                        <Link href={`/dashboard/recruiter/vacancies/${vacancy.id}/assessment`}>Gerir Testes</Link>
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
