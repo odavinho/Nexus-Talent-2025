@@ -234,23 +234,24 @@ export default function EmailMarketingPage() {
                       <Card
                         key={template.id}
                         className={cn(
-                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2 bg-muted/50 overflow-hidden",
-                          selectedTemplateId === template.id ? 'border-primary' : 'border-transparent'
+                          "cursor-pointer hover:border-primary transition-all p-2 bg-muted/50 overflow-hidden",
+                          selectedTemplateId === template.id ? 'border-2 border-primary' : 'border-2 border-transparent'
                         )}
-                        onClick={() => form.setValue('template', template.id)}
                       >
-                         <div className='bg-white rounded-md overflow-hidden shadow-inner aspect-video'>
-                           <div className="w-full h-full scale-[0.25] origin-top-left -m-[1px] transform">
-                              <iframe 
-                                  srcDoc={template.html}
-                                  title={template.name}
-                                  className="w-[1200px] h-[900px] border-0"
-                                  sandbox=""
-                                  scrolling="no"
-                              />
-                          </div>
-                        </div>
-                        <p className="text-center font-medium p-2 text-sm text-foreground">{template.name}</p>
+                         <div onClick={() => form.setValue('template', template.id)}>
+                           <div className='bg-white rounded-md overflow-hidden shadow-inner aspect-video'>
+                              <div className="w-full h-full scale-[0.25] origin-top-left -m-[1px] transform">
+                                  <iframe 
+                                      srcDoc={template.html}
+                                      title={template.name}
+                                      className="w-[1200px] h-[900px] border-0"
+                                      sandbox=""
+                                      scrolling="no"
+                                  />
+                              </div>
+                            </div>
+                            <p className="text-center font-medium p-2 text-sm text-foreground">{template.name}</p>
+                         </div>
                       </Card>
                     ))}
                   </div>
