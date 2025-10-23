@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 // Schema for AI Resume Analysis
@@ -117,6 +118,7 @@ const QuestionSchema = z.object({
     question: z.string().describe('The text of the question.'),
     type: z.enum(['multiple-choice', 'short-answer', 'psychometric']).describe('The type of the question.'),
     options: z.array(z.string()).optional().describe('A list of 4 options for multiple-choice questions.'),
+    correctAnswerIndex: z.coerce.number().optional().describe('The index of the correct answer for multiple-choice questions.'),
 });
   
 export const GenerateAssessmentTestInputSchema = z.object({
@@ -212,3 +214,5 @@ export const ChatbotAssistanceOutputSchema = z.object({
 
 export type ChatbotAssistanceInput = z.infer<typeof ChatbotAssistanceInputSchema>;
 export type ChatbotAssistanceOutput = z.infer<typeof ChatbotAssistanceOutputSchema>;
+
+    
