@@ -100,7 +100,7 @@ export default function EditVacancyPage() {
           description: vacancy.description || '',
           responsibilities: vacancy.responsibilities?.join('\n') || '',
           requirements: vacancy.requirements?.join('\n') || '',
-          screeningQuestions: vacancy.screeningQuestions?.join('\n') || '',
+          screeningQuestions: vacancy.screeningQuestions?.map(q => q.question).join('\n') || '',
         });
     }
   }, [vacancy, form]);
@@ -119,7 +119,7 @@ export default function EditVacancyPage() {
         ...data,
         responsibilities: data.responsibilities.split('\n').filter(r => r.trim() !== ''),
         requirements: data.requirements.split('\n').filter(q => q.trim() !== ''),
-        screeningQuestions: data.screeningQuestions ? data.screeningQuestions.split('\n').filter(q => q.trim() !== '') : [],
+        screeningQuestions: data.screeningQuestions ? data.screeningQuestions.split('\n').filter(q => q.trim() !== '').map(q => ({ question: q, requiredAnswer: 'sim' })) : [],
     };
 
     try {
@@ -142,11 +142,13 @@ export default function EditVacancyPage() {
 
   if (vacancy === undefined) {
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="max-w-4xl mx-auto">
-                <Skeleton className="h-96 w-full" />
+        <>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-4xl mx-auto">
+                    <Skeleton className="h-96 w-full" />
+                </div>
             </div>
-        </div>
+        </>
     );
   }
 
