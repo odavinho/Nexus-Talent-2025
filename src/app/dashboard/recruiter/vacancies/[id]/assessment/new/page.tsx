@@ -17,8 +17,9 @@ import { getVacancyById } from '@/lib/vacancy-service';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GenerateAssessmentTestInputSchema } from '@/lib/schemas';
+import { GenerateAssessmentTestInputSchema, GenerateAssessmentTestOutputSchema } from '@/lib/schemas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { addTest } from '@/lib/test-service';
 
 
 type FormValues = z.infer<typeof GenerateAssessmentTestInputSchema>;
@@ -27,7 +28,7 @@ export default function NewAssessmentPage() {
   const params = useParams();
   const vacancyId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [vacancy, setVacancy] = useState<Vacancy | null | undefined>(undefined);
-  const [generatedTest, setGeneratedTest] = useState<AssessmentTest | null>(null);
+  const [generatedTest, setGeneratedTest] = useState<Omit<AssessmentTest, 'vacancyId'> | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -83,19 +84,31 @@ export default function NewAssessmentPage() {
   };
 
   const handleSaveTest = async () => {
-    if (!generatedTest) return;
+    if (!generatedTest || !vacancyId) return;
     setIsSaving(true);
-    // Em uma aplicação real, aqui você salvaria `generatedTest` no Firestore.
-    // ex: await addDoc(collection(firestore, `vacancies/${vacancyId}/tests`), generatedTest);
     
-    setTimeout(() => {
-        toast({
-            title: "Teste Salvo!",
-            description: "O teste foi associado a esta vaga (simulado).",
+    try {
+      const testToSave: AssessmentTest = {
+        ...generatedTest,
+        vacancyId: vacancyId
+      };
+      addTest(testToSave);
+
+      toast({
+          title: "Teste Salvo!",
+          description: "O teste foi associado a esta vaga.",
+      });
+      setIsSaving(false);
+      router.push(`/dashboard/recruiter/vacancies`);
+
+    } catch(error) {
+       toast({
+            variant: "destructive",
+            title: "Erro ao Salvar",
+            description: "Não foi possível salvar o teste. Tente novamente.",
         });
-        setIsSaving(false);
-        router.push(`/dashboard/recruiter/vacancies`);
-    }, 1000);
+       setIsSaving(false);
+    }
   };
 
   if (vacancy === undefined) {
