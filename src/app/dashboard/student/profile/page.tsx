@@ -58,6 +58,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
     const { user, isUserLoading } = useUser();
     const { toast } = useToast();
+    const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
     // Use local state for profile data instead of Firestore
@@ -75,13 +76,34 @@ export default function ProfilePage() {
     });
 
     useEffect(() => {
-        if (user) {
-            // Find a mock user profile.
-            const mockUserProfile = mockUsers.find(u => u.id === 'student1'); 
+        if (!isUserLoading && user) {
+            // Find a mock user profile. In a real app this would be a Firestore fetch.
+            // We use the email to find the correct mock user.
+            const mockUserProfile = mockUsers.find(u => u.email === user.email);
             setUserProfile(mockUserProfile || null);
+
+            // --- REDIRECTION LOGIC ---
+            if (mockUserProfile && mockUserProfile.userType !== 'student') {
+                switch (mockUserProfile.userType) {
+                    case 'recruiter':
+                        router.replace('/dashboard/recruiter/company-profile');
+                        break;
+                    case 'instructor':
+                        router.replace('/dashboard/instructor');
+                        break;
+                    case 'admin':
+                        router.replace('/dashboard/admin');
+                        break;
+                    default:
+                        // Stay on this page if it's a student
+                        break;
+                }
+            }
+             // --- END REDIRECTION LOGIC ---
+             
         }
         setIsProfileLoading(false);
-    }, [user]);
+    }, [user, isUserLoading, router]);
 
     useEffect(() => {
         if (userProfile) {
@@ -139,7 +161,7 @@ export default function ProfilePage() {
         })();
     };
     
-    if (isUserLoading || isProfileLoading) {
+    if (isUserLoading || isProfileLoading || (userProfile && userProfile.userType !== 'student')) {
         return <ProfileSkeleton />;
     }
 
@@ -147,7 +169,13 @@ export default function ProfilePage() {
         return <ProfileView profile={userProfile} onEdit={() => setIsEditing(true)} />;
     }
 
-    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
+    // Only render form if user is a student
+    if (userProfile && userProfile.userType === 'student') {
+        return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
+    }
+
+    // Fallback if no profile is found after loading
+    return <ProfileSkeleton />;
 }
 
 function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => void }) {
