@@ -191,8 +191,6 @@ export const EmailCampaignContentSchema = z.object({
   bodyHtml: z.string().describe("The generated email body content in HTML format."),
   buttonText: z.string().describe("The generated call-to-action button text."),
   buttonLink: z.string().url().describe("The generated example URL for the button."),
-  imageHint: z.string().optional().describe("A prompt for the AI image generator if the image template is used."),
-  imageDataUri: z.string().optional().describe("The data URI of the generated image."),
 });
 
 export type GenerateEmailCampaignInput = z.infer<typeof GenerateEmailCampaignInputSchema>;

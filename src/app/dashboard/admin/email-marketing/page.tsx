@@ -33,7 +33,7 @@ const formSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
   template: z.enum(['simple', 'withImage', 'promotional']),
-  imageUrl: z.string().url("Insira um URL válido ou deixe em branco para a IA gerar.").optional().or(z.literal('')),
+  imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   buttonText: z.string().min(1, "O texto do botão é obrigatório."),
   buttonLink: z.string().url("Por favor, insira um URL válido."),
   audienceType: z.enum(['all', 'course_students', 'vacancy_candidates', 'candidates_by_area']),
@@ -52,9 +52,10 @@ const formSchema = z.object({
 
 
 type FormValues = z.infer<typeof formSchema>;
+type GeneratedContent = Omit<EmailCampaignContent, 'imageDataUri'> & { imageUrl?: string };
 
 export default function EmailMarketingPage() {
-  const [generatedContent, setGeneratedContent] = useState<EmailCampaignContent | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
@@ -91,7 +92,7 @@ export default function EmailMarketingPage() {
     },
   });
 
-  const watchedValues = form.watch(['audienceType', 'targetCourseId', 'targetVacancyId', 'targetFunctionalAreas']);
+  const watchedValues = form.watch(['audienceType', 'targetCourseId', 'targetVacancyId', 'targetFunctionalAreas', 'template', 'imageUrl']);
   
   useEffect(() => {
     const [type, courseId, vacancyId, areas] = watchedValues;
@@ -118,6 +119,20 @@ export default function EmailMarketingPage() {
     setAudienceCount(count);
   }, [watchedValues]);
 
+  useEffect(() => {
+      const [_type, _courseId, _vacancyId, _areas, template, imageUrl] = watchedValues;
+      if (generatedContent) {
+          let updatedHtml = generatedContent.bodyHtml;
+          if (template === 'withImage' && imageUrl) {
+              updatedHtml = updatedHtml.replace('[IMAGE_URL]', imageUrl);
+          } else if (template === 'withImage' && !imageUrl) {
+              // If URL is removed, put placeholder back
+              updatedHtml = updatedHtml.replace(/src="https?:\/\/[^"]*"/, 'src="[IMAGE_URL]"');
+          }
+          setGeneratedContent(prev => prev ? {...prev, bodyHtml: updatedHtml} : null);
+      }
+  }, [watchedValues[4], watchedValues[5]]);
+
 
   const audienceType = form.watch('audienceType');
   const templateType = form.watch('template');
@@ -131,7 +146,7 @@ export default function EmailMarketingPage() {
       
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
-      setGeneratedContent(result);
+      setGeneratedContent({...result, imageUrl: data.imageUrl});
 
       toast({
         title: "Conteúdo Gerado com Sucesso!",
@@ -224,7 +239,7 @@ export default function EmailMarketingPage() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>URL da Imagem (Opcional)</FormLabel>
+                      <FormLabel>URL da Imagem</FormLabel>
                       <FormControl>
                         <div className="relative">
                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

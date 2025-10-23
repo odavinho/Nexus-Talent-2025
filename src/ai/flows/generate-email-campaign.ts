@@ -32,36 +32,13 @@ Com base nisso, gere o seguinte conteúdo:
 2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado e pronto a usar.
     - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
     - Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'.
-    - Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL_1]' e '[IMAGE_URL_2]', título e pequena descrição.
+    - Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL]' e uma pequena descrição e título.
     - Inclua um placeholder como '[Link]' para o URL do botão principal no corpo do texto que possa ser substituído.
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageHint**: Se o template necessitar de imagens ('withImage' ou 'promotional'), gere um prompt curto mas descritivo para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião de negócios profissional"). Caso o template não necessite de imagem, retorne uma string vazia.
 `,
 });
-
-
-const generateImageFlow = ai.defineFlow(
-  {
-    name: 'generateEmailImage',
-    inputSchema: z.string(),
-    outputSchema: z.string(),
-  },
-  async (promptText) => {
-    if (!promptText) return "";
-    try {
-      const { media } = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate-001',
-        prompt: `Uma imagem de cabeçalho profissional e moderna para um e-mail sobre: ${promptText}. A imagem deve ser limpa, atrativa e adequada para um contexto de negócios. Evite texto na imagem.`,
-      });
-      return media.url || "";
-    } catch (e) {
-      console.error("Image generation failed for email campaign:", e);
-      return ""; // Return empty string on failure to not block the process
-    }
-  }
-);
 
 const generateEmailCampaignFlow = ai.defineFlow(
   {
@@ -70,39 +47,21 @@ const generateEmailCampaignFlow = ai.defineFlow(
     outputSchema: EmailCampaignContentSchema,
   },
   async (input) => {
-    const { output: textOutput } = await prompt(input);
+    const { output } = await prompt(input);
     
-    if (!textOutput) {
+    if (!output) {
       throw new Error('AI failed to generate email content.');
     }
 
-    let finalBodyHtml = textOutput.bodyHtml;
+    let finalBodyHtml = output.bodyHtml;
 
-    if (input.template === 'withImage') {
-      let imageDataUri = input.imageUrl || "";
-      if (!imageDataUri && textOutput.imageHint) {
-        imageDataUri = await generateImageFlow(textOutput.imageHint);
-      }
-      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', imageDataUri);
-      textOutput.imageDataUri = imageDataUri; // Pass it back to the client
-    }
-
-    if (input.template === 'promotional' && textOutput.imageHint) {
-        const hint1 = textOutput.imageHint + " item 1";
-        const hint2 = textOutput.imageHint + " item 2";
-        
-        // Generate images in parallel
-        const [img1, img2] = await Promise.all([
-            generateImageFlow(hint1),
-            generateImageFlow(hint2)
-        ]);
-
-        finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_1]', img1 || '');
-        finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL_2]', img2 || '');
+    // Replace the placeholder with the user-provided URL if it exists
+    if (input.template === 'withImage' && input.imageUrl) {
+      finalBodyHtml = finalBodyHtml.replace('[IMAGE_URL]', input.imageUrl);
     }
     
     return {
-        ...textOutput,
+        ...output,
         bodyHtml: finalBodyHtml,
     };
   }
