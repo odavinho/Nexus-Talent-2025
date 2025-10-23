@@ -1,52 +1,25 @@
 'use client';
 
-import { getVacancyById, getVacancies } from "@/lib/vacancy-service";
-import { notFound, useRouter, useParams } from "next/navigation";
+import { getCourseCategories } from "@/lib/course-service";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, Clock, MapPin, Share2, Loader2, HelpCircle, GraduationCap, Calendar, Award } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { getCourseCategories } from "@/lib/course-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
-import React, { useState, useEffect } from "react";
-import type { UserProfile, Vacancy, CourseCategory } from "@/lib/types";
+import React, { useState } from "react";
+import type { Vacancy } from "@/lib/types";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
-import { type Metadata } from 'next';
 
-
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const vacancy = getVacancyById(params.id);
-
-  if (!vacancy) {
-    return {
-      title: 'Vaga não encontrada',
-      description: 'A vaga de emprego que você está procurando não existe.',
-    };
-  }
-
-  return {
-    title: `${vacancy.title} | Vagas NexusTalent`,
-    description: vacancy.description.substring(0, 160), // Use first 160 chars for meta description
-  };
-}
-
-export function generateStaticParams() {
-    const vacancies = getVacancies(); // Get only active vacancies
-    return vacancies.map((vacancy) => ({
-      id: vacancy.id,
-    }));
-}
-
-
-function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
+export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
@@ -79,11 +52,10 @@ function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
     if (date instanceof Timestamp) {
       return date.toDate();
     }
-    return date;
+    return date as Date;
   }
 
   const closingDate = toDate(vacancy.closingDate);
-
 
   return (
     <>
@@ -166,9 +138,9 @@ function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
                             <div className="mt-6 pt-6 border-t">
                                 <h4 className="font-semibold mb-4 flex items-center gap-2"><HelpCircle size={18}/> Perguntas de Triagem</h4>
                                 <div className="space-y-4">
-                                {vacancy.screeningQuestions.map((question, index) => (
+                                {vacancy.screeningQuestions.map((q, index) => (
                                     <div key={index} className="space-y-2">
-                                        <Label htmlFor={`question-${index}`}>{question.question}</Label>
+                                        <Label htmlFor={`question-${index}`}>{q.question}</Label>
                                         <Textarea id={`question-${index}`} placeholder="Sua resposta..." rows={3} />
                                     </div>
                                 ))}
@@ -202,16 +174,4 @@ function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
       <Footer />
     </>
   );
-}
-
-
-export default function VacancyDetailPage({ params }: { params: { id: string } }) {
-  const id = params.id;
-  const vacancy = getVacancyById(id);
-
-  if (!vacancy) {
-    notFound();
-  }
-
-  return <VacancyClientPage vacancy={vacancy} />;
 }
