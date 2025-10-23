@@ -29,7 +29,7 @@ O template escolhido é: '{{{template}}}'.
 
 Com base nisso, gere o seguinte conteúdo:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
-2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado.
+2.  **bodyHtml**: O corpo completo do e-mail em formato HTML. O HTML deve ser bem estruturado e pronto a usar.
     - Inclua um placeholder para o logótipo da empresa como 'https://logospore.com/wp-content/uploads/2023/11/nexus-talent-logo.png'.
     - Se o template for 'withImage', inclua um placeholder para a imagem de cabeçalho: '[IMAGE_URL]'.
     - Se o template for 'promotional', crie uma secção com 2 colunas, cada uma com placeholder de imagem '[IMAGE_URL_1]' e '[IMAGE_URL_2]', título e pequena descrição.
@@ -37,7 +37,7 @@ Com base nisso, gere o seguinte conteúdo:
     - Crie um rodapé profissional que inclua o nome da empresa 'NexusTalent', o endereço 'Luanda, Angola', links para redes sociais (placeholders) e, o mais importante, um link claro para 'Cancelar Subscrição'.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
-5.  **imageHint**: Se o template for 'withImage' ou 'promotional', gere um prompt de duas a três palavras para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião profissional"). Caso contrário, retorne uma string vazia.
+5.  **imageHint**: Se o template necessitar de imagens ('withImage' ou 'promotional'), gere um prompt curto mas descritivo para um gerador de imagens IA criar uma imagem de cabeçalho relevante (ex: "tecnologia abstrata", "reunião de negócios profissional"). Caso o template não necessite de imagem, retorne uma string vazia.
 `,
 });
 
@@ -55,7 +55,7 @@ const generateImageFlow = ai.defineFlow(
         model: 'googleai/imagen-4.0-fast-generate-001',
         prompt: `Uma imagem de cabeçalho profissional e moderna para um e-mail sobre: ${promptText}. A imagem deve ser limpa, atrativa e adequada para um contexto de negócios. Evite texto na imagem.`,
       });
-      return media.url;
+      return media.url || "";
     } catch (e) {
       console.error("Image generation failed for email campaign:", e);
       return ""; // Return empty string on failure to not block the process
