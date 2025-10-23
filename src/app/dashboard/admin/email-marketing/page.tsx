@@ -70,10 +70,10 @@ export default function EmailMarketingPage() {
       targetCourses: [],
       targetVacancies: [],
       subject: '',
-      imageUrl: 'https://picsum.photos/seed/1/600/300',
-      imageUrl2: 'https://picsum.photos/seed/2/600/300',
-      buttonText: "Saber Mais",
-      buttonLink: "https://nexustalent.com/courses/new-leadership-course",
+      imageUrl: '',
+      imageUrl2: '',
+      buttonText: "",
+      buttonLink: "",
     },
   });
   
@@ -94,7 +94,6 @@ export default function EmailMarketingPage() {
   useEffect(() => {
     const selectedSegments = watchSegments || [];
     // This is a placeholder for a more complex logic
-    let count = 0;
     const addedUsers = new Set<string>();
 
     if(selectedSegments.includes('all')) {
@@ -141,7 +140,11 @@ export default function EmailMarketingPage() {
       
       setGeneratedContent(result);
       // This is the fix: immediately update the preview HTML state after generation
-      setCurrentBodyHtml(result.bodyHtml);
+      let updatedHtml = result.bodyHtml
+        .replace(/\[IMAGE_URL_1\]/g, form.getValues('imageUrl') || 'https://placehold.co/600x300?text=Imagem+Principal')
+        .replace(/\[IMAGE_URL_2\]/g, form.getValues('imageUrl2') || 'https://placehold.co/600x300?text=Imagem+Secundária');
+      setCurrentBodyHtml(updatedHtml);
+
 
       form.setValue('subject', result.subject);
       form.setValue('buttonText', result.buttonText);
@@ -295,11 +298,59 @@ export default function EmailMarketingPage() {
                                         )}/>
                                     </div>
                                 </TabsContent>
-                                <TabsContent value="courses" className='pt-4 max-h-48 overflow-y-auto'>
+                                <TabsContent value="courses" className='pt-4 max-h-48 overflow-y-auto space-y-2'>
                                     <p className='text-sm text-muted-foreground mb-2'>Enviar para formandos inscritos em cursos específicos.</p>
+                                     <FormField control={form.control} name="targetCourses" render={() => (
+                                        <>
+                                            {courses.map(course => (
+                                                <FormField
+                                                    key={course.id}
+                                                    control={form.control}
+                                                    name="targetCourses"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center space-x-2">
+                                                            <Checkbox 
+                                                                checked={field.value?.includes(course.id)}
+                                                                onCheckedChange={(checked) => {
+                                                                    return checked
+                                                                    ? field.onChange([...field.value || [], course.id])
+                                                                    : field.onChange(field.value?.filter(id => id !== course.id))
+                                                                }}
+                                                            />
+                                                            <label className='cursor-pointer'>{course.name}</label>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            ))}
+                                        </>
+                                     )}/>
                                 </TabsContent>
-                                 <TabsContent value="vacancies" className='pt-4 max-h-48 overflow-y-auto'>
+                                 <TabsContent value="vacancies" className='pt-4 max-h-48 overflow-y-auto space-y-2'>
                                      <p className='text-sm text-muted-foreground mb-2'>Enviar para candidatos de vagas específicas.</p>
+                                     <FormField control={form.control} name="targetVacancies" render={() => (
+                                        <>
+                                            {vacancies.map(vacancy => (
+                                                <FormField
+                                                    key={vacancy.id}
+                                                    control={form.control}
+                                                    name="targetVacancies"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center space-x-2">
+                                                            <Checkbox 
+                                                                checked={field.value?.includes(vacancy.id)}
+                                                                onCheckedChange={(checked) => {
+                                                                    return checked
+                                                                    ? field.onChange([...field.value || [], vacancy.id])
+                                                                    : field.onChange(field.value?.filter(id => id !== vacancy.id))
+                                                                }}
+                                                            />
+                                                            <label className='cursor-pointer'>{vacancy.title}</label>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            ))}
+                                        </>
+                                     )}/>
                                 </TabsContent>
                             </Tabs>
 
