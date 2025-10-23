@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,38 +36,21 @@ const chartConfig = {
 
 
 function VacancyList({ recruiterId }: { recruiterId: string }) {
-    const [vacancies, setVacancies] = useState<Vacancy[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    
-    useEffect(() => {
-        if (recruiterId) {
-            const allVacancies = getVacancies();
-            // Use test recruiter UID for mock data
-            const testRecruiter = users.find(u => u.email === 'recruiter@nexustalent.com.br');
-            const userVacancies = allVacancies.filter(v => v.recruiterId === testRecruiter?.id);
-            setVacancies(userVacancies);
-        }
-        setIsLoading(false);
-    }, [recruiterId]);
-
-
-    if (isLoading) {
-        return (
-            <ul className="space-y-2 mb-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-            </ul>
-        )
+    if (!recruiterId) {
+        return <p className="text-sm text-muted-foreground">Utilizador recrutador não encontrado.</p>;
     }
+    
+    // Simplified data fetching
+    const allVacancies = getVacancies();
+    const testRecruiter = users.find(u => u.email === 'recruiter@nexustalent.com.br');
+    const userVacancies = allVacancies.filter(v => v.recruiterId === testRecruiter?.id);
 
     return (
         <ul className="space-y-2 mb-4">
-            {vacancies && vacancies.length > 0 ? (
-                vacancies.slice(0, 2).map(vacancy => (
+            {userVacancies.length > 0 ? (
+                userVacancies.slice(0, 2).map(vacancy => (
                     <li key={vacancy.id} className="flex justify-between items-center text-sm p-2 bg-secondary rounded-md">
                         <span className="font-medium">{vacancy.title}</span>
-                        {/* A contagem de candidatos será implementada no futuro */}
-                        {/* <span className="flex items-center gap-2 text-muted-foreground"><Users size={16} /> {vacancy.candidates} candidatos</span> */}
                     </li>
                 ))
             ) : (
