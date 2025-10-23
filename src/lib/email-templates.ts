@@ -126,8 +126,45 @@ const templateProductShowcase: EmailTemplate = {
 `
 };
 
+const templateSimpleAlert: EmailTemplate = {
+    id: 'simple_alert',
+    name: 'Alerta Simples',
+    imageCount: 0,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; }
+  .container { max-width: 600px; margin: 20px auto; background-color: white; border: 1px solid #e2e8f0; border-radius: 8px;}
+  .header { padding: 20px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .content { padding: 30px 20px; text-align: center;}
+  .content h1 { font-size: 24px; margin: 0 0 10px 0; }
+  .content p { color: #475569; line-height: 1.6; }
+  .footer { padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; }
+  .button { display: inline-block; background-color: #1d71b8; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><img src="[LOGO_URL]" alt="Logo" width="120"></div>
+    <div class="content">
+      <h1>Assunto Principal</h1>
+      <p>Este é o parágrafo principal do seu e-mail. Ideal para mensagens diretas e importantes, como um alerta de vaga ou uma notificação.</p>
+      <a href="[BUTTON_LINK]" class="button">Texto do Botão</a>
+    </div>
+    <div class="footer">
+      <p>[COMPANY_NAME] | [COMPANY_ADDRESS]</p>
+      <p><a href="[UNSUBSCRIBE_LINK]" style="color: #94a3b8;">Cancelar Subscrição</a></p>
+    </div>
+  </div>
+</body>
+</html>
+`
+};
 
-const allTemplates: EmailTemplate[] = [templateNewsletter, templateProductShowcase, templateMinimalist];
+
+const allTemplates: EmailTemplate[] = [templateNewsletter, templateProductShowcase, templateSimpleAlert, templateMinimalist];
 
 export const getTemplates = (): EmailTemplate[] => {
     return allTemplates;

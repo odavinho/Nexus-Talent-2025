@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "@/components/ui/button";
@@ -10,16 +10,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Link as LinkIcon, LayoutTemplate, Users } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Link as LinkIcon, LayoutTemplate, Users, BookOpen, Briefcase, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
-import type { EmailCampaignContent } from '@/lib/types';
+import type { EmailCampaignContent, Course, Vacancy } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { getTemplates, type EmailTemplate } from '@/lib/email-templates';
 import { users as allUsers } from '@/lib/users';
+import { getCourses } from '@/lib/course-service';
+import { getVacancies } from '@/lib/vacancy-service';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 const formSchema = z.object({
@@ -27,7 +31,11 @@ const formSchema = z.object({
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
   template: z.string().min(1, "É obrigatório selecionar um template."),
-  targetAudience: z.enum(['all', 'students', 'recruiters']),
+  // Audience
+  segments: z.array(z.string()).optional(),
+  targetCourses: z.array(z.string()).optional(),
+  targetVacancies: z.array(z.string()).optional(),
+  // Editable fields
   subject: z.string().optional(),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   imageUrl2: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
@@ -46,7 +54,10 @@ export default function EmailMarketingPage() {
   const { toast } = useToast();
   const router = useRouter();
   const templates = getTemplates();
-  const [audienceCount, setAudienceCount] = useState(allUsers.length);
+  const [audienceCount, setAudienceCount] = useState(0);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -55,7 +66,9 @@ export default function EmailMarketingPage() {
       tone: 'Profissional',
       language: 'Português',
       template: 'newsletter',
-      targetAudience: 'all',
+      segments: [],
+      targetCourses: [],
+      targetVacancies: [],
       subject: '',
       imageUrl: 'https://picsum.photos/seed/1/600/300',
       imageUrl2: 'https://picsum.photos/seed/2/600/300',
@@ -67,21 +80,34 @@ export default function EmailMarketingPage() {
   const selectedTemplateId = form.watch('template');
   const imageUrl1 = form.watch('imageUrl');
   const imageUrl2 = form.watch('imageUrl2');
-  const targetAudience = form.watch('targetAudience');
   const [currentBodyHtml, setCurrentBodyHtml] = useState<string | null>(null);
 
+  const watchSegments = form.watch('segments');
+  const watchCourses = form.watch('targetCourses');
+  const watchVacancies = form.watch('targetVacancies');
 
   useEffect(() => {
+    setCourses(getCourses());
+    setVacancies(getVacancies(true));
+  }, []);
+
+  useEffect(() => {
+    const selectedSegments = watchSegments || [];
+    const selectedCourses = watchCourses || [];
+    // This is a placeholder for a more complex logic
     let count = 0;
-    if (targetAudience === 'all') {
-      count = allUsers.length;
-    } else if (targetAudience === 'students') {
-      count = allUsers.filter(u => u.userType === 'student').length;
-    } else if (targetAudience === 'recruiters') {
-      count = allUsers.filter(u => u.userType === 'recruiter').length;
+    if(selectedSegments.includes('all')) {
+        count = allUsers.length;
+    } else {
+        if (selectedSegments.includes('students')) {
+            count += allUsers.filter(u => u.userType === 'student').length;
+        }
+        if (selectedSegments.includes('recruiters')) {
+            count += allUsers.filter(u => u.userType === 'recruiter').length;
+        }
     }
     setAudienceCount(count);
-  }, [targetAudience]);
+  }, [watchSegments, watchCourses, watchVacancies]);
 
 
   // Effect to update the preview when image URLs change or generated content is set
@@ -112,10 +138,7 @@ export default function EmailMarketingPage() {
       
       if (!result) throw new Error("A IA não retornou conteúdo.");
 
-      // Set the base generated content
       setGeneratedContent(result);
-      
-      // Update form fields based on AI generation
       form.setValue('subject', result.subject);
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
@@ -138,7 +161,6 @@ export default function EmailMarketingPage() {
   const handleSendCampaign = () => {
     if (!generatedContent) return;
     setIsSending(true);
-    // Simulação de envio
     setTimeout(() => {
       toast({
         title: "Campanha Enviada! (Simulação)",
@@ -170,28 +192,29 @@ export default function EmailMarketingPage() {
               <div className="space-y-8">
                 <div>
                   <h3 className="text-xl font-semibold mb-4">1. Selecione um Template</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {templates.map((template) => (
-                      <div
+                      <Card
                         key={template.id}
                         className={cn(
-                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2 bg-muted",
+                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2 bg-muted/50 overflow-hidden",
                           selectedTemplateId === template.id ? 'border-primary' : 'border-transparent'
                         )}
                         onClick={() => form.setValue('template', template.id)}
                       >
-                        <div className='bg-white rounded-md overflow-hidden shadow-inner'>
-                          <div className="aspect-[4/3] scale-[0.25] origin-top-left -m-[1px]">
+                         <div className='bg-white rounded-md overflow-hidden shadow-inner aspect-video'>
+                           <div className="w-full h-full scale-[0.25] origin-top-left -m-[1px] transform">
                               <iframe 
                                   srcDoc={template.html}
                                   title={template.name}
                                   className="w-[1200px] h-[900px] border-0"
                                   sandbox=""
+                                  scrolling="no"
                               />
                           </div>
-                          <p className="text-center font-medium p-2 text-sm text-foreground">{template.name}</p>
                         </div>
-                      </div>
+                        <p className="text-center font-medium p-2 text-sm text-foreground">{template.name}</p>
+                      </Card>
                     ))}
                   </div>
                   <FormField control={form.control} name="template" render={({ field }) => ( <FormItem><FormMessage className="mt-2" /></FormItem> )} />
@@ -247,29 +270,39 @@ export default function EmailMarketingPage() {
             <div className="space-y-8">
                  <Card>
                     <CardHeader>
-                        <CardTitle className='font-headline text-2xl'>3. Definir o Público-Alvo</CardTitle>
+                        <CardTitle className='font-headline text-2xl'>3. Defina o Público-Alvo</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex items-center gap-4">
-                        <FormField
-                            control={form.control}
-                            name="targetAudience"
-                            render={({ field }) => (
-                                <FormItem className='flex-1'>
-                                <FormLabel>Enviar para:</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="all">Todos os Utilizadores</SelectItem>
-                                        <SelectItem value="students">Apenas Formandos</SelectItem>
-                                        <SelectItem value="recruiters">Apenas Recrutadores</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="pt-6">
-                            <p className="text-sm text-muted-foreground">Nº de Destinatários</p>
-                            <p className="text-2xl font-bold flex items-center gap-2"><Users /> {audienceCount}</p>
+                    <CardContent>
+                        <div className='flex justify-between items-start gap-8'>
+                           <Tabs defaultValue="segments" className="w-full">
+                                <TabsList>
+                                    <TabsTrigger value="segments">Segmentos</TabsTrigger>
+                                    <TabsTrigger value="courses">Cursos</TabsTrigger>
+                                    <TabsTrigger value="vacancies">Vagas</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="segments" className='pt-4'>
+                                    <div className="space-y-2">
+                                        <FormField control={form.control} name="segments" render={({ field }) => (
+                                            <>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-all" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'all']) : field.onChange(field.value?.filter(v => v !== 'all'))} /><label htmlFor="seg-all">Todos os Utilizadores</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-students" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'students']) : field.onChange(field.value?.filter(v => v !== 'students'))} /><label htmlFor="seg-students">Apenas Formandos</label></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><Checkbox id="seg-recruiters" onCheckedChange={(checked) => checked ? field.onChange([...(field.value || []), 'recruiters']) : field.onChange(field.value?.filter(v => v !== 'recruiters'))} /><label htmlFor="seg-recruiters">Apenas Recrutadores</label></FormItem>
+                                            </>
+                                        )}/>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="courses" className='pt-4 max-h-48 overflow-y-auto'>
+                                    <p className='text-sm text-muted-foreground mb-2'>Enviar para formandos inscritos em cursos específicos.</p>
+                                </TabsContent>
+                                 <TabsContent value="vacancies" className='pt-4 max-h-48 overflow-y-auto'>
+                                     <p className='text-sm text-muted-foreground mb-2'>Enviar para candidatos de vagas específicas.</p>
+                                </TabsContent>
+                            </Tabs>
+
+                            <div className="text-center p-4 bg-secondary rounded-lg w-64">
+                                <p className="text-sm text-muted-foreground">Nº de Destinatários</p>
+                                <p className="text-5xl font-bold flex items-center justify-center gap-2"><Users /> {audienceCount}</p>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -291,14 +324,11 @@ export default function EmailMarketingPage() {
                                 <FormControl><Input {...field} /></FormControl>
                               </FormItem>
                             )}/>
-                          {selectedTemplate?.imageCount === 1 && (
-                            <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem.png" {...field} /></FormControl></FormItem>)}/>
+                          {selectedTemplate?.imageCount >= 1 && (
+                            <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem Principal</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem.png" {...field} /></FormControl></FormItem>)}/>
                           )}
-                          {selectedTemplate?.imageCount === 2 && (
-                            <>
-                              <FormField control={form.control} name="imageUrl" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 1</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem1.png" {...field} /></FormControl></FormItem>)}/>
-                              <FormField control={form.control} name="imageUrl2" render={({ field }) => (<FormItem><FormLabel>URL da Imagem 2</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem2.png" {...field} /></FormControl></FormItem>)}/>
-                            </>
+                          {selectedTemplate?.imageCount >= 2 && (
+                             <FormField control={form.control} name="imageUrl2" render={({ field }) => (<FormItem><FormLabel>URL da Imagem Secundária</FormLabel><FormControl><Input placeholder="https://exemplo.com/imagem2.png" {...field} /></FormControl></FormItem>)}/>
                           )}
                             <FormField control={form.control} name="buttonText" render={({ field }) => (<FormItem><FormLabel>Texto do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
                             <FormField control={form.control} name="buttonLink" render={({ field }) => (<FormItem><FormLabel>Link do Botão</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)}/>
