@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Link as LinkIcon, LayoutTemplate } from 'lucide-react';
+import { Loader2, Wand2, ArrowLeft, Mail, Image as ImageIcon, Text, Send, Eye, Code, Link as LinkIcon, LayoutTemplate, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { generateEmailCampaignAction } from '@/app/actions';
@@ -19,13 +19,15 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { getTemplates, type EmailTemplate } from '@/lib/email-templates';
+import { users as allUsers } from '@/lib/users';
 
 
 const formSchema = z.object({
   topic: z.string().min(1, "O tópico é obrigatório."),
   tone: z.enum(['Profissional', 'Amigável', 'Urgente']),
   language: z.enum(['Português', 'Inglês']),
-  template: z.string().min(1, "É obrigatório selecionar um template."), // Now stores template ID
+  template: z.string().min(1, "É obrigatório selecionar um template."),
+  targetAudience: z.enum(['all', 'students', 'recruiters']),
   subject: z.string().optional(),
   imageUrl: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
   imageUrl2: z.string().url("Insira um URL válido ou deixe em branco.").optional().or(z.literal('')),
@@ -44,6 +46,7 @@ export default function EmailMarketingPage() {
   const { toast } = useToast();
   const router = useRouter();
   const templates = getTemplates();
+  const [audienceCount, setAudienceCount] = useState(allUsers.length);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -52,6 +55,7 @@ export default function EmailMarketingPage() {
       tone: 'Profissional',
       language: 'Português',
       template: 'newsletter',
+      targetAudience: 'all',
       subject: '',
       imageUrl: 'https://picsum.photos/seed/1/600/300',
       imageUrl2: 'https://picsum.photos/seed/2/600/300',
@@ -63,24 +67,41 @@ export default function EmailMarketingPage() {
   const selectedTemplateId = form.watch('template');
   const imageUrl1 = form.watch('imageUrl');
   const imageUrl2 = form.watch('imageUrl2');
+  const targetAudience = form.watch('targetAudience');
+  const [currentBodyHtml, setCurrentBodyHtml] = useState<string | null>(null);
 
-  // Effect to update the preview when image URLs change
+
   useEffect(() => {
-      if (generatedContent) {
-          let updatedHtml = generatedContent.bodyHtml;
-          
-          updatedHtml = updatedHtml.replace(/\[IMAGE_URL_1\]/g, imageUrl1 || 'https://placehold.co/600x300?text=Imagem+1');
-          updatedHtml = updatedHtml.replace(/\[IMAGE_URL_2\]/g, imageUrl2 || 'https://placehold.co/600x300?text=Imagem+2');
+    let count = 0;
+    if (targetAudience === 'all') {
+      count = allUsers.length;
+    } else if (targetAudience === 'students') {
+      count = allUsers.filter(u => u.userType === 'student').length;
+    } else if (targetAudience === 'recruiters') {
+      count = allUsers.filter(u => u.userType === 'recruiter').length;
+    }
+    setAudienceCount(count);
+  }, [targetAudience]);
 
-          setGeneratedContent(prev => prev ? {...prev, bodyHtml: updatedHtml} : null);
-      }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageUrl1, imageUrl2]);
+
+  // Effect to update the preview when image URLs change or generated content is set
+  useEffect(() => {
+    if (generatedContent) {
+      let updatedHtml = generatedContent.bodyHtml;
+      
+      updatedHtml = updatedHtml.replace(/\[IMAGE_URL_1\]/g, imageUrl1 || 'https://placehold.co/600x300?text=Imagem+Principal');
+      updatedHtml = updatedHtml.replace(/\[IMAGE_URL_2\]/g, imageUrl2 || 'https://placehold.co/600x300?text=Imagem+Secundária');
+      
+      setCurrentBodyHtml(updatedHtml);
+    }
+  }, [generatedContent, imageUrl1, imageUrl2]);
 
 
-  const handleGenerateContent: SubmitHandler<FormValues> = async (data) => {
+  const handleGenerateContent: SubmitHandler<Pick<FormValues, 'topic' | 'tone' | 'language' | 'template'>> = async (data) => {
     setIsGenerating(true);
     setGeneratedContent(null);
+    setCurrentBodyHtml(null);
+
     try {
       const result = await generateEmailCampaignAction({
         topic: data.topic,
@@ -91,17 +112,13 @@ export default function EmailMarketingPage() {
       
       if (!result) throw new Error("A IA não retornou conteúdo.");
 
-      // Fill placeholders with current image URLs
-      let finalBodyHtml = result.bodyHtml
-        .replace(/\[IMAGE_URL_1\]/g, data.imageUrl || 'https://placehold.co/600x300?text=Imagem+1')
-        .replace(/\[IMAGE_URL_2\]/g, data.imageUrl2 || 'https://placehold.co/600x300?text=Imagem+2');
+      // Set the base generated content
+      setGeneratedContent(result);
       
-      // Update the main form fields based on AI generation
+      // Update form fields based on AI generation
       form.setValue('subject', result.subject);
       form.setValue('buttonText', result.buttonText);
       form.setValue('buttonLink', result.buttonLink);
-
-      setGeneratedContent({...result, bodyHtml: finalBodyHtml});
 
       toast({
         title: "Conteúdo Gerado com Sucesso!",
@@ -125,7 +142,7 @@ export default function EmailMarketingPage() {
     setTimeout(() => {
       toast({
         title: "Campanha Enviada! (Simulação)",
-        description: `O e-mail "${generatedContent.subject}" foi enviado.`,
+        description: `O e-mail "${form.getValues('subject')}" foi enviado para ${audienceCount} destinatários.`,
       });
       setIsSending(false);
       router.push('/dashboard/admin/campaigns');
@@ -158,13 +175,13 @@ export default function EmailMarketingPage() {
                       <div
                         key={template.id}
                         className={cn(
-                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2",
+                          "border-2 rounded-lg cursor-pointer hover:border-primary transition-all p-2 bg-muted",
                           selectedTemplateId === template.id ? 'border-primary' : 'border-transparent'
                         )}
                         onClick={() => form.setValue('template', template.id)}
                       >
-                        <div className='bg-white rounded-md overflow-hidden'>
-                          <div className="aspect-[4/3] scale-[0.2] origin-top-left">
+                        <div className='bg-white rounded-md overflow-hidden shadow-inner'>
+                          <div className="aspect-[4/3] scale-[0.25] origin-top-left -m-[1px]">
                               <iframe 
                                   srcDoc={template.html}
                                   title={template.name}
@@ -172,7 +189,7 @@ export default function EmailMarketingPage() {
                                   sandbox=""
                               />
                           </div>
-                          <p className="text-center font-medium p-2 text-sm">{template.name}</p>
+                          <p className="text-center font-medium p-2 text-sm text-foreground">{template.name}</p>
                         </div>
                       </div>
                     ))}
@@ -210,27 +227,56 @@ export default function EmailMarketingPage() {
                           </FormItem>
                           )}/>
                       </div>
+                      <Button type="button" onClick={form.handleSubmit(handleGenerateContent)} disabled={isGenerating} className="w-full text-lg py-6">
+                        {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Gerar Texto do E-mail com IA
+                      </Button>
                   </div>
                 </div>
-                
-                <Button type="button" onClick={form.handleSubmit(handleGenerateContent)} disabled={isGenerating} className="w-full text-lg py-6">
-                  {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Gerar Texto do E-mail com IA
-                </Button>
               </div>
             </CardContent>
           </Card>
       
           <Separator className="my-8" />
-
-          {isGenerating ? (
+          
+           {isGenerating ? (
             <div className="text-center py-10">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
               <p className="mt-2 text-muted-foreground">A IA está a criar o seu e-mail profissional...</p>
             </div>
           ) : generatedContent && (
-            <div className="space-y-6">
+            <div className="space-y-8">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className='font-headline text-2xl'>3. Definir o Público-Alvo</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center gap-4">
+                        <FormField
+                            control={form.control}
+                            name="targetAudience"
+                            render={({ field }) => (
+                                <FormItem className='flex-1'>
+                                <FormLabel>Enviar para:</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todos os Utilizadores</SelectItem>
+                                        <SelectItem value="students">Apenas Formandos</SelectItem>
+                                        <SelectItem value="recruiters">Apenas Recrutadores</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="pt-6">
+                            <p className="text-sm text-muted-foreground">Nº de Destinatários</p>
+                            <p className="text-2xl font-bold flex items-center gap-2"><Users /> {audienceCount}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+
                 <div className="flex justify-between items-center">
-                    <h2 className='font-headline text-2xl'>3. Reveja, Edite e Envie</h2>
+                    <h2 className='font-headline text-2xl'>4. Reveja, Edite e Envie</h2>
                     <Button type="button" onClick={handleSendCampaign} disabled={!generatedContent || isSending}>
                         {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />} Enviar Campanha
                     </Button>
@@ -242,14 +288,7 @@ export default function EmailMarketingPage() {
                             <FormField control={form.control} name="subject" render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Assunto do E-mail</FormLabel>
-                                <FormControl>
-                                  <Input {...field} onChange={e => {
-                                    field.onChange(e);
-                                    if (generatedContent) {
-                                      setGeneratedContent({...generatedContent, subject: e.target.value});
-                                    }
-                                  }}/>
-                                </FormControl>
+                                <FormControl><Input {...field} /></FormControl>
                               </FormItem>
                             )}/>
                           {selectedTemplate?.imageCount === 1 && (
@@ -268,8 +307,8 @@ export default function EmailMarketingPage() {
                             <Label htmlFor="html-editor" className='flex items-center gap-2'><Code size={16}/> Editor HTML</Label>
                             <Textarea 
                                 id="html-editor"
-                                value={generatedContent.bodyHtml}
-                                onChange={(e) => setGeneratedContent(prev => prev ? {...prev, bodyHtml: e.target.value} : null)}
+                                value={currentBodyHtml || ''}
+                                onChange={(e) => setCurrentBodyHtml(e.target.value)}
                                 className="h-[60vh] font-mono text-xs"
                                 placeholder="O código HTML do seu e-mail aparecerá aqui."
                             />
@@ -278,9 +317,9 @@ export default function EmailMarketingPage() {
                 </Card>
 
                 <h3 className="font-headline text-xl">Pré-visualização</h3>
-                <div className="border rounded-lg h-[80vh] overflow-hidden">
+                <div className="border rounded-lg h-[80vh] overflow-hidden bg-white">
                     <iframe 
-                        srcDoc={generatedContent.bodyHtml}
+                        srcDoc={currentBodyHtml || ''}
                         title="Pré-visualização do E-mail"
                         className="w-full h-full border-0"
                         sandbox=""
