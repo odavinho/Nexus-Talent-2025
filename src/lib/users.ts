@@ -3,11 +3,20 @@ import type { UserProfile } from './types';
 export let users: UserProfile[] = [
   // Recruiter User
   {
-    id: '4FkPP1YFiBZh1Sw7ATyXpX0ZtII3',
+    id: 'recruiter-test-id',
     firstName: 'Sinopec',
     lastName: 'de Angola',
     email: 'recruiter@nexustalent.com.br',
     userType: 'recruiter',
+  },
+  // Instructor User - ID updated to match Firebase UID for the test user
+  {
+    id: '4FkPP1YFiBZh1Sw7ATyXpX0ZtII3',
+    firstName: 'Manuel',
+    lastName: 'Teka',
+    email: 'formador@nexustalent.com.br',
+    userType: 'instructor',
+    academicTitle: 'Formador Certificado'
   },
   // Existing users
   {
@@ -561,7 +570,17 @@ export let users: UserProfile[] = [
 export const updateUser = (id: string, updatedData: Partial<UserProfile>): UserProfile | null => {
     const userIndex = users.findIndex(u => u.id === id);
     if (userIndex === -1) {
-        return null; // User not found
+        // If user not found, add them
+        const newUser: UserProfile = {
+          id: id,
+          firstName: updatedData.firstName || '',
+          lastName: updatedData.lastName || '',
+          email: updatedData.email || '',
+          userType: updatedData.userType || 'student',
+          ...updatedData
+        };
+        users.push(newUser);
+        return newUser;
     }
 
     const updatedUser = {

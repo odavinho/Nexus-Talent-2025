@@ -77,30 +77,33 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!isUserLoading && user) {
-            // Find a mock user profile. In a real app this would be a Firestore fetch.
-            // We use the email to find the correct mock user.
-            const mockUserProfile = mockUsers.find(u => u.email === user.email);
-            setUserProfile(mockUserProfile || null);
-
-            // --- REDIRECTION LOGIC ---
-            if (mockUserProfile && mockUserProfile.userType !== 'student') {
-                switch (mockUserProfile.userType) {
-                    case 'recruiter':
-                        router.replace('/dashboard/recruiter/company-profile');
-                        break;
-                    case 'instructor':
-                        router.replace('/dashboard/instructor');
-                        break;
-                    case 'admin':
-                        router.replace('/dashboard/admin');
-                        break;
-                    default:
-                        // Stay on this page if it's a student
-                        break;
+            // Find mock user profile by UID
+            const mockUserProfile = mockUsers.find(u => u.id === user.uid);
+            
+            if (mockUserProfile) {
+                setUserProfile(mockUserProfile);
+                // --- REDIRECTION LOGIC ---
+                if (mockUserProfile.userType !== 'student') {
+                    const targetDashboard = mockUserProfile.userType === 'recruiter' ? '/dashboard/recruiter/company-profile' : `/dashboard/${mockUserProfile.userType}`;
+                    router.replace(targetDashboard);
+                    return; // Stop further processing
                 }
+            } else if (user) {
+                // If no profile exists for this student user, create a basic one
+                 const newStudentProfile: UserProfile = {
+                    id: user.uid,
+                    email: user.email || '',
+                    firstName: user.displayName?.split(' ')[0] || '',
+                    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                    userType: 'student',
+                };
+                updateUser(user.uid, newStudentProfile); // Add to our mock DB
+                setUserProfile(newStudentProfile);
+                setIsEditing(true); // Force edit mode for new profiles
             }
-             // --- END REDIRECTION LOGIC ---
-             
+
+        } else if (!isUserLoading && !user) {
+            router.replace('/login'); // Not logged in, go to login
         }
         setIsProfileLoading(false);
     }, [user, isUserLoading, router]);
@@ -161,21 +164,16 @@ export default function ProfilePage() {
         })();
     };
     
-    if (isUserLoading || isProfileLoading || (userProfile && userProfile.userType !== 'student')) {
+    if (isUserLoading || isProfileLoading || !userProfile) {
         return <ProfileSkeleton />;
     }
-
-    if (!isEditing && userProfile) {
+    
+    // Only render if it's a student and has finished loading/redirection checks
+    if (!isEditing) {
         return <ProfileView profile={userProfile} onEdit={() => setIsEditing(true)} />;
     }
 
-    // Only render form if user is a student
-    if (userProfile && userProfile.userType === 'student') {
-        return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
-    }
-
-    // Fallback if no profile is found after loading
-    return <ProfileSkeleton />;
+    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
 }
 
 function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => void }) {
