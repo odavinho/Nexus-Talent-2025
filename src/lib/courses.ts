@@ -132,9 +132,9 @@ export const courses: Course[] = [
         title: 'Módulo 1: Introdução e Configuração de Projetos', 
         duration: '8h', 
         topics: [
-          { title: 'Visão geral do MS Project e conceitos PMBOK', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
-          { title: 'Criação e configuração de um novo projeto (calendários, moeda)' }, 
-          { title: 'Inserção de informações básicas do projeto', pdfUrl: '#' }
+          { title: 'Visão geral do MS Project e conceitos PMBOK', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
+          { title: 'Criação e configuração de um novo projeto (calendários, moeda)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
+          { title: 'Inserção de informações básicas do projeto', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }
         ],
         assessment: {
           questions: [
@@ -149,7 +149,7 @@ export const courses: Course[] = [
         topics: [
           { title: 'Criação da Estrutura Analítica do Projeto (WBS)', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
           { title: 'Estimar durações e definir dependências ( predecessoras)' }, 
-          { title: 'Trabalhar com tarefas recorrentes e marcos (milestones)', pdfUrl: '#' }, 
+          { title: 'Trabalhar com tarefas recorrentes e marcos (milestones)', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }, 
           { title: 'Identificação do Caminho Crítico' }
         ] 
       }, 
@@ -160,7 +160,7 @@ export const courses: Course[] = [
           { title: 'Criação da pool de recursos (trabalho, material, custo)' }, 
           { title: 'Atribuição de recursos às tarefas', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
           { title: 'Análise de superalocação e nivelamento de recursos' }, 
-          { title: 'Inserção de custos e análise do orçamento', pdfUrl: '#' }
+          { title: 'Inserção de custos e análise do orçamento', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }
         ] 
       }, 
       { 
