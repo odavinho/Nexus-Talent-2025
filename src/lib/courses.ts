@@ -37,10 +37,9 @@ export const courses: Course[] = [
         title: 'Módulo 1: Planeamento e Estrutura', 
         duration: '6 h.', 
         topics: [
-            {title: 'Definição de objetivos', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
-            {title: 'Análise da audiência', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
-            {title: 'Estruturas de discurso (Storytelling)', pdfUrl: '#'}, 
-            {title: 'Organização do conteúdo', pdfUrl: '#'}
+            {title: 'Definição de objetivos e Análise da audiência', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
+            {title: 'Estruturas de discurso (Storytelling)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
+            {title: 'Organização do conteúdo e materiais', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}
         ],
         assessment: {
             questions: [
@@ -63,9 +62,9 @@ export const courses: Course[] = [
         duration: '8 h.', 
         topics: [
           {title: 'Linguagem verbal: clareza, tom e ritmo', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
-          {title: 'Linguagem não-verbal: postura e gestos', pdfUrl: '#'}, 
-          {title: 'Contacto visual e movimentação', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'},
-          {title: 'Técnicas de dicção e projecção de voz', pdfUrl: '#'}
+          {title: 'Linguagem não-verbal: postura e gestos', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}, 
+          {title: 'Contacto visual e movimentação'},
+          {title: 'Técnicas de dicção e projecção de voz', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}
         ] 
       },
       { 
@@ -74,14 +73,14 @@ export const courses: Course[] = [
         topics: [
           {title: 'Gestão da ansiedade e autoconfiança', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
           {title: 'Interação com a audiência'}, 
-          {title: 'Gestão de perguntas e respostas', pdfUrl: '#'}
+          {title: 'Gestão de perguntas e respostas', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}
         ] 
       },
       { 
         title: 'Módulo 4: Suportes Visuais', 
         duration: '4 h.', 
         topics: [
-          {title: 'Design de slides (PowerPoint/Google Slides)', pdfUrl: '#'}, 
+          {title: 'Design de slides (PowerPoint/Google Slides)', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}, 
           {title: 'Princípios de design gráfico para apresentações'}, 
           {title: 'Uso de imagens, gráficos e multimédia', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}
         ] 

@@ -92,6 +92,21 @@ function CoursePlayerPage({ course }: { course: Course }) {
     }
 
     if (activeTopic?.videoUrl) {
+       if (activeTopic.videoUrl.includes('youtube.com')) {
+            const videoId = new URL(activeTopic.videoUrl).searchParams.get('v');
+            const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+             return (
+                <iframe 
+                    src={embedUrl}
+                    title="YouTube video player" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowFullScreen
+                    className="w-full h-full"
+                ></iframe>
+            );
+        }
+
       return (
         <div className="w-full h-full bg-black flex flex-col items-center justify-center text-white text-center">
             <VideoIcon size={64} />
@@ -163,8 +178,14 @@ function CoursePlayerPage({ course }: { course: Course }) {
                          <Card>
                            <CardHeader><CardTitle>Quiz Interativo (Simulação)</CardTitle></CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-muted-foreground mb-4">Teste os seus conhecimentos sobre o módulo atual.</p>
-                                <Button>Iniciar Quiz</Button>
+                                {activeModule?.assessment && activeModule.assessment.questions.length > 0 ? (
+                                    <>
+                                        <p className="text-muted-foreground mb-4">Teste os seus conhecimentos sobre o módulo "{activeModule.title}".</p>
+                                        <Button>Iniciar Quiz de {activeModule.assessment.questions.length} perguntas</Button>
+                                    </>
+                                ) : (
+                                    <p className="text-muted-foreground text-center p-4">Nenhum teste disponível para este módulo.</p>
+                                )}
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -243,9 +264,9 @@ function CoursePlayerPage({ course }: { course: Course }) {
                                             <button 
                                                 key={topicIndex} 
                                                 onClick={() => handleTopicClick(module, topic)}
-                                                className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
+                                                className={`w-full text-left p-3 rounded-md transition-colors flex items-center gap-3 text-sm ${activeTopic?.title === topic.title && activeModule?.title === module.title ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary'}`}
                                             >
-                                                {topic.powerpointUrl ? <Presentation size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : topic.videoUrl ? <Video size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
+                                                {topic.videoUrl ? <VideoIcon size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : topic.powerpointUrl ? <Presentation size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> : <BookOpen size={16} className={`${activeTopic?.title === topic.title ? 'text-primary' : 'text-muted-foreground'}`}/> }
                                                 <span className="flex-grow">{topic.title}</span>
                                                 {topic.pdfUrl && <FileText size={16} className="text-muted-foreground"/>}
                                             </button>
