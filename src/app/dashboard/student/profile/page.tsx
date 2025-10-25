@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUser, useStorage } from '@/firebase';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { users as mockUsers, updateUser } from '@/lib/users'; // Import updateUser
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
@@ -60,6 +61,7 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
+    const storage = useStorage();
 
     // Use local state for profile data instead of Firestore
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -173,7 +175,7 @@ export default function ProfilePage() {
         return <ProfileView profile={userProfile} onEdit={() => setIsEditing(true)} />;
     }
 
-    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} />;
+    return <ProfileForm form={form} onSubmit={onSubmit} isSubmitting={form.formState.isSubmitting} onCancel={() => setIsEditing(false)} storage={storage} user={user} />;
 }
 
 function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => void }) {
@@ -261,7 +263,7 @@ function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => 
     );
 }
 
-function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; onSubmit: SubmitHandler<ProfileFormValues>, isSubmitting: boolean, onCancel: () => void }) {
+function ProfileForm({ form, onSubmit, isSubmitting, onCancel, storage, user }: { form: any; onSubmit: SubmitHandler<ProfileFormValues>, isSubmitting: boolean, onCancel: () => void, storage: any, user: any }) {
     const { toast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [cvFile, setCvFile] = useState<File | null>(null);
@@ -288,14 +290,24 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
         }
         setIsAnalyzing(true);
         try {
+            // 1. Upload to Firebase Storage
+            const storageRef = ref(storage, `resumes/${user.uid}/${cvFile.name}`);
+            const snapshot = await uploadBytes(storageRef, cvFile);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            // 2. Set the URL in the form
+            form.setValue('resumeUrl', downloadURL, { shouldValidate: true });
+
+            // 3. Analyze the file for data extraction
             const resumeDataUri = await fileToDataUri(cvFile);
             const result = await extractProfileFromResumeAction({ resumeDataUri });
 
-            form.reset({ ...form.getValues(), ...result, skills: result.skills?.join(', ') || '' });
+            // 4. Fill the form with extracted data
+            form.reset({ ...form.getValues(), ...result, resumeUrl: downloadURL, skills: result.skills?.join(', ') || '' });
 
-            toast({ title: 'Perfil preenchido!', description: 'Os dados do seu CV foram preenchidos. Por favor, reveja e salve.' });
+            toast({ title: 'Perfil preenchido e CV carregado!', description: 'Os dados do seu CV foram preenchidos e o ficheiro guardado. Por favor, reveja e salve.' });
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro na Análise', description: error instanceof Error ? error.message : 'Não foi possível analisar o CV.' });
+            toast({ variant: 'destructive', title: 'Erro na Análise ou Upload', description: error instanceof Error ? error.message : 'Não foi possível analisar ou guardar o CV.' });
         } finally {
             setIsAnalyzing(false);
         }
@@ -313,7 +325,7 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                 <div className="space-y-4 mb-8 p-6 border rounded-lg bg-secondary/50">
                     <h4 className="font-semibold text-lg">Preenchimento Automático com IA</h4>
                     <p className="text-sm text-muted-foreground">
-                        Poupe tempo! Carregue o seu CV em formato PDF ou DOCX e deixe a nossa IA preencher os campos do seu perfil por si.
+                        Poupe tempo! Carregue o seu CV e deixe a nossa IA preencher os campos do seu perfil. O seu CV será guardado automaticamente.
                     </p>
                     <div className="flex gap-4 items-center">
                         <Input id="cv-upload" type="file" accept=".pdf,.doc,.docx" className="max-w-xs" onChange={handleFileChange} />
@@ -333,7 +345,7 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                             </div>
                         </div>
                         <Separator />
-                        <div>
+                         <div>
                              <h3 className="font-headline text-xl mb-4">Formação Académica</h3>
                              <div className="space-y-6">
                                 {academicFields.map((field, index) => (
@@ -353,9 +365,12 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                             </div>
                         </div>
                         <Separator />
-                        <div>
-                            <h3 className="font-headline text-xl mb-4">Competências</h3>
-                            <FormField control={form.control} name="skills" render={({ field }) => (<FormItem><FormLabel>Principais Competências</FormLabel><FormControl><Textarea placeholder="Ex: React, Gestão de Projetos, Liderança,..." rows={3} {...field} /></FormControl><FormDescription>Separe as competências por vírgulas.</FormDescription><FormMessage /></FormItem>)} />
+                         <div>
+                            <h3 className="font-headline text-xl mb-4">Currículo e Competências</h3>
+                            <div className="space-y-6">
+                                <FormField control={form.control} name="resumeUrl" render={({ field }) => (<FormItem><FormLabel>URL do Currículo</FormLabel><FormControl><Input placeholder="O URL do seu CV será preenchido aqui após o upload." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="skills" render={({ field }) => (<FormItem><FormLabel>Principais Competências</FormLabel><FormControl><Textarea placeholder="Ex: React, Gestão de Projetos, Liderança,..." rows={3} {...field} /></FormControl><FormDescription>Separe as competências por vírgulas.</FormDescription><FormMessage /></FormItem>)} />
+                            </div>
                         </div>
                         <Separator />
                         <div>
