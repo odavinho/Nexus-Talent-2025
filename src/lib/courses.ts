@@ -117,26 +117,68 @@ export const courses: Course[] = [
     ]
   },
   { 
-    id: 'LMP-006', 
-    name: 'Liderança e Motivação de Pessoas', 
+    id: 'GP-MSP-01', 
+    name: 'Gestão de Projectos com MS Project', 
     category: 'rh-gestao', 
-    imageId: 'course-leadership', 
+    imageId: 'course-project-management', 
     status: 'Ativo',
-    duration: '30 horas', 
-    format: 'Híbrido',
-    generalObjective: 'Capacitar os participantes com as competências essenciais para liderar e motivar equipas, promovendo um ambiente de trabalho produtivo e positivo.', 
+    duration: '40 horas', 
+    format: 'Online',
+    generalObjective: 'Capacitar os formandos para o planeamento, execução e controlo de projetos utilizando a ferramenta Microsoft Project, alinhado com as boas práticas do PMBOK.', 
     whatYouWillLearn: [
-      'Compreender os diferentes estilos de liderança e quando aplicá-los.', 
-      'Desenvolver a inteligência emocional para liderar com empatia.', 
-      'Aprender técnicas eficazes de comunicação e feedback.', 
-      'Aplicar estratégias de motivação e reconhecimento.', 
-      'Gerir o desempenho da equipa e promover o desenvolvimento individual.'
+      'Estruturar um projecto do início ao fim no MS Project.', 
+      'Criar e gerir tarefas, durações, dependências e recursos.', 
+      'Analisar o caminho crítico e nivelar recursos para otimizar o cronograma.', 
+      'Controlar custos e orçamentos do projeto.', 
+      'Gerar relatórios de progresso e dashboards visuais.'
     ], 
     modules: [
-      { title: 'Módulo 1: Fundamentos da Liderança', duration: '8 h.', topics: [{title: 'Teorias de liderança'}, {title: 'Líder vs. Chefe'}] }, 
-      { title: 'Módulo 2: Inteligência Emocional', duration: '8 h.', topics: [{title: 'Autoconhecimento e autogestão'}, {title: 'Empatia e gestão de relacionamentos'}] }, 
-      { title: 'Módulo 3: Comunicação e Feedback', duration: '7 h.', topics: [{title: 'Comunicação assertiva'}, {title: 'Técnicas de feedback construtivo'}] }, 
-      { title: 'Módulo 4: Motivação e Gestão', duration: '7 h.', topics: [{title: 'Teorias da motivação'}, {title: 'Definição de metas SMART'}] }] 
+      { 
+        title: 'Módulo 1: Introdução e Configuração de Projetos', 
+        duration: '8h', 
+        topics: [
+          { title: 'Visão geral do MS Project e conceitos PMBOK', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
+          { title: 'Criação e configuração de um novo projeto (calendários, moeda)' }, 
+          { title: 'Inserção de informações básicas do projeto', pdfUrl: '#' }
+        ],
+        assessment: {
+          questions: [
+            { question: 'Qual é a primeira etapa ao criar um novo projeto no MS Project?', type: 'multiple-choice', options: [{ value: 'Adicionar recursos' }, { value: 'Definir o calendário do projeto' }, { value: 'Listar as tarefas' }], correctAnswerIndex: 1 },
+            { question: 'O que representa o PMBOK?', type: 'short-answer', shortAnswer: 'Um guia de boas práticas para a gestão de projetos.' }
+          ]
+        }
+      }, 
+      { 
+        title: 'Módulo 2: Planeamento de Tarefas', 
+        duration: '12h', 
+        topics: [
+          { title: 'Criação da Estrutura Analítica do Projeto (WBS)', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
+          { title: 'Estimar durações e definir dependências ( predecessoras)' }, 
+          { title: 'Trabalhar com tarefas recorrentes e marcos (milestones)', pdfUrl: '#' }, 
+          { title: 'Identificação do Caminho Crítico' }
+        ] 
+      }, 
+      { 
+        title: 'Módulo 3: Gestão de Recursos e Custos', 
+        duration: '12h', 
+        topics: [
+          { title: 'Criação da pool de recursos (trabalho, material, custo)' }, 
+          { title: 'Atribuição de recursos às tarefas', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
+          { title: 'Análise de superalocação e nivelamento de recursos' }, 
+          { title: 'Inserção de custos e análise do orçamento', pdfUrl: '#' }
+        ] 
+      }, 
+      { 
+        title: 'Módulo 4: Controlo e Relatórios', 
+        duration: '8h', 
+        topics: [
+          { title: 'Criação da Linha de Base (Baseline)' }, 
+          { title: 'Atualização do progresso das tarefas (real vs. planeado)' }, 
+          { title: 'Análise de valor agregado (Earned Value Analysis)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
+          { title: 'Criação de Relatórios e Dashboards personalizados' }
+        ] 
+      }
+    ] 
   },
   { 
     id: 'EN-427', 
