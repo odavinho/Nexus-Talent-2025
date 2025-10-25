@@ -47,12 +47,7 @@ export const courses: Course[] = [
                 {
                     question: "Qual é o primeiro passo crucial no planeamento de uma apresentação?",
                     type: "multiple-choice",
-                    options: [
-                        { value: "Criar os slides" },
-                        { value: "Definir o objetivo claro" },
-                        { value: "Praticar a fala" },
-                        { value: "Escolher a roupa" }
-                    ],
+                    options: [{ value: "Criar os slides" }, { value: "Definir o objetivo claro" }, { value: "Praticar a fala" }, { value: "Escolher a roupa" }],
                     correctAnswerIndex: 1
                 },
                 {
