@@ -33,7 +33,36 @@ export const courses: Course[] = [
       'Adaptar a apresentação a diferentes tipos de audiência.'
     ],
     modules: [
-      { title: 'Módulo 1: Planeamento e Estrutura', duration: '6 h.', topics: [{title: 'Definição de objetivos'}, {title: 'Análise da audiência'}, {title: 'Estruturas de discurso (Storytelling)'}, {title: 'Organização do conteúdo'}] },
+      { 
+        title: 'Módulo 1: Planeamento e Estrutura', 
+        duration: '6 h.', 
+        topics: [
+            {title: 'Definição de objetivos', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
+            {title: 'Análise da audiência', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
+            {title: 'Estruturas de discurso (Storytelling)', pdfUrl: '#'}, 
+            {title: 'Organização do conteúdo', pdfUrl: '#'}
+        ],
+        assessment: {
+            questions: [
+                {
+                    question: "Qual é o primeiro passo crucial no planeamento de uma apresentação?",
+                    type: "multiple-choice",
+                    options: [
+                        { value: "Criar os slides" },
+                        { value: "Definir o objetivo claro" },
+                        { value: "Praticar a fala" },
+                        { value: "Escolher a roupa" }
+                    ],
+                    correctAnswerIndex: 1
+                },
+                {
+                    question: "Explique brevemente a importância da análise da audiência.",
+                    type: "short-answer",
+                    shortAnswer: "Adaptar a linguagem, o conteúdo e o estilo da apresentação às necessidades e expectativas do público para garantir maior impacto e compreensão."
+                }
+            ]
+        } 
+      },
       { title: 'Módulo 2: Comunicação e Expressão', duration: '8 h.', topics: [{title: 'Linguagem verbal: clareza, tom e ritmo'}, {title: 'Linguagem não-verbal: postura, gestos e contacto visual'}, {title: 'Técnicas de dicção e projecção de voz'}] },
       { title: 'Módulo 3: O Apresentador', duration: '6 h.', topics: [{title: 'Gestão da ansiedade e autoconfiança'}, {title: 'Interação com a audiência'}, {title: 'Gestão de perguntas e respostas'}] },
       { title: 'Módulo 4: Suportes Visuais', duration: '4 h.', topics: [{title: 'Design de slides (PowerPoint/Google Slides)'}, {title: 'Princípios de design gráfico para apresentações'}, {title: 'Uso de imagens, gráficos e multimédia'}] }

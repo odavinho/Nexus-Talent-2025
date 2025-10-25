@@ -75,57 +75,6 @@ const templateNewsletter: EmailTemplate = {
 `
 };
 
-const templateProductShowcase: EmailTemplate = {
-    id: 'product_showcase',
-    name: 'Vitrine de Produtos',
-    imageCount: 2,
-    html: `
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-  body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-  .container { max-width: 600px; margin: auto; background-color: white; }
-  .header { padding: 20px; text-align: center; background-color: #f8f9fa; }
-  .content { padding: 30px; }
-  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .product-item img { width: 100%; height: auto; border-radius: 5px; }
-  .product-item h3 { margin: 10px 0 5px 0; font-size: 16px; }
-  .product-item p { font-size: 14px; color: #555; margin: 0; }
-  .footer { padding: 20px; text-align: center; font-size: 12px; color: #888; }
-  .main-button { display: inline-block; background-color: #1d71b8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-</style>
-</head>
-<body>
-  <div class="container">
-    <div class="header"><img src="[LOGO_URL]" alt="Logo" width="150"></div>
-    <div class="content">
-      <h1>Título da Campanha</h1>
-      <p>Introdução sobre os produtos ou cursos em destaque.</p>
-      <div class="product-grid">
-        <div class="product-item">
-          <img src="[IMAGE_URL_1]" alt="Produto 1">
-          <h3>Produto/Curso 1</h3>
-          <p>Breve descrição do primeiro item.</p>
-        </div>
-        <div class="product-item">
-          <img src="[IMAGE_URL_2]" alt="Produto 2">
-          <h3>Produto/Curso 2</h3>
-          <p>Breve descrição do segundo item.</p>
-        </div>
-      </div>
-      <p style="text-align: center; margin-top: 30px;"><a href="[BUTTON_LINK]" class="main-button">Texto do Botão Principal</a></p>
-    </div>
-    <div class="footer">
-      <p>[COMPANY_NAME] | [COMPANY_ADDRESS]</p>
-      <p><a href="[UNSUBSCRIBE_LINK]">Cancelar Subscrição</a></p>
-    </div>
-  </div>
-</body>
-</html>
-`
-};
-
 const templateSimpleAlert: EmailTemplate = {
     id: 'simple_alert',
     name: 'Alerta Simples',
@@ -340,14 +289,13 @@ const templateTwoColumnPromo: EmailTemplate = {
 
 
 const allTemplates: EmailTemplate[] = [
-    templateNewsletter, 
-    templateProductShowcase, 
+    templateNewsletter,
+    templateTwoColumnPromo,
     templateSimpleAlert, 
     templateMinimalist,
     templateEventInvitation,
     templateFeatureAnnouncement,
     templatePersonalNote,
-    templateTwoColumnPromo
 ];
 
 export const getTemplates = (): EmailTemplate[] => {

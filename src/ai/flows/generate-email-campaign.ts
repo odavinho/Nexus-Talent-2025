@@ -32,7 +32,7 @@ const prompt = ai.definePrompt({
 **A Sua Tarefa:**
 Com base no contexto acima, gere o seguinte conteúdo em formato JSON:
 1.  **subject**: Um assunto (título) de e-mail curto, impactante e que incentive a abertura.
-2.  **bodyHtml**: O corpo completo do e-mail em formato HTML, preenchendo o template base. Use placeholders como '[LOGO_URL]', '[IMAGE_URL_1]', '[IMAGE_URL_2]', '[UNSUBSCRIBE_LINK]', '[COMPANY_NAME]', '[COMPANY_ADDRESS]' onde for apropriado. O HTML deve ser bem estruturado e pronto a usar.
+2.  **bodyHtml**: O corpo completo do e-mail em formato HTML, preenchendo o template base. Use marcadores como '[LOGO_URL]', '[IMAGE_URL_1]', '[IMAGE_URL_2]', '[UNSUBSCRIBE_LINK]', '[COMPANY_NAME]', '[COMPANY_ADDRESS]' onde for apropriado. O HTML deve ser bem estruturado e pronto a usar.
 3.  **buttonText**: O texto para o botão de call-to-action, que deve ser claro e direto.
 4.  **buttonLink**: Um URL de exemplo para o botão, que seja relevante para o tópico.
 `,
