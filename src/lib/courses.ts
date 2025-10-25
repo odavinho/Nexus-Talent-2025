@@ -63,9 +63,34 @@ export const courses: Course[] = [
             ]
         } 
       },
-      { title: 'Módulo 2: Comunicação e Expressão', duration: '8 h.', topics: [{title: 'Linguagem verbal: clareza, tom e ritmo'}, {title: 'Linguagem não-verbal: postura, gestos e contacto visual'}, {title: 'Técnicas de dicção e projecção de voz'}] },
-      { title: 'Módulo 3: O Apresentador', duration: '6 h.', topics: [{title: 'Gestão da ansiedade e autoconfiança'}, {title: 'Interação com a audiência'}, {title: 'Gestão de perguntas e respostas'}] },
-      { title: 'Módulo 4: Suportes Visuais', duration: '4 h.', topics: [{title: 'Design de slides (PowerPoint/Google Slides)'}, {title: 'Princípios de design gráfico para apresentações'}, {title: 'Uso de imagens, gráficos e multimédia'}] }
+      { 
+        title: 'Módulo 2: Comunicação e Expressão', 
+        duration: '8 h.', 
+        topics: [
+          {title: 'Linguagem verbal: clareza, tom e ritmo', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
+          {title: 'Linguagem não-verbal: postura e gestos', pdfUrl: '#'}, 
+          {title: 'Contacto visual e movimentação', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'},
+          {title: 'Técnicas de dicção e projecção de voz', pdfUrl: '#'}
+        ] 
+      },
+      { 
+        title: 'Módulo 3: O Apresentador', 
+        duration: '6 h.', 
+        topics: [
+          {title: 'Gestão da ansiedade e autoconfiança', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
+          {title: 'Interação com a audiência'}, 
+          {title: 'Gestão de perguntas e respostas', pdfUrl: '#'}
+        ] 
+      },
+      { 
+        title: 'Módulo 4: Suportes Visuais', 
+        duration: '4 h.', 
+        topics: [
+          {title: 'Design de slides (PowerPoint/Google Slides)', pdfUrl: '#'}, 
+          {title: 'Princípios de design gráfico para apresentações'}, 
+          {title: 'Uso de imagens, gráficos e multimédia', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}
+        ] 
+      }
     ]
   },
   { 
