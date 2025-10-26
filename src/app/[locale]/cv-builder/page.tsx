@@ -119,31 +119,38 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3, // Increased scale for better quality
+      scale: 3,
       useCORS: true,
       onclone: (document) => {
-        document.getElementById('cv-preview-container')?.classList.remove('dark');
+        const clone = document.getElementById('cv-preview-container');
+        if (clone) {
+            clone.classList.remove('dark');
+        }
       }
     });
-    const imgData = canvas.toDataURL('image/png');
 
+    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
     
-    const imgProps= pdf.getImageProperties(imgData);
-    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    
+    const ratio = canvasWidth / pdfWidth;
+    const imgHeight = canvasHeight / ratio;
+
     let heightLeft = imgHeight;
     let position = 0;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+    heightLeft -= pdfHeight;
 
     while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
