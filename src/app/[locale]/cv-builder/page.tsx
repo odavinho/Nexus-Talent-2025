@@ -120,16 +120,11 @@ export default function CVBuilderPage() {
     
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
-    // A4 dimensions in mm
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
-    const MARGIN_MM = 15;
-
-    const contentWidthMM = A4_WIDTH_MM - (MARGIN_MM * 2);
-    const contentHeightMM = A4_HEIGHT_MM - (MARGIN_MM * 2);
 
     const canvas = await html2canvas(element, { 
-      scale: 3, // Use a good scale for quality
+      scale: 2, 
       useCORS: true,
        onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
@@ -144,28 +139,24 @@ export default function CVBuilderPage() {
     });
 
     const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', [A4_WIDTH_MM, A4_HEIGHT_MM]);
+    
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    // Calculate the height of the image in mm when scaled to fit the content width
-    const ratio = imgWidth / contentWidthMM;
+    const ratio = imgWidth / A4_WIDTH_MM;
     const scaledImgHeight = imgHeight / ratio;
 
     let heightLeft = scaledImgHeight;
-    let position = MARGIN_MM;
+    let position = 0;
 
-    // Add the first page
-    pdf.addImage(imgData, 'PNG', MARGIN_MM, position, contentWidthMM, scaledImgHeight);
-    heightLeft -= contentHeightMM;
+    pdf.addImage(imgData, 'PNG', 0, position, A4_WIDTH_MM, scaledImgHeight);
+    heightLeft -= A4_HEIGHT_MM;
 
-    // Add new pages if content is longer than one page
     while (heightLeft > 0) {
-      position = position - contentHeightMM; // Move position up for the next slice
+      position -= A4_HEIGHT_MM;
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', MARGIN_MM, position, contentWidthMM, scaledImgHeight);
-      heightLeft -= contentHeightMM;
+      pdf.addImage(imgData, 'PNG', 0, position, A4_WIDTH_MM, scaledImgHeight);
+      heightLeft -= A4_HEIGHT_MM;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -298,9 +289,11 @@ export default function CVBuilderPage() {
 
                     <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297]'>
                         <div ref={previewRef} className="w-full h-full scale-[0.35] sm:scale-50 md:scale-40 lg:scale-50 xl:scale-[0.6] origin-top-left -m-[1px] transform">
+                          <div className="w-[210mm] min-h-[297mm]">
                             {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                             {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                             {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
+                          </div>
                         </div>
                     </div>
                 </div>
