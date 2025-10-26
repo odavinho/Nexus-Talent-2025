@@ -124,7 +124,7 @@ export default function CVBuilderPage() {
       scale: 3, 
       useCORS: true,
       onclone: (document) => {
-        const clone = document.getElementById('cv-preview-container');
+        const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
             const sidebar = clone.querySelector('#cv-sidebar');
@@ -140,15 +140,14 @@ export default function CVBuilderPage() {
     
     const pdfWidth = 210;
     const pdfHeight = 297;
-    
-    const margin = 15;
+    const margin = 15; // 1.5 cm
     const contentWidth = pdfWidth - (margin * 2);
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    const ratio = imgHeight / imgWidth;
-    const contentHeight = contentWidth * ratio;
+    const ratio = contentWidth / imgWidth;
+    const contentHeight = imgHeight * ratio;
 
     let heightLeft = contentHeight;
     let position = margin;
@@ -157,10 +156,10 @@ export default function CVBuilderPage() {
     heightLeft -= (pdfHeight - (margin * 2));
 
     while (heightLeft > 0) {
-      position = margin - (contentHeight - heightLeft);
       pdf.addPage();
+      position = margin - (pdfHeight - margin) * (Math.ceil(contentHeight/pdfHeight)-1) + heightLeft - contentHeight;
       pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-      heightLeft -= (pdfHeight - (margin * 2));
+      heightLeft -= (pdfHeight - (margin*2));
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -237,7 +236,7 @@ export default function CVBuilderPage() {
                                                  <FormField control={form.control} name={`workExperience.${index}.description`} render={({ field }) => (<FormItem><FormLabel>Descrição</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl></FormItem>)} />
                                             </div>
                                         ))}
-                                        <Button type='button' variant='outline' size='sm' onClick={()={() => appendWork({role: '', company: '', period: ''})}><PlusCircle size={16} className='mr-2'/>Adicionar Experiência</Button>
+                                        <Button type='button' variant='outline' size='sm' onClick={() => appendWork({role: '', company: '', period: ''})}><PlusCircle size={16} className='mr-2'/>Adicionar Experiência</Button>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-4">
@@ -271,7 +270,7 @@ export default function CVBuilderPage() {
                      </Form>
                 </div>
                 {/* PREVIEW COLUMN */}
-                <div className="lg:sticky top-24">
+                <div className="lg:col-span-1 lg:sticky top-24">
                      <div className="mb-4">
                         <Label className="font-headline text-lg">Escolha um Modelo</Label>
                         <RadioGroup defaultValue={template} onValueChange={(v) => setTemplate(v as CvTemplate)} className="flex gap-2 mt-2">
@@ -290,8 +289,8 @@ export default function CVBuilderPage() {
                            </Label>
                         </RadioGroup>
                     </div>
-                    <div id="cv-preview-container" className="bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297] w-full">
-                       <div ref={previewRef} className="w-[210mm] min-h-[297mm]">
+                     <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden">
+                        <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm] min-h-[297mm] transform scale-[0.3] sm:scale-[0.45] md:scale-[0.35] lg:scale-[0.55] -translate-x-[35%] sm:-translate-x-[27.5%] md:-translate-x-[32.5%] lg:-translate-x-[22.5%] origin-top-left">
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
