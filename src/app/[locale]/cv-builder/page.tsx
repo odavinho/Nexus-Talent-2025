@@ -22,6 +22,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CvPreviewTemplate } from '@/components/cv/cv-preview-template';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 const cvSchema = z.object({
   firstName: z.string().min(1, 'Primeiro nome é obrigatório.'),
@@ -46,6 +49,7 @@ const cvSchema = z.object({
 });
 
 type CvFormValues = z.infer<typeof cvSchema>;
+type CvTemplate = 'europass' | 'modern' | 'classic';
 
 export default function CVBuilderPage() {
   const router = useRouter();
@@ -53,6 +57,7 @@ export default function CVBuilderPage() {
   const { toast } = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [template, setTemplate] = useState<CvTemplate>('europass');
   const previewRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<CvFormValues>({
@@ -114,7 +119,7 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 2, 
+      scale: 2.5, // Increased scale for better quality
       useCORS: true,
       onclone: (document) => {
         document.getElementById('cv-preview-container')?.classList.remove('dark');
@@ -125,26 +130,22 @@ export default function CVBuilderPage() {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = imgWidth / imgHeight;
-    const widthInPdf = pdfWidth;
-    const heightInPdf = widthInPdf / ratio;
     
+    // The canvas dimensions are based on the preview element, we want to fit it to the A4 page.
+    const imgProps= pdf.getImageProperties(imgData);
+    const imgRatio = imgProps.width / imgProps.height;
+    
+    let imgHeightInPdf = pdfWidth / imgRatio;
     let position = 0;
-    if (heightInPdf < pdfHeight) {
-       pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
-    } else {
-      let heightLeft = imgHeight;
-      const canvasInMM = widthInPdf * (pdf.internal.scaleFactor || 1);
-      while(heightLeft > 0) {
-        pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
-        heightLeft -= canvasInMM;
-        position -= pdfHeight;
-        if(heightLeft > 0) {
-          pdf.addPage();
-        }
-      }
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightInPdf);
+    let heightLeft = imgHeightInPdf - pdfHeight;
+
+    while (heightLeft > 0) {
+        position = -pdfHeight; // We move the image "up" in the next page
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightInPdf);
+        heightLeft -= pdfHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -254,10 +255,34 @@ export default function CVBuilderPage() {
                      </Form>
                 </div>
                 {/* PREVIEW COLUMN */}
-                <div className="bg-white p-4 rounded-lg shadow-md lg:sticky top-24">
-                     <div ref={previewRef} id="cv-preview-container" className='bg-white'>
-                        <CvPreviewTemplate data={watchedData} />
-                     </div>
+                <div className="lg:sticky top-24">
+                     <div className="mb-4">
+                        <Label className="font-headline text-lg">Escolha um Modelo</Label>
+                        <RadioGroup defaultValue={template} onValueChange={(v) => setTemplate(v as CvTemplate)} className="flex gap-2 mt-2">
+                           <Label htmlFor="template-europass" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'europass' ? 'border-primary' : 'border-border')}>
+                                <RadioGroupItem value="europass" id="template-europass" className="sr-only"/>
+                                <div className="font-semibold">Europass</div>
+                                <div className="text-xs text-muted-foreground">Clássico</div>
+                           </Label>
+                           <Label htmlFor="template-modern" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'modern' ? 'border-primary' : 'border-border')}>
+                                <RadioGroupItem value="modern" id="template-modern" className="sr-only" disabled/>
+                                <div className="font-semibold">Moderno</div>
+                                <div className="text-xs text-muted-foreground">(em breve)</div>
+                           </Label>
+                           <Label htmlFor="template-classic" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'classic' ? 'border-primary' : 'border-border')}>
+                                <RadioGroupItem value="classic" id="template-classic" className="sr-only" disabled/>
+                                <div className="font-semibold">Criativo</div>
+                                <div className="text-xs text-muted-foreground">(em breve)</div>
+                           </Label>
+                        </RadioGroup>
+                    </div>
+
+                    <div id="cv-preview-container" className='bg-white rounded-lg shadow-md'>
+                        <div ref={previewRef} className="scale-[0.8] sm:scale-[1] md:scale-[0.8] lg:scale-[1] xl:scale-[1] origin-top-left">
+                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
+                            {/* Add other templates here when ready */}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
