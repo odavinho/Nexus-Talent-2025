@@ -122,11 +122,15 @@ export default function CVBuilderPage() {
 
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
+    const MARGIN_MM = 15;
+    
+    const canvasWidth = (A4_WIDTH_MM - MARGIN_MM * 2);
+    const canvasHeight = (A4_HEIGHT_MM - MARGIN_MM * 2);
 
     const canvas = await html2canvas(element, { 
-      scale: 2, 
+      scale: 3, 
       useCORS: true,
-       onclone: (document) => {
+      onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
         if (clone) {
             clone.classList.remove('dark');
@@ -139,23 +143,24 @@ export default function CVBuilderPage() {
     });
 
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', [A4_WIDTH_MM, A4_HEIGHT_MM]);
+    const pdf = new jsPDF('p', 'mm', 'a4');
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = imgWidth / A4_WIDTH_MM;
+    
+    const ratio = imgWidth / canvasWidth;
     const scaledImgHeight = imgHeight / ratio;
 
     let heightLeft = scaledImgHeight;
-    let position = 0;
+    let position = MARGIN_MM;
 
-    pdf.addImage(imgData, 'PNG', 0, position, A4_WIDTH_MM, scaledImgHeight);
-    heightLeft -= A4_HEIGHT_MM;
+    pdf.addImage(imgData, 'PNG', MARGIN_MM, position, canvasWidth, scaledImgHeight);
+    heightLeft -= canvasHeight;
 
     while (heightLeft > 0) {
-      position -= A4_HEIGHT_MM;
+      position = position - A4_HEIGHT_MM;
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, A4_WIDTH_MM, scaledImgHeight);
+      pdf.addImage(imgData, 'PNG', MARGIN_MM, position, canvasWidth, scaledImgHeight);
       heightLeft -= A4_HEIGHT_MM;
     }
     
@@ -286,14 +291,11 @@ export default function CVBuilderPage() {
                            </Label>
                         </RadioGroup>
                     </div>
-
-                    <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297]'>
-                        <div ref={previewRef} className="w-full h-full scale-[0.35] sm:scale-50 md:scale-40 lg:scale-50 xl:scale-[0.6] origin-top-left -m-[1px] transform">
-                          <div className="w-[210mm] min-h-[297mm]">
-                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
-                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
-                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
-                          </div>
+                    <div id="cv-preview-container" className="bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297] w-full">
+                        <div ref={previewRef} className="w-[210mm] min-h-[297mm]">
+                           {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
+                           {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
+                           {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
                         </div>
                     </div>
                 </div>
