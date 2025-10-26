@@ -10,6 +10,7 @@ import { CtaSection } from '@/components/home/cta-section';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { RunningCourses } from '@/components/home/running-courses';
+import { ServicesSection } from '@/components/home/services-section';
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <StatsSection />
+        <ServicesSection />
         <FeaturedCourses />
         <RunningCourses />
         <RecruitmentSection />

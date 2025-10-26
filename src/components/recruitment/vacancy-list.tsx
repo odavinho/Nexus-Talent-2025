@@ -38,6 +38,7 @@ export function VacancyList() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
+  const [distance, setDistance] = useState('all');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
 
@@ -57,6 +58,7 @@ export function VacancyList() {
 
   const locations = useMemo(() => ['all', ...new Set(allVacancies.map(v => v.location))], [allVacancies]);
   const contractTypes = useMemo(() => ['all', 'Full-time', 'Part-time', 'Remote'], []);
+  const distances = useMemo(() => ['all', '5', '10', '20', '50', '100'], []);
 
 
   const filteredVacancies = useMemo(() => {
@@ -65,6 +67,7 @@ export function VacancyList() {
       const matchesLocation = selectedLocation === 'all' || vacancy.location === selectedLocation;
       const matchesType = selectedType === 'all' || vacancy.type === selectedType;
       const matchesSearch = vacancy.title.toLowerCase().includes(searchTerm.toLowerCase()) || vacancy.description.toLowerCase().includes(searchTerm.toLowerCase());
+      // Distance filter is visual only for now
       return matchesCategory && matchesSearch && matchesLocation && matchesType;
     });
   }, [allVacancies, searchTerm, selectedCategory, selectedLocation, selectedType]);
@@ -172,6 +175,20 @@ export function VacancyList() {
                 {locations.map(location => (
                 <SelectItem key={location} value={location}>
                     {location === 'all' ? 'Todas as Localidades' : location}
+                </SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+        </div>
+         <div className='md:w-1/4'>
+         <Select value={distance} onValueChange={setDistance}>
+            <SelectTrigger className="h-12 text-base">
+                <SelectValue placeholder="Raio de distância" />
+            </SelectTrigger>
+            <SelectContent>
+                {distances.map(d => (
+                <SelectItem key={d} value={d}>
+                    {d === 'all' ? 'Qualquer distância' : `+ ${d} km`}
                 </SelectItem>
                 ))}
             </SelectContent>

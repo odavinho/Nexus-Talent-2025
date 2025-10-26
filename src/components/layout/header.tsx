@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/shared/logo';
-import { Menu, X, LogOut, Globe } from 'lucide-react';
+import { Menu, X, LogOut, Globe, ChevronDown } from 'lucide-react';
 import { useState, useTransition, type FC } from 'react';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,9 +17,46 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 import { Skeleton } from '../ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useLocale, useTranslations } from 'next-intl';
+import React from 'react';
+
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  )
+})
+ListItem.displayName = "ListItem"
 
 
 const LocaleSwitcher: FC = () => {
@@ -54,31 +91,64 @@ const LocaleSwitcher: FC = () => {
 const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
     const t = useTranslations('Header');
     const pathname = usePathname();
-    const navLinks = [
-        { href: '/courses', label: t('courses') },
-        { href: '/recruitment', label: "Empregos" },
-        { href: '/pricing', label: 'Planos' },
-        { href: '/about', label: t('about') },
-        { href: '/blog', label: t('blog') },
-    ];
     
     return (
-        <>
-            {navLinks.map((link) => (
-                <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                        "font-medium transition-colors",
-                        "block px-3 py-2 rounded-md text-base md:text-sm md:inline-block md:px-0 md:py-0 md:rounded-none md:bg-transparent",
-                        pathname.endsWith(link.href) ? "text-primary font-semibold bg-secondary md:bg-transparent" : "text-foreground/80 hover:text-foreground hover:bg-secondary md:hover:bg-transparent"
-                    )}
-                    onClick={closeMenu}
-                >
-                    {link.label}
-                </Link>
-            ))}
-        </>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+             <Link href="/courses" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  {t('courses')}
+                </NavigationMenuLink>
+              </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>{t('vacancies')}</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                <li className="row-span-3">
+                  <NavigationMenuLink asChild>
+                    <a
+                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                      href="/recruitment"
+                    >
+                      <div className="mb-2 mt-4 text-lg font-medium">
+                        NexusTalent {t('vacancies')}
+                      </div>
+                      <p className="text-sm leading-tight text-muted-foreground">
+                        Explore todas as nossas vagas e encontre a oportunidade certa para si.
+                      </p>
+                    </a>
+                  </NavigationMenuLink>
+                </li>
+                <ListItem href="/recruitment" title="Todas as Vagas">
+                  Pesquise e filtre todas as oportunidades disponíveis.
+                </ListItem>
+                <ListItem href="/dashboard/student/profile" title="Perfil de Candidato">
+                  Mantenha o seu perfil atualizado para se destacar.
+                </ListItem>
+                 <ListItem href="/pricing" title="Planos para Empresas">
+                  Veja os nossos planos de recrutamento.
+                </ListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+           <NavigationMenuItem>
+             <Link href="/about" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  {t('about')}
+                </NavigationMenuLink>
+              </Link>
+          </NavigationMenuItem>
+           <NavigationMenuItem>
+             <Link href="/blog" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  {t('blog')}
+                </NavigationMenuLink>
+              </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
     );
 }
 
@@ -111,7 +181,7 @@ export function Header() {
             </Link>
           </div>
 
-          <nav className="hidden md:flex md:items-center md:space-x-8">
+          <nav className="hidden md:flex md:items-center md:space-x-1">
               <NavLinks />
           </nav>
 
@@ -177,7 +247,7 @@ export function Header() {
             )}
         >
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
-                <NavLinks closeMenu={() => setIsMenuOpen(false)} />
+                {/* <NavLinks closeMenu={() => setIsMenuOpen(false)} /> */}
                <div className="pt-4 border-t">
                 {isUserLoading ? <div className='px-3'><Skeleton className='h-10 w-full'/></div> : user ? (
                    <div className="space-y-2 px-3">
