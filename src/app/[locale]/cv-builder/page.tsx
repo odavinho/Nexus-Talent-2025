@@ -120,17 +120,23 @@ export default function CVBuilderPage() {
     
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
+    // A4 dimensions in mm
+    const A4_WIDTH_MM = 210;
+    const A4_HEIGHT_MM = 297;
+    const MARGIN_MM = 15;
+
+    const contentWidthMM = A4_WIDTH_MM - (MARGIN_MM * 2);
+    const contentHeightMM = A4_HEIGHT_MM - (MARGIN_MM * 2);
+
     const canvas = await html2canvas(element, { 
-      scale: 3, // Higher scale for better quality
+      scale: 2, // Use a good scale for quality
       useCORS: true,
-      onclone: (document) => {
-        // This function runs on the cloned document before rendering
+       onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
         if (clone) {
-            clone.classList.remove('dark'); // Ensure light mode for PDF
+            clone.classList.remove('dark');
             const sidebar = clone.querySelector('#cv-sidebar');
             if (sidebar) {
-                 // Force the blue color for the sidebar during PDF generation
                  (sidebar as HTMLElement).style.backgroundColor = '#2399d3';
             }
         }
@@ -138,36 +144,33 @@ export default function CVBuilderPage() {
     });
 
     const imgData = canvas.toDataURL('image/png');
-    
-    // A4 dimensions in mm: 210mm wide, 297mm high
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    
-    // Calculate the ratio to fit the canvas image to the PDF width
-    const ratio = canvasWidth / pdfWidth;
-    const imgHeight = canvasHeight / ratio;
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    
+    // Calculate the height of the image in mm when scaled to fit the content width
+    const ratio = contentWidthMM / imgWidth;
+    const scaledImgHeight = imgHeight * ratio;
+
+    let heightLeft = scaledImgHeight;
+    let position = MARGIN_MM;
 
     // Add the first page
-    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdfHeight;
+    pdf.addImage(imgData, 'PNG', MARGIN_MM, position, contentWidthMM, scaledImgHeight);
+    heightLeft -= contentHeightMM;
 
     // Add new pages if content is longer than one page
     while (heightLeft > 0) {
-      position = heightLeft - imgHeight; // Recalculate position for the new page
+      position = position - contentHeightMM; // Move position up for the next slice
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
+      pdf.addImage(imgData, 'PNG', MARGIN_MM, position, contentWidthMM, scaledImgHeight);
+      heightLeft -= contentHeightMM;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
   };
+
 
   if (isUserLoading || !profile) {
     return (

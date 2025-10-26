@@ -17,15 +17,15 @@ type CvData = {
 
 export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
     return (
-        <div className="a4-page bg-white text-gray-800 font-sans text-sm leading-relaxed">
-            <div className="grid grid-cols-12">
+        <div className="a4-page bg-white text-gray-800 font-sans leading-relaxed">
+            <div className="grid grid-cols-12 min-h-[297mm]">
                 {/* Main Column */}
                 <div className="col-span-8 p-10 pr-6">
                     <header className="mb-10">
-                        <h1 className="font-headline text-5xl font-bold text-gray-800 leading-tight">
+                        <h1 className="font-headline text-4xl font-bold text-gray-800 leading-tight">
                             {data.firstName} {data.lastName}
                         </h1>
-                        <h2 className="font-headline text-xl text-primary mt-1">
+                        <h2 className="font-headline text-lg text-primary mt-1">
                             {data.academicTitle}
                         </h2>
                     </header>
@@ -33,7 +33,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                     {data.summary && (
                          <section className="mb-8">
                             <h3 className="section-title-main">Resumo Profissional</h3>
-                            <p className="mt-3 text-gray-700">{data.summary}</p>
+                            <p className="mt-3 text-[11pt] text-gray-700">{data.summary}</p>
                         </section>
                     )}
 
@@ -44,10 +44,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.workExperience.map((exp, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-base font-bold text-gray-900">{exp.role}</h4>
+                                            <h4 className="font-headline text-[12pt] font-bold text-gray-900">{exp.role}</h4>
                                             <p className="text-xs font-medium text-gray-500">{exp.period}</p>
                                         </div>
-                                        <p className="text-sm font-medium text-primary">{exp.company}</p>
+                                        <p className="text-[11pt] font-medium text-primary">{exp.company}</p>
                                         {exp.description && <p className="mt-2 text-xs text-gray-600">{exp.description}</p>}
                                     </div>
                                 ))}
@@ -62,10 +62,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.academicHistory.map((edu, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-base font-bold text-gray-900">{edu.degree}</h4>
+                                            <h4 className="font-headline text-[12pt] font-bold text-gray-900">{edu.degree}</h4>
                                             <p className="text-xs font-medium text-gray-500">{edu.year}</p>
                                         </div>
-                                        <p className="text-sm font-medium text-gray-700">{edu.institution}</p>
+                                        <p className="text-[11pt] font-medium text-gray-700">{edu.institution}</p>
                                     </div>
                                 ))}
                            </div>
@@ -74,7 +74,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                 </div>
                 {/* Right Column */}
                 <div className="col-span-4 bg-gray-50 p-8">
-                     <div className="space-y-6">
+                     <div className="space-y-8">
                         <div>
                             <h3 className="section-title-side">Contacto</h3>
                             <div className="mt-3 space-y-3 text-xs">
@@ -108,12 +108,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
              <style jsx global>{`
                 .a4-page {
                     width: 210mm;
-                    min-height: 297mm;
-                    font-family: 'Inter', sans-serif;
                 }
                 .section-title-main {
                     font-family: 'Space Grotesk', sans-serif;
-                    font-size: 14pt;
+                    font-size: 13pt;
                     font-weight: 700;
                     color: hsl(var(--primary));
                     border-bottom: 2px solid #e5e7eb;
@@ -128,6 +126,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                     color: hsl(var(--foreground));
                     letter-spacing: 0.05em;
                 }
+                .text-4xl { font-size: 28pt !important; }
             `}</style>
         </div>
     );
