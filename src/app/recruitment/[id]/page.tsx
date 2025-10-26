@@ -17,8 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { Timestamp } from "firebase/firestore";
 
+// The vacancy prop here receives serializable data (dates as strings)
 export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
@@ -47,12 +47,13 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
     }, 1500);
   };
 
-  const toDate = (date: Timestamp | Date | undefined): Date | null => {
+  // Helper to safely create Date objects from strings
+  const toDate = (date: string | Date | undefined): Date | null => {
     if (!date) return null;
-    if (date instanceof Timestamp) {
-      return date.toDate();
+    if (typeof date === 'string') {
+        return new Date(date);
     }
-    return date as Date;
+    return date;
   }
 
   const closingDate = toDate(vacancy.closingDate);

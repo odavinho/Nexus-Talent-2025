@@ -4,6 +4,16 @@ import { notFound } from "next/navigation";
 import type { Vacancy } from "@/lib/types";
 import { type Metadata } from 'next';
 import { VacancyClientPage } from "@/app/recruitment/[id]/page";
+import { Timestamp } from "firebase/firestore";
+
+// Helper to convert Timestamp to a serializable format (string)
+const toSerializableDate = (date: Timestamp | Date | undefined): string | null => {
+    if (!date) return null;
+    if (date instanceof Timestamp) {
+      return date.toDate().toISOString();
+    }
+    return date.toISOString();
+}
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const vacancy = getVacancyById(params.id);
@@ -36,5 +46,12 @@ export default function VacancyDetailPage({ params }: { params: { id: string } }
     notFound();
   }
 
-  return <VacancyClientPage vacancy={vacancy} />;
+  // Create a serializable version of the vacancy object
+  const serializableVacancy = {
+    ...vacancy,
+    postedDate: toSerializableDate(vacancy.postedDate),
+    closingDate: toSerializableDate(vacancy.closingDate),
+  };
+
+  return <VacancyClientPage vacancy={serializableVacancy as any} />;
 }
