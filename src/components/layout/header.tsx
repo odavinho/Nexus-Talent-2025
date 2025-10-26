@@ -116,12 +116,12 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
                         NexusTalent {t('vacancies')}
                       </div>
                       <p className="text-sm leading-tight text-muted-foreground">
-                        Explore todas as nossas vagas e encontre a oportunidade certa para si.
+                        Explore todos os nossos empregos e encontre a oportunidade certa para si.
                       </p>
                     </a>
                   </NavigationMenuLink>
                 </li>
-                <ListItem href="/recruitment" title="Todas as Vagas">
+                <ListItem href="/recruitment" title="Todos os Empregos">
                   Pesquise e filtre todas as oportunidades disponíveis.
                 </ListItem>
                 <ListItem href="/dashboard/student/profile" title="Perfil de Candidato">
