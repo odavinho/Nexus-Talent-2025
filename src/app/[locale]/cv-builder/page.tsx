@@ -119,12 +119,17 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3, // Increased scale for better resolution
+      scale: 3,
       useCORS: true,
       onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
         if (clone) {
             clone.classList.remove('dark');
+            const sidebar = clone.querySelector('#cv-sidebar');
+            if (sidebar) {
+                // Directly set the background color to the exact HSL value to avoid CSS variable issues
+                 (sidebar as HTMLElement).style.backgroundColor = 'hsl(197 76% 53%)';
+            }
         }
       }
     });
@@ -132,8 +137,7 @@ export default function CVBuilderPage() {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-
+    
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
@@ -146,14 +150,14 @@ export default function CVBuilderPage() {
 
     // Add the first page
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdfHeight;
+    heightLeft -= pdf.internal.pageSize.getHeight();
 
     // Add new pages if the content is longer than one page
     while (heightLeft > 0) {
-      position -= pdfHeight;
+      position = position - pdf.internal.pageSize.getHeight();
       pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
+      heightLeft -= pdf.internal.pageSize.getHeight();
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -208,7 +212,7 @@ export default function CVBuilderPage() {
                                             <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>)} />
                                             <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Telefone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>)} />
                                         </div>
-                                        <FormField control={form.control} name="cidade" render={({ field }) => (<FormItem><FormLabel>Localização</FormLabel><FormControl><Input {...field} placeholder="Ex: Luanda, Angola" /></FormControl><FormMessage/></FormItem>)} />
+                                        <FormField control={form.control} name="cidade" render={({ field }) => (<FormItem><FormLabel>Localização</FormLabel><FormControl><Input placeholder="Ex: Luanda, Angola" {...field} /></FormControl><FormMessage/></FormItem>)} />
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-2">

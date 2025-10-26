@@ -19,8 +19,8 @@ type CvData = {
 
 export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
     return (
-        <div className="a4-page bg-white text-gray-800 font-body leading-relaxed">
-            <header className="px-10 py-6 flex justify-between items-center border-b-2 border-gray-200">
+        <div className="a4-page bg-white text-gray-800 font-sans leading-relaxed">
+             <header className="px-10 py-6 flex justify-between items-center border-b-2 border-gray-200">
                 <h1 className="font-headline text-5xl font-bold text-gray-800 leading-tight">
                     {data.firstName} {data.lastName}
                 </h1>
@@ -32,7 +32,7 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
             
             <div className="grid grid-cols-12 gap-x-8 p-10">
                 {/* Left Column */}
-                <div className="col-span-4 space-y-8">
+                <div id="cv-sidebar" className="col-span-4 space-y-8 bg-primary/5 p-6 rounded-lg">
                     <div>
                         <h2 className="section-title-side text-primary">CONTACTO</h2>
                         <div className="mt-4 space-y-3 text-sm">
@@ -108,7 +108,6 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                     width: 210mm;
                     min-height: 297mm;
                     font-size: 10pt;
-                    font-family: 'Inter', sans-serif;
                 }
                 .section-title-side {
                     font-family: 'Space Grotesk', sans-serif;
