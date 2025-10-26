@@ -39,7 +39,7 @@ const cvSchema = z.object({
   workExperience: z.array(z.object({
     role: z.string().min(1, 'Função é obrigatória.'),
     company: z.string().min(1, 'Empresa é obrigatória.'),
-    period: z.string().min(1, 'Período é obrigatório.'),
+    period: z.string().min(1, 'Período é obrigatória.'),
     description: z.string().optional(),
   })).optional(),
   academicHistory: z.array(z.object({
@@ -129,7 +129,7 @@ export default function CVBuilderPage() {
     const contentHeightMM = A4_HEIGHT_MM - (MARGIN_MM * 2);
 
     const canvas = await html2canvas(element, { 
-      scale: 2, // Use a good scale for quality
+      scale: 3, // Use a good scale for quality
       useCORS: true,
        onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
@@ -150,8 +150,8 @@ export default function CVBuilderPage() {
     const pdf = new jsPDF('p', 'mm', 'a4');
     
     // Calculate the height of the image in mm when scaled to fit the content width
-    const ratio = contentWidthMM / imgWidth;
-    const scaledImgHeight = imgHeight * ratio;
+    const ratio = imgWidth / contentWidthMM;
+    const scaledImgHeight = imgHeight / ratio;
 
     let heightLeft = scaledImgHeight;
     let position = MARGIN_MM;
@@ -242,7 +242,7 @@ export default function CVBuilderPage() {
                                                  <FormField control={form.control} name={`workExperience.${index}.description`} render={({ field }) => (<FormItem><FormLabel>Descrição</FormLabel><FormControl><Textarea {...field} rows={3} /></FormControl></FormItem>)} />
                                             </div>
                                         ))}
-                                        <Button type='button' variant='outline' size='sm' onClick={() => appendWork({role: '', company: '', period: ''})}><PlusCircle size={16} className='mr-2'/>Adicionar Experiência</Button>
+                                        <Button type='button' variant='outline' size='sm' onClick={()={() => appendWork({role: '', company: '', period: ''})}><PlusCircle size={16} className='mr-2'/>Adicionar Experiência</Button>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-4">
@@ -296,8 +296,8 @@ export default function CVBuilderPage() {
                         </RadioGroup>
                     </div>
 
-                    <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden'>
-                        <div ref={previewRef} className="origin-top">
+                    <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297]'>
+                        <div ref={previewRef} className="w-full h-full scale-[0.35] sm:scale-50 md:scale-40 lg:scale-50 xl:scale-[0.6] origin-top-left -m-[1px] transform">
                             {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                             {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                             {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
