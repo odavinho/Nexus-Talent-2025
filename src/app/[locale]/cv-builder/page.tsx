@@ -121,14 +121,16 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3,
+      scale: 3, // Higher scale for better quality
       useCORS: true,
       onclone: (document) => {
+        // This function runs on the cloned document before rendering
         const clone = document.getElementById('cv-preview-container');
         if (clone) {
-            clone.classList.remove('dark');
+            clone.classList.remove('dark'); // Ensure light mode for PDF
             const sidebar = clone.querySelector('#cv-sidebar');
             if (sidebar) {
+                 // Force the blue color for the sidebar during PDF generation
                  (sidebar as HTMLElement).style.backgroundColor = '#2399d3';
             }
         }
@@ -136,26 +138,32 @@ export default function CVBuilderPage() {
     });
 
     const imgData = canvas.toDataURL('image/png');
+    
+    // A4 dimensions in mm: 210mm wide, 297mm high
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
     
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
+    // Calculate the ratio to fit the canvas image to the PDF width
     const ratio = canvasWidth / pdfWidth;
     const imgHeight = canvasHeight / ratio;
 
     let heightLeft = imgHeight;
     let position = 0;
 
+    // Add the first page
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
+    heightLeft -= pdfHeight;
 
+    // Add new pages if content is longer than one page
     while (heightLeft > 0) {
-      position = position - pdf.internal.pageSize.getHeight();
+      position = heightLeft - imgHeight; // Recalculate position for the new page
       pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdf.internal.pageSize.getHeight();
+      heightLeft -= pdfHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
