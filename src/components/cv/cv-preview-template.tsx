@@ -76,7 +76,7 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                      {data.summary && (
                          <section>
                             <h2 className="section-title-main">RESUMO PROFISSIONAL</h2>
-                            <p className="mt-4 text-[11pt] text-gray-700 leading-relaxed">{data.summary}</p>
+                            <p className="mt-4 text-[11pt] text-gray-700 leading-relaxed text-justify">{data.summary}</p>
                         </section>
                     )}
 
@@ -89,7 +89,7 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                                         <p className="text-xs font-semibold text-gray-500 uppercase">{exp.period}</p>
                                         <h3 className="font-headline text-[13pt] font-bold text-gray-900 mt-1">{exp.role}</h3>
                                         <p className="text-[12pt] font-medium text-gray-700">{exp.company}</p>
-                                        {exp.description && <p className="mt-2 text-[11pt] text-gray-600 list-disc pl-4">{exp.description}</p>}
+                                        {exp.description && <p className="mt-2 text-[11pt] text-gray-600 list-disc pl-4 text-justify">{exp.description}</p>}
                                     </div>
                                 ))}
                            </div>

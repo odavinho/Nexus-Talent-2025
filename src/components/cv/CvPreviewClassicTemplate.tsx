@@ -44,7 +44,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 {data.summary && (
                     <section>
                         <h3 className="section-title-classic">Resumo</h3>
-                        <p className="mt-3 text-[11pt] text-gray-700">{data.summary}</p>
+                        <p className="mt-3 text-[11pt] text-gray-700 text-justify">{data.summary}</p>
                     </section>
                 )}
 
@@ -59,7 +59,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                                         <p className="text-xs font-medium text-gray-600">{exp.period}</p>
                                     </div>
                                     <p className="text-[11pt] italic text-gray-700">{exp.company}</p>
-                                    {exp.description && <p className="mt-2 text-xs text-gray-600">{exp.description}</p>}
+                                    {exp.description && <p className="mt-2 text-xs text-gray-600 text-justify">{exp.description}</p>}
                                 </div>
                             ))}
                         </div>
@@ -86,7 +86,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 {data.skills && data.skills.length > 0 && (
                     <section>
                         <h3 className="section-title-classic">Competências</h3>
-                        <p className="mt-3 text-[11pt] text-gray-700">
+                        <p className="mt-3 text-[11pt] text-gray-700 text-justify">
                             {data.skills.map(s => s.value).filter(Boolean).join(' • ')}
                         </p>
                     </section>
