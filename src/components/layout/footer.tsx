@@ -56,7 +56,7 @@ export function Footer() {
               <h3 className="font-headline text-lg font-medium">Empregos</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 {footerLinks.empregos.map(link => (
-                  <li key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                  <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -64,7 +64,7 @@ export function Footer() {
               <h3 className="font-headline text-lg font-medium">Para Talentos</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 {footerLinks.paraTalentos.map(link => (
-                  <li key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                  <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -72,7 +72,7 @@ export function Footer() {
               <h3 className="font-headline text-lg font-medium">Para Empresas</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 {footerLinks.paraEmpresas.map(link => (
-                  <li key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                  <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -80,7 +80,7 @@ export function Footer() {
               <h3 className="font-headline text-lg font-medium">Sobre Nós</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 {footerLinks.sobreNos.map(link => (
-                  <li key={link.href}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                  <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
