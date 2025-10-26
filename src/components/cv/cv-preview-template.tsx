@@ -1,7 +1,8 @@
 'use client';
 
-import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Globe, GraduationCap } from "lucide-react";
 import { type UserProfile } from "@/lib/types";
+import { Logo } from "../shared/logo";
 
 type CvData = {
     firstName?: string;
@@ -18,33 +19,43 @@ type CvData = {
 
 export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
     return (
-        <div className="a4-page bg-white text-gray-900 font-sans leading-relaxed">
-            <div className="grid grid-cols-3">
+        <div className="a4-page bg-white text-gray-800 font-body leading-relaxed">
+            <header className="px-10 py-6 flex justify-between items-center border-b-2 border-gray-200">
+                <h1 className="font-headline text-5xl font-bold text-gray-800 leading-tight">
+                    {data.firstName} {data.lastName}
+                </h1>
+                <div className="text-right">
+                    <Logo />
+                    <p className="text-sm text-gray-500 mt-1">Curriculum Vitae</p>
+                </div>
+            </header>
+            
+            <div className="grid grid-cols-12 gap-x-8 p-10">
                 {/* Left Column */}
-                <div className="col-span-1 bg-primary text-primary-foreground p-8 space-y-8">
+                <div className="col-span-4 space-y-8">
                     <div>
-                        <h2 className="section-title-side text-primary-foreground/80">CONTACTO</h2>
+                        <h2 className="section-title-side text-primary">CONTACTO</h2>
                         <div className="mt-4 space-y-3 text-sm">
-                            {data.phoneNumber && <div className="flex items-start gap-3"><Phone size={14} className="mt-1" /><span>{data.phoneNumber}</span></div>}
-                            {data.email && <div className="flex items-start gap-3"><Mail size={14} className="mt-1" /><span>{data.email}</span></div>}
-                            {data.cidade && <div className="flex items-start gap-3"><MapPin size={14} className="mt-1" /><span>{data.cidade}</span></div>}
-                             <div className="flex items-start gap-3"><Linkedin size={14} className="mt-1" /><span>linkedin.com/in/...</span></div>
+                            {data.phoneNumber && <div className="flex items-start gap-3"><Phone size={14} className="mt-1 flex-shrink-0" /><span>{data.phoneNumber}</span></div>}
+                            {data.email && <div className="flex items-start gap-3"><Mail size={14} className="mt-1 flex-shrink-0" /><span>{data.email}</span></div>}
+                            {data.cidade && <div className="flex items-start gap-3"><MapPin size={14} className="mt-1 flex-shrink-0" /><span>{data.cidade}</span></div>}
+                             <div className="flex items-start gap-3"><Linkedin size={14} className="mt-1 flex-shrink-0" /><span>linkedin.com/in/...</span></div>
                         </div>
                     </div>
 
                     {data.skills && data.skills.length > 0 && (
                         <div>
-                            <h2 className="section-title-side text-primary-foreground/80">COMPETÊNCIAS</h2>
-                            <ul className="mt-4 space-y-2 text-sm list-disc pl-4">
+                            <h2 className="section-title-side text-primary">COMPETÊNCIAS</h2>
+                            <ul className="mt-4 space-y-2 text-sm">
                                 {data.skills.map((skill, index) => (
-                                   skill.value && <li key={index}>{skill.value}</li>
+                                   skill.value && <li key={index}>- {skill.value}</li>
                                 ))}
                             </ul>
                         </div>
                     )}
                      <div>
-                        <h2 className="section-title-side text-primary-foreground/80">LÍNGUAS</h2>
-                        <ul className="mt-4 space-y-2 text-sm list-disc pl-4">
+                        <h2 className="section-title-side text-primary">LÍNGUAS</h2>
+                        <ul className="mt-4 space-y-2 text-sm">
                             <li>Português (Nativo)</li>
                             <li>Inglês (Fluente)</li>
                         </ul>
@@ -52,16 +63,11 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                 </div>
 
                 {/* Right Column */}
-                <div className="col-span-2 p-8 space-y-8">
-                     <div>
-                        <h1 className="font-headline text-4xl font-bold text-gray-800 leading-tight">{data.firstName} {data.lastName}</h1>
-                        <p className="text-xl font-light text-primary mt-1">{data.academicTitle}</p>
-                    </div>
-
-                    {data.summary && (
+                <div className="col-span-8 space-y-8">
+                     {data.summary && (
                          <section>
                             <h2 className="section-title-main">RESUMO PROFISSIONAL</h2>
-                            <p className="mt-4 text-sm text-gray-700">{data.summary}</p>
+                            <p className="mt-4 text-sm text-gray-700 leading-relaxed">{data.summary}</p>
                         </section>
                     )}
 
@@ -71,9 +77,10 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                             <div className="mt-4 space-y-6">
                                 {data.workExperience.map((exp, index) => (
                                     <div key={index}>
-                                        <h3 className="font-headline text-base font-bold">{exp.role} <span className="font-normal text-gray-600">| {exp.company}</span></h3>
-                                        <p className="text-xs font-semibold text-gray-500 uppercase mt-1">{exp.period}</p>
-                                        {exp.description && <p className="mt-2 text-sm text-gray-700 list-disc pl-4">{exp.description}</p>}
+                                        <p className="text-xs font-semibold text-gray-500 uppercase">{exp.period}</p>
+                                        <h3 className="font-headline text-base font-bold text-gray-900 mt-1">{exp.role}</h3>
+                                        <p className="text-sm font-medium text-gray-700">{exp.company}</p>
+                                        {exp.description && <p className="mt-2 text-sm text-gray-600 list-disc pl-4">{exp.description}</p>}
                                     </div>
                                 ))}
                            </div>
@@ -86,9 +93,9 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                            <div className="mt-4 space-y-5">
                                 {data.academicHistory.map((edu, index) => (
                                     <div key={index}>
-                                        <h3 className="font-headline text-base font-bold">{edu.degree}</h3>
-                                        <p className="text-sm font-medium text-gray-600">{edu.institution}</p>
-                                        <p className="text-xs font-semibold text-gray-500 uppercase mt-1">{edu.year}</p>
+                                         <p className="text-xs font-semibold text-gray-500 uppercase">{edu.year}</p>
+                                        <h3 className="font-headline text-base font-bold text-gray-900 mt-1">{edu.degree}</h3>
+                                        <p className="text-sm font-medium text-gray-700">{edu.institution}</p>
                                     </div>
                                 ))}
                            </div>
@@ -101,6 +108,7 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                     width: 210mm;
                     min-height: 297mm;
                     font-size: 10pt;
+                    font-family: 'Inter', sans-serif;
                 }
                 .section-title-side {
                     font-family: 'Space Grotesk', sans-serif;
@@ -108,15 +116,15 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
                     font-weight: 700;
                     text-transform: uppercase;
                     padding-bottom: 4px;
-                    border-bottom: 1px solid currentColor;
-                    letter-spacing: 0.05em;
+                    border-bottom: 1.5px solid hsl(var(--primary));
+                    letter-spacing: 0.1em;
                 }
                  .section-title-main {
                     font-family: 'Space Grotesk', sans-serif;
                     font-size: 13pt;
                     font-weight: 700;
                     text-transform: uppercase;
-                    color: hsl(var(--primary));
+                    color: hsl(var(--foreground));
                     padding-bottom: 6px;
                     border-bottom: 2px solid hsl(var(--primary));
                     letter-spacing: 0.05em;

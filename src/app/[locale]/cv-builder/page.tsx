@@ -119,7 +119,7 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3,
+      scale: 3, // Increased scale for better resolution
       useCORS: true,
       onclone: (document) => {
         const clone = document.getElementById('cv-preview-container');
@@ -137,17 +137,20 @@ export default function CVBuilderPage() {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
+    // Calculate the ratio to fit the width of the PDF page
     const ratio = canvasWidth / pdfWidth;
     const imgHeight = canvasHeight / ratio;
 
     let heightLeft = imgHeight;
     let position = 0;
 
+    // Add the first page
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
     heightLeft -= pdfHeight;
 
+    // Add new pages if the content is longer than one page
     while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
+      position -= pdfHeight;
       pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
       heightLeft -= pdfHeight;
@@ -283,7 +286,7 @@ export default function CVBuilderPage() {
                     </div>
 
                     <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden'>
-                        <div ref={previewRef} className="lg:scale-[0.8] origin-top">
+                        <div ref={previewRef} className="origin-top">
                             {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                             {/* Add other templates here when ready */}
                         </div>
