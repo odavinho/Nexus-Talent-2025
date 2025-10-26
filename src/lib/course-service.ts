@@ -3,58 +3,18 @@ import { courses as initialCourses } from './courses';
 import { courseCategories as allCourseCategories } from './courses';
 import type { Course, CourseCategory, CourseStatus } from './types';
 
-// In-memory store for courses, acting as a cache for localStorage
-let courses: Course[] | null = null;
-const COURSES_STORAGE_KEY = 'nexus-talent-courses';
-
-const loadCourses = (): Course[] => {
-    // If cache is populated, return it
-    if (courses) {
-        return courses;
-    }
-
-    // If running on server, return initial data
-    if (typeof window === 'undefined') {
-        return initialCourses;
-    }
-    
-    try {
-        const storedCourses = localStorage.getItem(COURSES_STORAGE_KEY);
-        if (storedCourses) {
-            // Parse stored data and populate cache
-            courses = JSON.parse(storedCourses);
-            return courses!;
-        } else {
-            // No stored data, use initial data and populate cache
-            courses = [...initialCourses];
-            localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(courses));
-            return courses;
-        }
-    } catch (error) {
-        console.error("Failed to load courses from localStorage, using initial data:", error);
-        // On error, fallback to initial data
-        courses = [...initialCourses];
-        return courses;
-    }
-};
-
-const saveCourses = (newCourses: Course[]): void => {
-    courses = newCourses;
-    if (typeof window !== 'undefined') {
-        try {
-            localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(newCourses));
-        } catch (error) {
-            console.error("Failed to save courses to localStorage:", error);
-        }
-    }
-};
+// In-memory store for courses. Starts with the initial data.
+let courses: Course[] = [...initialCourses];
 
 
 // Function to get all courses
-export const getCourses = (includePending: boolean = false): Course[] => {
-    const allCourses = loadCourses();
-    const activeCourses = includePending ? allCourses : allCourses.filter(c => c.status === 'Ativo');
-    return [...activeCourses].sort((a, b) => a.name.localeCompare(b.name));
+export const getCourses = (includePendingAndInactive: boolean = false): Course[] => {
+    if (includePendingAndInactive) {
+        // Return all courses for admin/instructor views
+        return [...courses].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // Default behavior for public view: return only active courses
+    return courses.filter(c => c.status === 'Ativo').sort((a, b) => a.name.localeCompare(b.name));
 };
 
 // Function to get all course categories
@@ -64,25 +24,22 @@ export const getCourseCategories = (): CourseCategory[] => {
 
 // Function to find a single course by ID
 export const getCourseById = (id: string): Course | undefined => {
-    const allCourses = loadCourses();
-    return allCourses.find(c => c.id === id);
+    return courses.find(c => c.id === id);
 };
 
 // Function to add a new course
 export const addCourse = (courseData: Omit<Course, 'status'>): Course => {
-    const currentCourses = loadCourses();
-    
-    if (currentCourses.some(c => c.id === courseData.id)) {
+    if (courses.some(c => c.id === courseData.id)) {
         throw new Error(`Um curso com o ID '${courseData.id}' já existe.`);
     }
 
     const newCourse: Course = {
         ...courseData,
-        status: 'Pendente',
+        status: 'Pendente', // New courses are pending approval
     };
 
-    const newCourses = [newCourse, ...currentCourses];
-    saveCourses(newCourses);
+    // Add to the start of the array
+    courses.unshift(newCourse);
     
     return newCourse;
 };
@@ -90,20 +47,18 @@ export const addCourse = (courseData: Omit<Course, 'status'>): Course => {
 
 // Function to update an existing course
 export const updateCourse = (id: string, updatedData: Partial<Course>): Course | null => {
-    const currentCourses = loadCourses();
-    const courseIndex = currentCourses.findIndex(c => c.id === id);
+    const courseIndex = courses.findIndex(c => c.id === id);
     if (courseIndex === -1) {
         return null; // Course not found
     }
 
     const updatedCourse: Course = {
-        ...currentCourses[courseIndex],
+        ...courses[courseIndex],
         ...updatedData,
         id: id // ensure id is not lost
     };
     
-    currentCourses[courseIndex] = updatedCourse;
-    saveCourses(currentCourses);
+    courses[courseIndex] = updatedCourse;
     
     return updatedCourse;
 }
@@ -114,7 +69,9 @@ export const updateCourseStatus = (id: string, status: CourseStatus): Course | n
 
 // Function to delete a course
 export const deleteCourse = (id: string): void => {
-    const currentCourses = getCourses();
-    const newCourses = currentCourses.filter(c => c.id !== id);
-    saveCourses(newCourses);
+    const initialLength = courses.length;
+    courses = courses.filter(c => c.id !== id);
+    if (courses.length === initialLength) {
+        throw new Error(`Curso com ID '${id}' não encontrado.`);
+    }
 };
