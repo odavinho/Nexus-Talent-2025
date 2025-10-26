@@ -25,6 +25,8 @@ import html2canvas from 'html2canvas';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { CvPreviewModernTemplate } from '@/components/cv/CvPreviewModernTemplate';
+import { CvPreviewClassicTemplate } from '@/components/cv/CvPreviewClassicTemplate';
 
 const cvSchema = z.object({
   firstName: z.string().min(1, 'Primeiro nome é obrigatório.'),
@@ -273,14 +275,12 @@ export default function CVBuilderPage() {
                                 <div className="text-xs text-muted-foreground">Recomendado</div>
                            </Label>
                            <Label htmlFor="template-modern" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'modern' ? 'border-primary' : 'border-border')}>
-                                <RadioGroupItem value="modern" id="template-modern" className="sr-only" disabled/>
+                                <RadioGroupItem value="modern" id="template-modern" className="sr-only" />
                                 <div className="font-semibold">Moderno</div>
-                                <div className="text-xs text-muted-foreground">(em breve)</div>
                            </Label>
                            <Label htmlFor="template-classic" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'classic' ? 'border-primary' : 'border-border')}>
-                                <RadioGroupItem value="classic" id="template-classic" className="sr-only" disabled/>
-                                <div className="font-semibold">Criativo</div>
-                                <div className="text-xs text-muted-foreground">(em breve)</div>
+                                <RadioGroupItem value="classic" id="template-classic" className="sr-only" />
+                                <div className="font-semibold">Clássico</div>
                            </Label>
                         </RadioGroup>
                     </div>
@@ -288,7 +288,8 @@ export default function CVBuilderPage() {
                     <div id="cv-preview-container" className='bg-background rounded-lg shadow-md overflow-hidden'>
                         <div ref={previewRef} className="origin-top">
                             {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
-                            {/* Add other templates here when ready */}
+                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
+                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
                         </div>
                     </div>
                 </div>
