@@ -1,6 +1,7 @@
 'use client';
 
 import { Mail, Phone, MapPin, Linkedin } from "lucide-react";
+import { Logo } from "../shared/logo";
 
 type CvData = {
     firstName?: string;
@@ -18,19 +19,26 @@ type CvData = {
 export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
     return (
         <div className="a4-page bg-white text-gray-800 font-serif leading-relaxed p-10">
-            <header className="text-center border-b-2 border-gray-800 pb-4 mb-8">
-                <h1 className="text-4xl font-bold tracking-wider uppercase">
-                    {data.firstName} {data.lastName}
-                </h1>
-                <h2 className="text-lg font-light tracking-widest text-gray-600 mt-2">
-                    {data.academicTitle}
-                </h2>
+             <header className="text-center border-b-2 border-gray-800 pb-4 mb-8 flex justify-between items-center">
+                <div>
+                    <h1 className="text-4xl font-bold tracking-wider uppercase">
+                        {data.firstName} {data.lastName}
+                    </h1>
+                    <h2 className="text-lg font-light tracking-widest text-gray-600 mt-2">
+                        {data.academicTitle}
+                    </h2>
+                </div>
+                <div className="text-right">
+                    <Logo />
+                </div>
+            </header>
+            <div className="text-center mb-8">
                 <div className="mt-4 flex justify-center items-center gap-x-6 gap-y-2 text-xs flex-wrap">
                     {data.email && <div className="flex items-center gap-2"><Mail size={12} /><span>{data.email}</span></div>}
                     {data.phoneNumber && <div className="flex items-center gap-2"><Phone size={12} /><span>{data.phoneNumber}</span></div>}
                     {data.cidade && <div className="flex items-center gap-2"><MapPin size={12} /><span>{data.cidade}</span></div>}
                 </div>
-            </header>
+            </div>
             
             <div className="space-y-8">
                 {data.summary && (
@@ -102,6 +110,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                     border-top: 1px solid #ccc;
                     padding: 4px 0;
                 }
+                .text-4xl { font-size: 28pt !important; }
             `}</style>
         </div>
     );

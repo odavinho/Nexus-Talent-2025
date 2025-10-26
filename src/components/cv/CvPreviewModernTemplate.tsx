@@ -1,6 +1,7 @@
 'use client';
 
 import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
+import { Logo } from "../shared/logo";
 
 type CvData = {
     firstName?: string;
@@ -76,6 +77,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                 <div className="col-span-4 bg-gray-50 p-8">
                      <div className="space-y-8">
                         <div>
+                            <div className="mb-8"><Logo /></div>
                             <h3 className="section-title-side">Contacto</h3>
                             <div className="mt-3 space-y-3 text-xs">
                                 {data.email && <div className="flex items-center gap-2"><Mail size={14} className="text-primary" /><span>{data.email}</span></div>}
@@ -108,6 +110,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
              <style jsx global>{`
                 .a4-page {
                     width: 210mm;
+                    min-height: 297mm;
                 }
                 .section-title-main {
                     font-family: 'Space Grotesk', sans-serif;

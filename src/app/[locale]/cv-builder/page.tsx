@@ -121,9 +121,9 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3, 
+      scale: 2, 
       useCORS: true,
-      onclone: (document) => {
+       onclone: (document) => {
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
@@ -140,7 +140,7 @@ export default function CVBuilderPage() {
     
     const pdfWidth = 210;
     const pdfHeight = 297;
-    const margin = 15; // 1.5 cm
+    const margin = 15;
     const contentWidth = pdfWidth - (margin * 2);
     
     const imgWidth = canvas.width;
@@ -148,18 +148,18 @@ export default function CVBuilderPage() {
     
     const ratio = contentWidth / imgWidth;
     const contentHeight = imgHeight * ratio;
-
+    
     let heightLeft = contentHeight;
     let position = margin;
-
+    
     pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-    heightLeft -= (pdfHeight - (margin * 2));
+    heightLeft -= (pdfHeight - margin * 2);
 
     while (heightLeft > 0) {
-      pdf.addPage();
-      position = margin - (pdfHeight - margin) * (Math.ceil(contentHeight/pdfHeight)-1) + heightLeft - contentHeight;
-      pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-      heightLeft -= (pdfHeight - (margin*2));
+        position = margin - heightLeft;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
+        heightLeft -= (pdfHeight - margin * 2);
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -270,8 +270,8 @@ export default function CVBuilderPage() {
                      </Form>
                 </div>
                 {/* PREVIEW COLUMN */}
-                <div className="lg:col-span-1 lg:sticky top-24">
-                     <div className="mb-4">
+                 <div className="lg:col-span-1 lg:sticky top-24">
+                    <div className="mb-4">
                         <Label className="font-headline text-lg">Escolha um Modelo</Label>
                         <RadioGroup defaultValue={template} onValueChange={(v) => setTemplate(v as CvTemplate)} className="flex gap-2 mt-2">
                            <Label htmlFor="template-europass" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'europass' ? 'border-primary' : 'border-border')}>
@@ -290,7 +290,7 @@ export default function CVBuilderPage() {
                         </RadioGroup>
                     </div>
                      <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden">
-                        <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm] min-h-[297mm] transform scale-[0.3] sm:scale-[0.45] md:scale-[0.35] lg:scale-[0.55] -translate-x-[35%] sm:-translate-x-[27.5%] md:-translate-x-[32.5%] lg:-translate-x-[22.5%] origin-top-left">
+                        <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm] min-h-[297mm] transform origin-top-left -translate-x-[35%] -translate-y-[35%] scale-[0.3] sm:scale-[0.45] sm:-translate-x-[25%] sm:-translate-y-[25%] md:scale-[0.35] md:-translate-x-[32.5%] md:-translate-y-[32.5%] lg:scale-[0.55] lg:-translate-x-[22.5%] lg:-translate-y-[22.5%]">
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
