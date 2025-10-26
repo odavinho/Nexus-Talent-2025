@@ -4,7 +4,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useEffect } from "react";
 import { getVacancies } from "@/lib/vacancy-service";
-import { useRouter } from "next/navigation";
+import { JobAlertSubscription } from "@/components/recruitment/job-alert-subscription";
 
 
 export default function RecruitmentPage() {
@@ -30,6 +30,7 @@ export default function RecruitmentPage() {
           </div>
           
         </div>
+        <JobAlertSubscription />
       </main>
       <Footer />
     </>

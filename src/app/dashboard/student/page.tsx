@@ -1,12 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Award, UserCircle, Download, Heart } from "lucide-react";
+import { BookOpen, Award, UserCircle, Download, Heart, Briefcase, Settings, Bell } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
-import { useToast } from "@/hooks/use-toast";
 import { CertificateGenerator } from "@/components/student/certificate-generator";
 import { WishlistCourses } from "@/components/student/wishlist-courses";
 
@@ -18,18 +17,51 @@ export default function StudentDashboardPage() {
         { id: 'EN-427', name: 'Excel Avançado', progress: 100, grade: 95, format: 'Online' },
         { id: 'GE-003', name: 'Gestão Emocional', progress: 100, grade: 92, format: 'Presencial' },
     ];
+
+    const activeApplications = [
+        { id: 1, title: 'Desenvolvedor Frontend Sênior', status: 'Em análise' },
+        { id: 2, title: 'Gestor de Projetos de TI', status: 'Entrevista agendada' },
+    ];
     
-    const { toast } = useToast();
 
     return (
         <div>
             <div className="mb-8">
-                <h1 className="font-headline text-4xl font-bold">Painel do Formando</h1>
-                <p className="text-muted-foreground">Bem-vindo! A sua jornada de aprendizado começa aqui.</p>
+                <h1 className="font-headline text-4xl font-bold">Painel do Formando & Candidato</h1>
+                <p className="text-muted-foreground">Bem-vindo! A sua jornada de aprendizagem e carreira começa aqui.</p>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
+                    {/* Active Applications */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Briefcase />
+                                As Minhas Candidaturas Ativas
+                            </CardTitle>
+                             <CardDescription>Acompanhe o estado das suas candidaturas a empregos.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             {activeApplications.length > 0 ? (
+                                <div className="space-y-3">
+                                {activeApplications.map(app => (
+                                    <div key={app.id} className="flex justify-between items-center p-3 border rounded-md bg-secondary/30">
+                                        <div>
+                                            <p className="font-semibold">{app.title}</p>
+                                            <p className="text-sm text-primary">{app.status}</p>
+                                        </div>
+                                        <Button variant="outline" size="sm">Ver Detalhes</Button>
+                                    </div>
+                                ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground text-center p-4">Ainda não tem candidaturas ativas.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Enrolled Courses */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -56,7 +88,7 @@ export default function StudentDashboardPage() {
                             </Button>
                         </CardContent>
                     </Card>
-
+                    
                     <WishlistCourses />
                     
                     <CourseRecommendations />
@@ -73,11 +105,41 @@ export default function StudentDashboardPage() {
                         </CardHeader>
                         <CardContent>
                              <p className="text-muted-foreground text-sm mb-4">Um perfil completo aumenta em até 5x as suas chances de ser contactado.</p>
-                            <Button asChild className="w-full">
-                                <Link href="/dashboard/student/profile">Gerir Meu Perfil</Link>
-                            </Button>
+                             <div className="flex flex-col gap-2">
+                                <Button asChild className="w-full">
+                                    <Link href="/dashboard/student/profile">Gerir Meu Perfil</Link>
+                                </Button>
+                                 <Button asChild variant="outline" className="w-full">
+                                    <Link href="/cv-builder">Construtor de CV</Link>
+                                </Button>
+                             </div>
                         </CardContent>
                     </Card>
+
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Briefcase />
+                                Oportunidades de Emprego
+                            </CardTitle>
+                             <CardDescription>Receba sugestões de empregos com base nas suas preferências.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <p className="text-muted-foreground text-sm mb-4">Ainda não definiu as suas preferências de emprego.</p>
+                             <div className="flex flex-col gap-2">
+                                 <Button asChild className="w-full">
+                                    <Link href="#">Ver Empregos Sugeridos</Link>
+                                </Button>
+                                <Button asChild variant="outline" className="w-full">
+                                    <Link href="#"><Settings className="mr-2 h-4 w-4"/>Definir Preferências</Link>
+                                </Button>
+                                 <Button asChild variant="outline" className="w-full">
+                                    <Link href="#"><Bell className="mr-2 h-4 w-4"/>Gerir Alertas</Link>
+                                </Button>
+                             </div>
+                        </CardContent>
+                    </Card>
+
                      <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">

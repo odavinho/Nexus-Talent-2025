@@ -14,6 +14,7 @@ const footerLinks = {
     { href: "/courses", label: "Cursos de Formação" },
     { href: "/blog", label: "Dicas de carreira" },
     { href: "/dashboard/student/profile", label: "Perfil de Candidato" },
+    { href: "/cv-builder", label: "Construtor de CV" },
   ],
   paraEmpresas: [
     { href: "#", label: "Trabalho temporário" },
