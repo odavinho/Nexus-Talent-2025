@@ -3,7 +3,7 @@
 import { getCourseCategories } from "@/lib/course-service";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, Clock, MapPin, Share2, Loader2, HelpCircle, GraduationCap, Calendar, Award } from "lucide-react";
+import { ArrowLeft, Briefcase, Clock, MapPin, Share2, Loader2, HelpCircle, GraduationCap, Calendar, Award, Mail, Printer } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
+import { SimilarVacancies } from "@/components/recruitment/similar-vacancies";
+import { JobAlertSubscription } from "@/components/recruitment/job-alert-subscription";
 
 // The vacancy prop here receives serializable data (dates as strings)
 export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
@@ -58,13 +60,30 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
 
   const closingDate = toDate(vacancy.closingDate);
 
+  const handleShare = () => {
+      if(navigator.share) {
+          navigator.share({
+              title: vacancy.title,
+              text: `Confira esta vaga na NexusTalent: ${vacancy.title}`,
+              url: window.location.href,
+          })
+      } else {
+          toast({ description: "Funcionalidade de partilha não suportada neste navegador."})
+      }
+  }
+
+  const handlePrint = () => {
+      window.print();
+  }
+
+
   return (
     <>
       <Header />
       <main className="bg-card">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <Link href="/recruitment" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-              <ArrowLeft size={16} /> Voltar para as vagas
+              <ArrowLeft size={16} /> Voltar para os empregos
           </Link>
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2">
@@ -97,7 +116,7 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
               <div className="sticky top-24">
                   <Card>
                       <CardHeader>
-                          <CardTitle>Resumo da Vaga</CardTitle>
+                          <CardTitle>Resumo do Emprego</CardTitle>
                       </CardHeader>
                       <CardContent>
                           <div className="space-y-4 text-sm">
@@ -161,16 +180,24 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
                                 "Candidatar-se"
                             )}
                           </Button>
-                          <Button size="lg" variant="outline" className="w-full mt-2">
-                              <Share2 size={16} className="mr-2"/>
-                              Compartilhar
-                          </Button>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
+                                <Share2 size={16} className="mr-2"/>
+                                Partilhar
+                            </Button>
+                             <Button size="lg" variant="outline" className="w-full" onClick={handlePrint}>
+                                <Printer size={16} className="mr-2"/>
+                                Imprimir
+                            </Button>
+                          </div>
                       </CardContent>
                   </Card>
               </div>
             </div>
           </div>
         </div>
+        <SimilarVacancies currentVacancy={vacancy} />
+        <JobAlertSubscription />
       </main>
       <Footer />
     </>
