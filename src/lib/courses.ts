@@ -2,12 +2,15 @@
 import type { Course, CourseCategory } from './types';
 
 export const courseCategories: CourseCategory[] = [
-    { id: 'dev-pessoal', name: 'Desenvolvimento Pessoal e Profissional' },
-    { id: 'rh-gestao', name: 'Recursos Humanos e Gestão' },
+    { id: 'comportamental', name: 'Area Comportamental' },
+    { id: 'supply-chain', name: 'Supply Chain' },
     { id: 'minerios-petroleo', name: 'Recursos Minerais e Petróleos' },
     { id: 'financas-admin', name: 'Finanças e Administração' },
-    { id: 'informatica-it', name: 'Informática, IT & Software' },
     { id: 'industrial', name: 'Industrial' },
+    // Mantendo categorias antigas para compatibilidade
+    { id: 'dev-pessoal', name: 'Desenvolvimento Pessoal e Profissional' },
+    { id: 'rh-gestao', name: 'Recursos Humanos e Gestão' },
+    { id: 'informatica-it', name: 'Informática, IT & Software' },
     { id: 'seguranca-trabalho', name: 'Higiene & Segurança no Trabalho' },
     { id: 'marketing-comercial', name: 'Gestão Comercial & Marketing' },
     { id: 'ingles', name: 'Curso de Inglês' },
@@ -16,10 +19,11 @@ export const courseCategories: CourseCategory[] = [
 
 // This file now acts as the initial data source if localStorage is empty.
 export const courses: Course[] = [
+  // Cursos da Area Comportamental
   { 
     id: 'TA-001', 
     name: 'Técnicas de Apresentação', 
-    category: 'dev-pessoal', 
+    category: 'comportamental', 
     imageId: 'course-presentation',
     status: 'Ativo',
     duration: '24 horas',
@@ -29,172 +33,154 @@ export const courses: Course[] = [
       'Estruturar uma apresentação de forma lógica e cativante.',
       'Utilizar a comunicação verbal e não-verbal de forma eficaz.',
       'Gerir o nervosismo e a ansiedade ao falar em público.',
-      'Criar suportes visuais (slides) claros e apelativos.',
-      'Adaptar a apresentação a diferentes tipos de audiência.'
     ],
     modules: [
-      { 
-        title: 'Módulo 1: Planeamento e Estrutura', 
-        duration: '6 h.', 
-        topics: [
-            {title: 'Definição de objetivos e Análise da audiência', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
-            {title: 'Estruturas de discurso (Storytelling)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
-            {title: 'Organização do conteúdo e materiais', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}
-        ],
-        assessment: {
-            questions: [
-                {
-                    question: "Qual é o primeiro passo crucial no planeamento de uma apresentação?",
-                    type: "multiple-choice",
-                    options: [{ value: "Criar os slides" }, { value: "Definir o objetivo claro" }, { value: "Praticar a fala" }, { value: "Escolher a roupa" }],
-                    correctAnswerIndex: 1
-                },
-                {
-                    question: "Explique brevemente a importância da análise da audiência.",
-                    type: "short-answer",
-                    shortAnswer: "Adaptar a linguagem, o conteúdo e o estilo da apresentação às necessidades e expectativas do público para garantir maior impacto e compreensão."
-                }
-            ]
-        } 
-      },
-      { 
-        title: 'Módulo 2: Comunicação e Expressão', 
-        duration: '8 h.', 
-        topics: [
-          {title: 'Linguagem verbal: clareza, tom e ritmo', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}, 
-          {title: 'Linguagem não-verbal: postura e gestos', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}, 
-          {title: 'Contacto visual e movimentação'},
-          {title: 'Técnicas de dicção e projecção de voz', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}
-        ] 
-      },
-      { 
-        title: 'Módulo 3: O Apresentador', 
-        duration: '6 h.', 
-        topics: [
-          {title: 'Gestão da ansiedade e autoconfiança', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt'}, 
-          {title: 'Interação com a audiência'}, 
-          {title: 'Gestão de perguntas e respostas', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}
-        ] 
-      },
-      { 
-        title: 'Módulo 4: Suportes Visuais', 
-        duration: '4 h.', 
-        topics: [
-          {title: 'Design de slides (PowerPoint/Google Slides)', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf'}, 
-          {title: 'Princípios de design gráfico para apresentações'}, 
-          {title: 'Uso de imagens, gráficos e multimédia', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8'}
-        ] 
-      }
+      { title: 'Módulo 1: Planeamento e Estrutura', topics: [{title: 'Definição de objetivos'}, {title: 'Estruturas de discurso'}] },
     ]
   },
   { 
     id: 'GC-002', 
     name: 'Gestão de Conflitos', 
-    category: 'dev-pessoal', 
+    category: 'comportamental', 
     imageId: 'course-conflict',
     status: 'Ativo',
     duration: '20 horas',
     format: 'Online',
-    generalObjective: 'Capacitar os participantes com ferramentas e técnicas para identificar, gerir e resolver conflitos de forma construtiva no ambiente de trabalho.',
+    generalObjective: 'Capacitar os participantes com ferramentas para identificar, gerir e resolver conflitos de forma construtiva.',
     whatYouWillLearn: [
       'Compreender a natureza e as causas dos conflitos.',
-      'Identificar os diferentes estilos de gestão de conflitos.',
       'Aplicar técnicas de negociação e mediação.',
-      'Desenvolver a comunicação assertiva para prevenção de conflitos.',
-      'Transformar situações de conflito em oportunidades de crescimento.'
+      'Desenvolver a comunicação assertiva.',
     ],
     modules: [
-      { title: 'Módulo 1: Introdução ao Conflito', duration: '4 h.', topics: [{title: 'Tipos e níveis de conflito'}, {title: 'Causas comuns de conflitos'}, {title: 'O ciclo de vida do conflito', videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}] },
-      { title: 'Módulo 2: Estilos de Gestão de Conflitos', duration: '6 h.', topics: [{title: 'Diagnóstico de estilos pessoais'}, {title: 'Vantagens e desvantagens de cada estilo'}] },
-      { title: 'Módulo 3: Comunicação e Negociação', duration: '6 h.', topics: [{title: 'Escuta ativa e empatia'}, {title: 'Comunicação assertiva vs. agressiva'}, {title: 'Princípios da negociação de Harvard'}] },
-      { title: 'Módulo 4: Mediação e Resolução', duration: '4 h.', topics: [{title: 'O papel do mediador'}, {title: 'Passos para a resolução de conflitos'}, {title: 'Criação de acordos ganha-ganha'}] }
+      { title: 'Módulo 1: Introdução ao Conflito', topics: [{title: 'Tipos e níveis de conflito'}, {title: 'Causas comuns'}] },
     ]
   },
   { 
-    id: 'GP-MSP-01', 
-    name: 'Gestão de Projectos com MS Project', 
-    category: 'rh-gestao', 
-    imageId: 'course-project-management', 
+    id: 'GE-003', 
+    name: 'Gestão Emocional', 
+    category: 'comportamental', 
+    imageId: 'course-emotional',
     status: 'Ativo',
-    duration: '40 horas', 
-    format: 'Online',
-    generalObjective: 'Capacitar os formandos para o planeamento, execução e controlo de projetos utilizando a ferramenta Microsoft Project, alinhado com as boas práticas do PMBOK.', 
+    duration: '16 horas', 
+    format: 'Presencial',
+    generalObjective: 'Desenvolver a inteligência emocional para melhorar o autoconhecimento, a autogestão, a empatia e os relacionamentos.', 
     whatYouWillLearn: [
-      'Estruturar um projecto do início ao fim no MS Project.', 
-      'Criar e gerir tarefas, durações, dependências e recursos.', 
-      'Analisar o caminho crítico e nivelar recursos para otimizar o cronograma.', 
-      'Controlar custos e orçamentos do projeto.', 
-      'Gerar relatórios de progresso e dashboards visuais.'
+      'Reconhecer e compreender as próprias emoções.', 
+      'Gerir emoções e impulsos de forma saudável.', 
+      'Construir relacionamentos mais fortes e positivos.', 
     ], 
     modules: [
-      { 
-        title: 'Módulo 1: Introdução e Configuração de Projetos', 
-        duration: '8h', 
-        topics: [
-          { title: 'Visão geral do MS Project e conceitos PMBOK', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
-          { title: 'Criação e configuração de um novo projeto (calendários, moeda)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
-          { title: 'Inserção de informações básicas do projeto', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }
-        ],
-        assessment: {
-          questions: [
-            { question: 'Qual é a primeira etapa ao criar um novo projeto no MS Project?', type: 'multiple-choice', options: [{ value: 'Adicionar recursos' }, { value: 'Definir o calendário do projeto' }, { value: 'Listar as tarefas' }], correctAnswerIndex: 1 },
-            { question: 'O que representa o PMBOK?', type: 'short-answer', shortAnswer: 'Um guia de boas práticas para a gestão de projetos.' }
-          ]
-        }
-      }, 
-      { 
-        title: 'Módulo 2: Planeamento de Tarefas', 
-        duration: '12h', 
-        topics: [
-          { title: 'Criação da Estrutura Analítica do Projeto (WBS)', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
-          { title: 'Estimar durações e definir dependências ( predecessoras)' }, 
-          { title: 'Trabalhar com tarefas recorrentes e marcos (milestones)', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }, 
-          { title: 'Identificação do Caminho Crítico' }
-        ] 
-      }, 
-      { 
-        title: 'Módulo 3: Gestão de Recursos e Custos', 
-        duration: '12h', 
-        topics: [
-          { title: 'Criação da pool de recursos (trabalho, material, custo)' }, 
-          { title: 'Atribuição de recursos às tarefas', videoUrl: 'https://www.youtube.com/watch?v=JVI31cP8pe8' }, 
-          { title: 'Análise de superalocação e nivelamento de recursos' }, 
-          { title: 'Inserção de custos e análise do orçamento', pdfUrl: 'https://www.iso.org/files/live/sites/isoorg/files/store/en/ISO_9001_2015_en.pdf' }
-        ] 
-      }, 
-      { 
-        title: 'Módulo 4: Controlo e Relatórios', 
-        duration: '8h', 
-        topics: [
-          { title: 'Criação da Linha de Base (Baseline)' }, 
-          { title: 'Atualização do progresso das tarefas (real vs. planeado)' }, 
-          { title: 'Análise de valor agregado (Earned Value Analysis)', powerpointUrl: 'https://file-examples.com/storage/fe52cb0c4862dc676a1b341/2017/08/file_example_PPT_250kB.ppt' }, 
-          { title: 'Criação de Relatórios e Dashboards personalizados' }
-        ] 
-      }
+      { title: 'Módulo 1: Pilares da Inteligência Emocional', topics: [{title: 'Autoconsciência emocional'}] }, 
     ] 
   },
+  { id: 'EA-004', name: 'Excelencia no Atendimento', category: 'comportamental', imageId: 'course-service', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'GR-005', name: 'Gestão de Reclamações', category: 'comportamental', imageId: 'course-complaint', status: 'Ativo', duration: '12h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'LM-006', name: 'Liderança e Motivação de Pessoas', category: 'comportamental', imageId: 'course-leadership', status: 'Ativo', duration: '30h', format: 'Presencial', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'GT-007', name: 'Gestão do Tempo', category: 'comportamental', imageId: 'course-time', status: 'Ativo', duration: '8h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'TR-008', name: 'Técnicas de recrutamento e selecção pessoal', category: 'comportamental', imageId: 'recruitment-hero', status: 'Ativo', duration: '24h', format: 'Presencial', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'SE-009', name: 'Secretariado Executivo de Alta Direção', category: 'comportamental', imageId: 'about-hero', status: 'Ativo', duration: '40h', format: 'Presencial', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'DE-010', name: 'Desenvolvimento da Eficacia', category: 'comportamental', imageId: 'course-performance', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'GE-011', name: 'Gestão de Equipas & Liderança', category: 'comportamental', imageId: 'course-leadership', status: 'Ativo', duration: '24h', format: 'Presencial', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'GP-012', name: 'Gestão de Projectos', category: 'comportamental', imageId: 'course-project-management', status: 'Ativo', duration: '40h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'FN-013', name: 'Finanças para não Financeiros', category: 'comportamental', imageId: 'course-power-bi', status: 'Ativo', duration: '20h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'CC-014', name: 'Comunicação Criativa', category: 'comportamental', imageId: 'course-creative', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+  { id: 'TP-015', name: 'Técnicas de Produtividade de Alta Performance', category: 'comportamental', imageId: 'course-time', status: 'Ativo', duration: '12h', format: 'Online', generalObjective: 'Desenvolver...', whatYouWillLearn:[], modules:[] },
+
+  // Supply Chain
+  { id: 'SC-001', name: 'Operações Logisticas', category: 'supply-chain', imageId: 'location-brasil', status: 'Ativo', duration: '30h', format: 'Presencial', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-002', name: 'Logística e Gestão Orçamental', category: 'supply-chain', imageId: 'location-angola', status: 'Ativo', duration: '24h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-003', name: 'Gestão de Compras e Aprovisionamento', category: 'supply-chain', imageId: 'recruitment-hero', status: 'Ativo', duration: '35h', format: 'Presencial', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-004', name: 'Gestão de Stock', category: 'supply-chain', imageId: 'location-portugal', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-005', name: 'Gestão de Operações', category: 'supply-chain', imageId: 'blog-leadership', status: 'Ativo', duration: '24h', format: 'Presencial', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-006', name: 'Gestão de Armazéns', category: 'supply-chain', imageId: 'blog-ai-recruitment', status: 'Ativo', duration: '20h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-007', name: 'Gestão da Cadeia de Suprimentos', category: 'supply-chain', imageId: 'blog-soft-skills', status: 'Ativo', duration: '40h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-008', name: 'Gestão de Fornecedores', category: 'supply-chain', imageId: 'blog-interview', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-009', name: 'Gestão Estratégica de Fornecedores e Outsourcing', category: 'supply-chain', imageId: 'home-hero', status: 'Ativo', duration: '24h', format: 'Presencial', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-010', name: 'Microsoft Excel Aplicado às Compras', category: 'supply-chain', imageId: 'course-power-bi', status: 'Ativo', duration: '20h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-011', name: 'Produção e Gestão de Transportes', category: 'supply-chain', imageId: 'location-angola', status: 'Ativo', duration: '30h', format: 'Presencial', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+  { id: 'SC-012', name: 'Gestão Documental e Arquivo', category: 'supply-chain', imageId: 'course-complaint', status: 'Ativo', duration: '16h', format: 'Online', generalObjective: '...', whatYouWillLearn:[], modules:[] },
+
+  // Recursos Minerais e Petroleos
+  ...Array.from({ length: 30 }, (_, i) => ({
+    id: `RMP-${String(i + 1).padStart(3, '0')}`,
+    name: [
+      'Gestão de recursos minerais', 'Recursos Minerais e Ambiente', 'Gestão de reservatorios de Petroleo e Gas',
+      'Sistema de Gestão Ambiental - ISO14001', 'Geologia para não Geologos', 'Geofisica Nivel I', 'Geofisica Nivel II',
+      'Geofisica Nivel III', 'Drilling and Well Completion', 'Gestão, Planeamento e Controlo da Produção',
+      'Processamento e analise de dados Sismicos', 'Gestão do Risco em Projectos de Produção e Exploração de recursos minerais',
+      'Avaliação de Formações', 'Caracterização de Reservatórios', 'Fiscalidade Petrolífera Angolana', 'Geofísica de Reservatórios',
+      'Geologia de campo (Técnicas de amostragem)', 'Geoquímica', 'Integrated Reservoir Management and Monitoring',
+      'Interpretação Sísmica', 'Bacias Angolanas', 'Negociação e Contratos na Industria Petrolifera', 'Geologia do Poço',
+      'Registo & Análise de Testemunho de Sondagem', 'Reservatórios Areníticos', 'Reservatórios Carbonáticos',
+      'Alinhamento de Bombas', 'Corrosão Aplicada a Industria Petrolifera', 'Inspecção e Calibração de equipamentos',
+      'Manutenção e Reparação de Valvulas'
+    ][i],
+    category: 'minerios-petroleo',
+    imageId: 'location-angola',
+    status: 'Ativo' as 'Ativo',
+    duration: `${Math.floor(Math.random() * 20) + 16}h`,
+    format: (['Online', 'Presencial'] as const)[i % 2],
+    generalObjective: 'Aprofundar conhecimentos técnicos na indústria de óleo e gás.',
+    whatYouWillLearn: [],
+    modules: [],
+  })),
+
+  // Finanças e Administração
+  ...Array.from({ length: 25 }, (_, i) => ({
+    id: `FA-${String(i + 1).padStart(3, '0')}`,
+    name: [
+      'Planeamento Estratégico e Comercial', 'Analise Financeira', 'Contabilidade Geral', 'Auditoria Financeria', 'Fiscalidade',
+      'Análise e Gestão Financeira de Empresas', 'Elaboração e Análise de projectos de Investimentos', 'Tecnicas de Vendas',
+      'Analise de investimentos', 'Técnicas de Elaboração de Documentos e Pareceres Técnicos', 'Gestão Financeira',
+      'Mercado de Capitais', 'Gestão de Riscos Financeiros', 'Gestão de Recursos Humanos', 'Contabilidade para não Contabilistas',
+      'Gestão da Qualidade', 'Gestão de Frotas', 'Introdução à Gestão de Projectos para não PMs', 'Gestão do Risco em Projectos',
+      'ISO 21500 - Norma sobre GestãoProjectos', 'Gestão Estratégica de Projectos', 'Planeamento e Gestão Orçamental',
+      'Modelos de Previsão Financeiras', 'Estudo de Viabilidade Económico - Financeira', 'Gestão da Dívida', 'Excel para Finanças'
+    ][i] || `Curso Financeiro ${i+1}`,
+    category: 'financas-admin',
+    imageId: 'course-power-bi',
+    status: 'Ativo' as 'Ativo',
+    duration: `${Math.floor(Math.random() * 20) + 16}h`,
+    format: (['Online', 'Presencial'] as const)[i % 2],
+    generalObjective: 'Dominar as ferramentas e conceitos essenciais para uma gestão financeira e administrativa de excelência.',
+    whatYouWillLearn: [],
+    modules: [],
+  })),
+  
+  // Industrial
+  ...Array.from({ length: 20 }, (_, i) => ({
+    id: `IND-${String(i + 1).padStart(3, '0')}`,
+    name: [
+      'Montagem e Inspecçao De Andaimes', 'Operador De EmPilhadora Pettibone', 'Instrumentação Indsutrial', 'Soldadura Industrial',
+      'Pintura Industrial', 'Instrumentação e Controle de Processsos', 'Automação Industrial', 'Operador de Produção',
+      'Operador de Sala de Controlo', 'PLC - Controladores Logicos Programaveis', 'Manutenção Indusrial', 'Gestão da Qualidade',
+      'Segurança Eletrica Industrial', 'Segurança de Processos Industriais', 'Manutenção e Reparação de Valvulas',
+      'Gestão e Controle da Manutenção Industrial', 'Gestão por Processos e Indicadores Desempenho',
+      'Gestão de Resíduos Industriais - Introdução', 'Gestão de Projectos Industriais', 'Gestão da Manutenção de Máquinas e Equipamentos',
+      'Segurança Industrial e Prevenção de Riscos', 'Segurança de Máquinas – ISO 13857'
+    ][i] || `Curso Industrial ${i+1}`,
+    category: 'industrial',
+    imageId: 'blog-ai-recruitment',
+    status: 'Ativo' as 'Ativo',
+    duration: `${Math.floor(Math.random() * 30) + 20}h`,
+    format: (['Online', 'Presencial'] as const)[i % 2],
+    generalObjective: 'Adquirir competências técnicas para operar e manter equipamentos e processos industriais com segurança e eficiência.',
+    whatYouWillLearn: [],
+    modules: [],
+  })),
+
   { 
     id: 'EN-427', 
-    name: 'Gestão de Projectos', 
-    category: 'rh-gestao', 
-    imageId: 'course-project-management', 
-    status: 'Ativo',
-    duration: '40 horas', 
+    name: 'Excel Avançado', 
+    category: 'informatica-it', 
+    imageId: 'course-power-bi', 
+    status: 'Pendente',
+    duration: '35 horas', 
     format: 'Online',
-    generalObjective: 'Fornecer aos participantes os conhecimentos, ferramentas e técnicas fundamentais para gerir projectos de forma eficaz, desde o início até à conclusão.', 
-    whatYouWillLearn: [
-      'Compreender o ciclo de vida de um projecto.', 
-      'Definir o escopo, cronograma, custos e qualidade do projecto.', 
-      'Identificar e gerir riscos.', 
-      'Gerir a comunicação e as partes interessadas (stakeholders).', 
-      'Utilizar metodologias de gestão de projectos (PMBOK, Agile).'
-    ], 
-    modules: [
-      { title: 'Módulo 1: Introdução à Gestão de Projectos', duration: '10 h.', topics: [{title: 'O que é um projecto?'}, {title: 'O papel do Gestor de Projectos'}] }, 
-      { title: 'Módulo 2: Iniciação e Planeamento', duration: '10 h.', topics: [{title: 'Elaboração do Project Charter'}, {title: 'Definição do escopo (WBS)'}, {title: 'Criação do cronograma e orçamento'}] }, 
-      { title: 'Módulo 3: Execução e Controlo', duration: '10 h.', topics: [{title: 'Gestão da equipa do projecto'}, {title: 'Monitorização do progresso (KPIs)'}] }, 
-      { title: 'Módulo 4: Encerramento e Metodologias', duration: '10 h.', topics: [{title: 'Entrega do projecto'}, {title: 'Lições aprendidas'}, {title: 'Introdução ao Scrum e Kanban'}] }] 
+    generalObjective: 'Aprender Excel.', 
+    whatYouWillLearn: [], 
+    modules: [] 
   },
   { 
     id: 'NE-74', 
@@ -218,26 +204,6 @@ export const courses: Course[] = [
       { title: 'Módulo 3: Modelação de Dados e DAX', duration: '10 h.', topics: [{title: 'Criação de relacionamentos'}, {title: 'Introdução às funções DAX'}] }, 
       { title: 'Módulo 4: Visualização e Publicação', duration: '10 h.', topics: [{title: 'Criação de relatórios'}, {title: 'Publicação no Power BI Service'}] }] 
   },
-  { 
-    id: 'GE-003', 
-    name: 'Gestão Emocional', 
-    category: 'dev-pessoal', 
-    imageId: 'course-emotional', 
-    status: 'Ativo',
-    duration: '16 horas', 
-    format: 'Presencial',
-    generalObjective: 'Desenvolver a inteligência emocional dos participantes para melhorarem o autoconhecimento, a autogestão, a empatia e os relacionamentos interpessoais.', 
-    whatYouWillLearn: [
-      'Reconhecer e compreender as próprias emoções.', 
-      'Gerir emoções e impulsos de forma saudável.', 
-      'Desenvolver a empatia para compreender os outros.', 
-      'Construir relacionamentos mais fortes e positivos.', 
-      'Aplicar a inteligência emocional na resolução de problemas.'
-    ], 
-    modules: [
-      { title: 'Módulo 1: Pilares da Inteligência Emocional', duration: '4 h.', topics: [{title: 'Definição e importância'}, {title: 'Autoconsciência emocional'}] }, 
-      { title: 'Módulo 2: Autogestão', duration: '4 h.', topics: [{title: 'Controlo de impulsos'}, {title: 'Gestão do stress'}, {title: 'Automotivação'}] }, 
-      { title: 'Módulo 3: Consciência Social', duration: '4 h.', topics: [{title: 'Empatia'}, {title: 'Consciência organizacional'}] }, 
-      { title: 'Módulo 4: Gestão de Relacionamentos', duration: '4 h.', topics: [{title: 'Comunicação eficaz'}, {title: 'Influência e liderança'}] }] 
-  }
 ];
+
+    
