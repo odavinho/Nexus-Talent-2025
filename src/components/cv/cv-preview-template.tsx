@@ -21,7 +21,7 @@ export const CvPreviewTemplate = ({ data }: { data: CvData }) => {
     return (
         <div className="a4-page bg-white text-gray-800 font-sans leading-relaxed">
              <header className="px-10 py-6 flex justify-between items-center border-b-2 border-gray-200">
-                <h1 className="font-headline text-5xl font-bold text-gray-800 leading-tight">
+                <h1 className="font-headline text-4xl font-bold text-gray-800 leading-tight">
                     {data.firstName} {data.lastName}
                 </h1>
                 <div className="text-right">

@@ -127,8 +127,7 @@ export default function CVBuilderPage() {
             clone.classList.remove('dark');
             const sidebar = clone.querySelector('#cv-sidebar');
             if (sidebar) {
-                // Directly set the background color to the exact HSL value to avoid CSS variable issues
-                 (sidebar as HTMLElement).style.backgroundColor = 'hsl(197 76% 53%)';
+                 (sidebar as HTMLElement).style.backgroundColor = '#2399d3';
             }
         }
       }
@@ -141,18 +140,15 @@ export default function CVBuilderPage() {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
-    // Calculate the ratio to fit the width of the PDF page
     const ratio = canvasWidth / pdfWidth;
     const imgHeight = canvasHeight / ratio;
 
     let heightLeft = imgHeight;
     let position = 0;
 
-    // Add the first page
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
     heightLeft -= pdf.internal.pageSize.getHeight();
 
-    // Add new pages if the content is longer than one page
     while (heightLeft > 0) {
       position = position - pdf.internal.pageSize.getHeight();
       pdf.addPage();
