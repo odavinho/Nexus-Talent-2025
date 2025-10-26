@@ -120,13 +120,6 @@ export default function CVBuilderPage() {
     
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
-    const A4_WIDTH_MM = 210;
-    const A4_HEIGHT_MM = 297;
-    const MARGIN_MM = 15;
-    
-    const canvasWidth = (A4_WIDTH_MM - MARGIN_MM * 2);
-    const canvasHeight = (A4_HEIGHT_MM - MARGIN_MM * 2);
-
     const canvas = await html2canvas(element, { 
       scale: 3, 
       useCORS: true,
@@ -145,23 +138,29 @@ export default function CVBuilderPage() {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+    
+    const margin = 15;
+    const contentWidth = pdfWidth - (margin * 2);
+    
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    const ratio = imgWidth / canvasWidth;
-    const scaledImgHeight = imgHeight / ratio;
+    const ratio = imgHeight / imgWidth;
+    const contentHeight = contentWidth * ratio;
 
-    let heightLeft = scaledImgHeight;
-    let position = MARGIN_MM;
+    let heightLeft = contentHeight;
+    let position = margin;
 
-    pdf.addImage(imgData, 'PNG', MARGIN_MM, position, canvasWidth, scaledImgHeight);
-    heightLeft -= canvasHeight;
+    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
+    heightLeft -= (pdfHeight - (margin * 2));
 
     while (heightLeft > 0) {
-      position = position - A4_HEIGHT_MM;
+      position = margin - (contentHeight - heightLeft);
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', MARGIN_MM, position, canvasWidth, scaledImgHeight);
-      heightLeft -= A4_HEIGHT_MM;
+      pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
+      heightLeft -= (pdfHeight - (margin * 2));
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -292,7 +291,7 @@ export default function CVBuilderPage() {
                         </RadioGroup>
                     </div>
                     <div id="cv-preview-container" className="bg-background rounded-lg shadow-md overflow-hidden aspect-[210/297] w-full">
-                        <div ref={previewRef} className="w-[210mm] min-h-[297mm]">
+                       <div ref={previewRef} className="w-[210mm] min-h-[297mm]">
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
