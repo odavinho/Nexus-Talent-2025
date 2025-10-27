@@ -121,15 +121,17 @@ export default function CVBuilderPage() {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 2, 
+      scale: 2, // Higher scale for better quality
       useCORS: true,
       onclone: (document) => {
+        // Ensure the clone is not in dark mode for PDF generation
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
-            const sidebar = clone.querySelector('#cv-sidebar');
+             const sidebar = clone.querySelector('#cv-sidebar');
             if (sidebar) {
-                 (sidebar as HTMLElement).style.backgroundColor = '#2399d3';
+                 // Force the blue color during PDF generation
+                 (sidebar as HTMLElement).style.backgroundColor = '#2399d3'; // Primary color HSL(197 76% 53%)
             }
         }
       }
@@ -138,29 +140,29 @@ export default function CVBuilderPage() {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = 297; // A4 height in mm
-    const margin = 15; // 1.5 cm
-    const contentWidth = pdfWidth - (margin * 2);
-    const contentHeight = pdfHeight - (margin * 2);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    const ratio = imgWidth / contentWidth;
+    // This ratio scales the image width to fit the PDF page width
+    const ratio = imgWidth / pdfWidth;
     const finalImgHeight = imgHeight / ratio;
     
     let heightLeft = finalImgHeight;
-    let position = margin;
+    let position = 0;
     
-    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, finalImgHeight);
-    heightLeft -= contentHeight;
+    // Add the first page
+    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
+    heightLeft -= pdfHeight;
 
+    // Add new pages if content overflows
     while (heightLeft > 0) {
-        position = margin - heightLeft;
+        position = -pdfHeight + position;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, finalImgHeight);
-        heightLeft -= contentHeight;
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
+        heightLeft -= pdfHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -294,8 +296,6 @@ export default function CVBuilderPage() {
                         <div 
                           id="cv-preview-container-for-pdf"
                           ref={previewRef}
-                          className="w-full origin-top"
-                          style={{ transform: 'scale(0.3)', height: '333.33%', transformOrigin: 'top center' }}
                         >
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
