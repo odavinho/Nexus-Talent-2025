@@ -91,15 +91,14 @@ const LocaleSwitcher: FC = () => {
 
 const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
     const t = useTranslations('Header');
-    const pathname = usePathname();
     
     return (
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
               <Link href="/courses" legacyBehavior passHref>
-                <NavigationMenuLink asChild>
-                    <a className={navigationMenuTriggerStyle()}>{t('courses')}</a>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    {t('courses')}
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
@@ -136,15 +135,15 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
           </NavigationMenuItem>
            <NavigationMenuItem>
              <Link href="/about" legacyBehavior passHref>
-                <NavigationMenuLink asChild>
-                    <a className={navigationMenuTriggerStyle()}>{t('about')}</a>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    {t('about')}
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
            <NavigationMenuItem>
              <Link href="/blog" legacyBehavior passHref>
-                <NavigationMenuLink asChild>
-                    <a className={navigationMenuTriggerStyle()}>{t('blog')}</a>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    {t('blog')}
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
