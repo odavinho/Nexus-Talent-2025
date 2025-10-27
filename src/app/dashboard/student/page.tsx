@@ -15,6 +15,8 @@ import type { JobPosting, UserProfile } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WishlistJobs } from "@/components/student/wishlist-jobs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 // Component for Job Recommendations
 const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }) => {
@@ -22,12 +24,11 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (userProfile?.functionalArea) {
+        if (userProfile?.academicTitle) {
             const allJobs = getJobs();
-            // Simple recommendation: filter jobs where the category includes the user's functional area
-            const searchTerm = userProfile.functionalArea.toLowerCase();
+            const searchTerm = userProfile.academicTitle.toLowerCase();
             const recommendations = allJobs
-                .filter(v => v.category.toLowerCase().includes(searchTerm) || (v.location && userProfile.cidade && v.location.toLowerCase().includes(userProfile.cidade.toLowerCase())))
+                .filter(v => v.title.toLowerCase().includes(searchTerm) || (v.location && userProfile.cidade && v.location.toLowerCase().includes(userProfile.cidade.toLowerCase())))
                 .slice(0, 3);
             setRecommendedJobs(recommendations);
         }
@@ -38,25 +39,25 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
         return <Skeleton className="h-24 w-full" />;
     }
     
-    if (!userProfile?.functionalArea) {
+    if (!userProfile?.academicTitle) {
          return (
-            <>
-                <p className="text-muted-foreground text-sm mb-4">Ainda não definiu as suas preferências de emprego.</p>
-                <Button asChild variant="outline" className="w-full">
-                    <Link href="/dashboard/student/profile"><Settings className="mr-2 h-4 w-4"/>Definir Preferências</Link>
+            <div className="text-center p-4">
+                <p className="text-muted-foreground text-sm mb-4">Ainda não definiu o seu título profissional para receber sugestões.</p>
+                <Button asChild variant="outline" size="sm">
+                    <Link href="/dashboard/student/profile"><Settings className="mr-2 h-4 w-4"/>Definir Perfil</Link>
                 </Button>
-            </>
+            </div>
         )
     }
 
     if (recommendedJobs.length === 0) {
-        return <p className="text-muted-foreground text-sm">Nenhum emprego encontrado para as suas preferências no momento.</p>
+        return <p className="text-muted-foreground text-sm text-center p-4">Nenhum emprego encontrado para as suas preferências no momento.</p>
     }
 
     return (
         <div className="space-y-2">
             {recommendedJobs.map(job => (
-                <Link href={`/recruitment/${job.id}`} key={job.id} className="block p-2 border rounded-md hover:bg-secondary">
+                <Link href={`/recruitment/${job.id}`} key={job.id} className="block p-3 border rounded-md hover:bg-secondary">
                     <p className="font-semibold text-sm">{job.title}</p>
                     <p className="text-xs text-muted-foreground">{job.location}</p>
                 </Link>
@@ -159,7 +160,7 @@ export default function StudentDashboardPage() {
                     </Card>
                     
                     <WishlistCourses />
-                    <WishlistJobs />
+                    
                     <CourseRecommendations />
                     
                 </div>
@@ -206,11 +207,22 @@ export default function StudentDashboardPage() {
                                 <Briefcase />
                                 Oportunidades de Emprego
                             </CardTitle>
-                             <CardDescription>Receba sugestões de empregos com base nas suas preferências.</CardDescription>
+                             <CardDescription>As suas vagas guardadas e sugestões da IA num só lugar.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                             <JobRecommendations userProfile={userProfile} />
-                             <div className="flex flex-col gap-2 mt-4">
+                        <CardContent className="p-0">
+                            <Tabs defaultValue="recommended">
+                                <TabsList className="w-full grid grid-cols-2 rounded-none">
+                                    <TabsTrigger value="recommended">Recomendados</TabsTrigger>
+                                    <TabsTrigger value="saved">Guardados</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="recommended" className="p-4">
+                                     <JobRecommendations userProfile={userProfile} />
+                                </TabsContent>
+                                <TabsContent value="saved" className="p-4">
+                                     <WishlistJobs />
+                                </TabsContent>
+                            </Tabs>
+                             <div className="p-4 border-t flex flex-col gap-2">
                                  <Button asChild className="w-full" variant="default">
                                     <Link href="/recruitment">Ver Mais Empregos</Link>
                                 </Button>

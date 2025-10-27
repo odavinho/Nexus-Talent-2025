@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useJobWishlist } from '@/hooks/use-job-wishlist';
 import { getJobs } from '@/lib/vacancy-service';
 import type { JobPosting } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -33,7 +32,7 @@ export function WishlistJobs() {
     if (jobs.length === 0) {
       return (
         <p className="text-sm text-muted-foreground p-4 text-center">
-          A sua lista de interesses de empregos está vazia. Clique no ícone de coração nos anúncios para os adicionar aqui.
+          A sua lista de empregos guardados está vazia. Clique no ícone de coração (♡) nos anúncios para os adicionar aqui.
         </p>
       );
     }
@@ -51,19 +50,8 @@ export function WishlistJobs() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Heart className="text-red-500" />
-          Meus Empregos de Interesse
-        </CardTitle>
-        <CardDescription>
-          Os anúncios de emprego que você guardou para ver mais tarde.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {renderContent()}
-      </CardContent>
-    </Card>
+    <>
+      {renderContent()}
+    </>
   );
 }
