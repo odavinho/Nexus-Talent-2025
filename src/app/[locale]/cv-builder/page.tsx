@@ -123,7 +123,7 @@ export default function CVBuilderPage() {
     const canvas = await html2canvas(element, { 
       scale: 2, 
       useCORS: true,
-       onclone: (document) => {
+      onclone: (document) => {
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
@@ -138,28 +138,29 @@ export default function CVBuilderPage() {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     
-    const pdfWidth = 210;
-    const pdfHeight = 297;
-    const margin = 15;
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = 297; // A4 height in mm
+    const margin = 15; // 1.5 cm
     const contentWidth = pdfWidth - (margin * 2);
+    const contentHeight = pdfHeight - (margin * 2);
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    const ratio = contentWidth / imgWidth;
-    const contentHeight = imgHeight * ratio;
+    const ratio = imgWidth / contentWidth;
+    const finalImgHeight = imgHeight / ratio;
     
-    let heightLeft = contentHeight;
+    let heightLeft = finalImgHeight;
     let position = margin;
     
-    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-    heightLeft -= (pdfHeight - margin * 2);
+    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, finalImgHeight);
+    heightLeft -= contentHeight;
 
     while (heightLeft > 0) {
         position = margin - heightLeft;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight);
-        heightLeft -= (pdfHeight - margin * 2);
+        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, finalImgHeight);
+        heightLeft -= contentHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -293,8 +294,8 @@ export default function CVBuilderPage() {
                         <div 
                           id="cv-preview-container-for-pdf"
                           ref={previewRef}
-                          className="w-[210mm] min-h-[297mm] origin-top-left"
-                          style={{ transform: 'scale(0.55)', transformOrigin: 'top left', marginLeft: '-22.5%', marginTop: '-22.5%' }}
+                          className="w-full origin-top"
+                          style={{ transform: 'scale(0.3)', height: '333.33%', transformOrigin: 'top center' }}
                         >
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
