@@ -23,10 +23,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                 {/* Main Column */}
                 <div className="col-span-8 p-10 pr-6">
                     <header className="mb-10">
-                        <h1 className="font-headline text-4xl font-bold text-gray-800 leading-tight">
+                        <h1 className="cv-name">
                             {data.firstName} {data.lastName}
                         </h1>
-                        <h2 className="font-headline text-lg text-primary mt-1">
+                        <h2 className="cv-section-title-modern text-primary mt-1">
                             {data.academicTitle}
                         </h2>
                     </header>
@@ -34,7 +34,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                     {data.summary && (
                          <section className="mb-8">
                             <h3 className="section-title-main">Resumo Profissional</h3>
-                            <p className="mt-3 text-base text-gray-700 text-justify">{data.summary}</p>
+                            <p className="mt-3 cv-body-text text-justify">{data.summary}</p>
                         </section>
                     )}
 
@@ -45,11 +45,11 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.workExperience.map((exp, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-lg font-bold text-gray-900">{exp.role}</h4>
-                                            <p className="text-sm font-medium text-gray-500">{exp.period}</p>
+                                            <h4 className="cv-section-title-modern">{exp.role}</h4>
+                                            <p className="cv-secondary-details">{exp.period}</p>
                                         </div>
-                                        <p className="text-base font-medium text-primary">{exp.company}</p>
-                                        {exp.description && <p className="mt-2 text-base text-gray-600 text-justify">{exp.description}</p>}
+                                        <p className="cv-body-text text-primary">{exp.company}</p>
+                                        {exp.description && <p className="mt-2 cv-body-text text-justify">{exp.description}</p>}
                                     </div>
                                 ))}
                            </div>
@@ -63,10 +63,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.academicHistory.map((edu, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-lg font-bold text-gray-900">{edu.degree}</h4>
-                                            <p className="text-sm font-medium text-gray-500">{edu.year}</p>
+                                            <h4 className="cv-section-title-modern">{edu.degree}</h4>
+                                            <p className="cv-secondary-details">{edu.year}</p>
                                         </div>
-                                        <p className="text-base font-medium text-gray-700">{edu.institution}</p>
+                                        <p className="cv-body-text">{edu.institution}</p>
                                     </div>
                                 ))}
                            </div>
@@ -79,7 +79,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                         <div className="mb-8"><Logo /></div>
                         <div>
                             <h3 className="section-title-side">Contacto</h3>
-                            <div className="mt-3 space-y-3 text-sm">
+                            <div className="mt-3 space-y-3 cv-secondary-details">
                                 {data.email && <div className="flex items-center gap-2"><Mail size={14} className="text-primary" /><span>{data.email}</span></div>}
                                 {data.phoneNumber && <div className="flex items-center gap-2"><Phone size={14} className="text-primary" /><span>{data.phoneNumber}</span></div>}
                                 {data.cidade && <div className="flex items-center gap-2"><MapPin size={14} className="text-primary" /><span>{data.cidade}</span></div>}
@@ -99,7 +99,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                         )}
                         <div>
                             <h3 className="section-title-side">Línguas</h3>
-                            <ul className="mt-3 space-y-1 text-base">
+                            <ul className="mt-3 space-y-1 cv-body-text">
                                 <li>Português (Nativo)</li>
                                 <li>Inglês (Avançado)</li>
                             </ul>
@@ -113,6 +113,11 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                     min-height: 297mm;
                     line-height: 1.5;
                 }
+                .cv-name { font-size: 28pt !important; font-weight: 700; }
+                .cv-section-title-modern { font-size: 13pt !important; font-weight: 700; }
+                .cv-body-text { font-size: 11pt !important; }
+                .cv-secondary-details { font-size: 12pt !important; }
+
                 .section-title-main {
                     font-family: 'Space Grotesk', sans-serif;
                     font-size: 13pt;
@@ -130,10 +135,6 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                     color: hsl(var(--foreground));
                     letter-spacing: 0.05em;
                 }
-                .text-4xl { font-size: 28pt !important; }
-                .text-lg { font-size: 13pt !important; }
-                .text-base { font-size: 11pt !important; }
-                .text-sm { font-size: 11pt !important; }
             `}</style>
         </div>
     );

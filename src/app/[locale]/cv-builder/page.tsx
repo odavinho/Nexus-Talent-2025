@@ -122,10 +122,9 @@ const handleDownloadPdf = async () => {
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 3, // Increased scale for better quality
+      scale: 3,
       useCORS: true,
       onclone: (document) => {
-        // Ensure the cloned element for canvas doesn't have dark mode styles
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
@@ -134,35 +133,35 @@ const handleDownloadPdf = async () => {
     });
     
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, mm, A4
+    const pdf = new jsPDF('p', 'mm', 'a4');
     
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    
-    // Calculate the ratio to fit the image to the page width
-    const ratio = pdfWidth / imgWidth;
-    const finalImgHeight = imgHeight * ratio;
-    
-    let heightLeft = finalImgHeight;
-    let position = 0;
-    
-    // Add the first page
-    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
-    heightLeft -= pageHeight;
+    const a4Width = 210;
+    const a4Height = 297;
+    const margin = 15; // 1.5 cm
+    const usableWidth = a4Width - (margin * 2);
+    const usableHeight = a4Height - (margin * 2);
 
-    // Add new pages if content overflows
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    
+    const ratio = usableWidth / canvasWidth;
+    const imgHeight = canvasHeight * ratio;
+
+    let heightLeft = imgHeight;
+    let position = margin;
+    
+    pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
+    heightLeft -= usableHeight;
+
     while (heightLeft > 0) {
-        position -= pageHeight;
+        position = heightLeft - imgHeight + margin;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
+        heightLeft -= usableHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
-  };
+};
 
 
   if (isUserLoading || !profile) {
@@ -289,9 +288,9 @@ const handleDownloadPdf = async () => {
                         </RadioGroup>
                     </div>
                     <div className="w-full mt-4 bg-white shadow-lg rounded-lg overflow-hidden">
-                        <div className="aspect-[210/297] w-full">
-                            <div className="w-[210mm] origin-top-left" style={{ transform: 'scale(calc(100% / 793.7px))' }}>
-                                <div id="cv-preview-container-for-pdf" ref={previewRef}>
+                       <div className="aspect-[210/297] w-full">
+                            <div className="origin-top-left transform scale-[0.35] sm:scale-[0.5] md:scale-[0.6] lg:scale-100">
+                                <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm]">
                                     {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                                     {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                                     {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
@@ -307,3 +306,4 @@ const handleDownloadPdf = async () => {
     </>
   );
 }
+
