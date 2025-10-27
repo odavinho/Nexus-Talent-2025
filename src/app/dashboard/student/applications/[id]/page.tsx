@@ -16,6 +16,7 @@ import { pt } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { Timestamp } from 'firebase/firestore';
 
 
 const statusSteps: ApplicationStatus[] = ['Recebida', 'Triagem', 'Teste', 'Entrevista', 'Oferta', 'Contratado'];
@@ -69,6 +70,10 @@ export default function ApplicationDetailPage() {
         });
         router.push('/dashboard/student');
     }
+    
+    const safeApplicationDate = application.applicationDate instanceof Timestamp 
+        ? application.applicationDate.toDate()
+        : application.applicationDate;
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -84,7 +89,7 @@ export default function ApplicationDetailPage() {
                         <CardHeader>
                             <CardTitle>Estado da Candidatura</CardTitle>
                             <CardDescription>
-                                Candidatura para <strong className="text-primary">{job.title}</strong> enviada em {format(application.applicationDate as Date, "d 'de' MMMM, yyyy", { locale: pt })}.
+                                Candidatura para <strong className="text-primary">{job.title}</strong> enviada em {safeApplicationDate ? format(safeApplicationDate, "d 'de' MMMM, yyyy", { locale: pt }) : 'data indisponível'}.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -173,3 +178,4 @@ export default function ApplicationDetailPage() {
         </div>
     );
 }
+    
