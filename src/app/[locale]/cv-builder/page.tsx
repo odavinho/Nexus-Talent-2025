@@ -123,20 +123,18 @@ export default function CVBuilderPage() {
     const canvas = await html2canvas(element, { 
       scale: 2, // Higher scale for better quality
       useCORS: true,
-      onclone: (document) => {
-        // Ensure the clone is not in dark mode for PDF generation
+       onclone: (document) => {
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
              const sidebar = clone.querySelector('#cv-sidebar');
             if (sidebar) {
-                 // Force the blue color during PDF generation
-                 (sidebar as HTMLElement).style.backgroundColor = '#2399d3'; // Primary color HSL(197 76% 53%)
+                 (sidebar as HTMLElement).style.backgroundColor = '#f0f9ff';
             }
         }
       }
     });
-
+    
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     
@@ -159,7 +157,7 @@ export default function CVBuilderPage() {
 
     // Add new pages if content overflows
     while (heightLeft > 0) {
-        position = -pdfHeight + position;
+        position -= pdfHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
         heightLeft -= pdfHeight;
@@ -273,8 +271,8 @@ export default function CVBuilderPage() {
                      </Form>
                 </div>
                 {/* PREVIEW COLUMN */}
-                 <div className="lg:col-span-1 lg:sticky top-24">
-                    <div className="mb-4">
+                <div className="lg:col-span-1 lg:sticky top-24">
+                     <div>
                         <Label className="font-headline text-lg">Escolha um Modelo</Label>
                         <RadioGroup defaultValue={template} onValueChange={(v) => setTemplate(v as CvTemplate)} className="flex gap-2 mt-2">
                            <Label htmlFor="template-europass" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'europass' ? 'border-primary' : 'border-border')}>
@@ -292,8 +290,8 @@ export default function CVBuilderPage() {
                            </Label>
                         </RadioGroup>
                     </div>
-                     <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden">
-                        <div 
+                     <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden mt-4">
+                        <div
                           id="cv-preview-container-for-pdf"
                           ref={previewRef}
                         >

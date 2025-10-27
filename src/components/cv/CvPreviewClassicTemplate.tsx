@@ -33,7 +33,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 </div>
             </header>
             <div className="text-center mb-8">
-                <div className="mt-4 flex justify-center items-center gap-x-6 gap-y-2 text-xs flex-wrap">
+                <div className="mt-4 flex justify-center items-center gap-x-6 gap-y-2 text-[11pt] flex-wrap">
                     {data.email && <div className="flex items-center gap-2"><Mail size={12} /><span>{data.email}</span></div>}
                     {data.phoneNumber && <div className="flex items-center gap-2"><Phone size={12} /><span>{data.phoneNumber}</span></div>}
                     {data.cidade && <div className="flex items-center gap-2"><MapPin size={12} /><span>{data.cidade}</span></div>}
@@ -55,11 +55,11 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                             {data.workExperience.map((exp, index) => (
                                 <div key={index}>
                                     <div className="flex justify-between items-baseline">
-                                        <h4 className="text-[12pt] font-bold text-gray-900">{exp.role}</h4>
-                                        <p className="text-xs font-medium text-gray-600">{exp.period}</p>
+                                        <h4 className="text-[13pt] font-bold text-gray-900">{exp.role}</h4>
+                                        <p className="text-[11pt] font-medium text-gray-600">{exp.period}</p>
                                     </div>
                                     <p className="text-[11pt] italic text-gray-700">{exp.company}</p>
-                                    {exp.description && <p className="mt-2 text-xs text-gray-600 text-justify">{exp.description}</p>}
+                                    {exp.description && <p className="mt-2 text-[11pt] text-gray-600 text-justify">{exp.description}</p>}
                                 </div>
                             ))}
                         </div>
@@ -73,8 +73,8 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                             {data.academicHistory.map((edu, index) => (
                                 <div key={index}>
                                      <div className="flex justify-between items-baseline">
-                                        <h4 className="text-[12pt] font-bold text-gray-900">{edu.degree}</h4>
-                                        <p className="text-xs font-medium text-gray-600">{edu.year}</p>
+                                        <h4 className="text-[13pt] font-bold text-gray-900">{edu.degree}</h4>
+                                        <p className="text-[11pt] font-medium text-gray-600">{edu.year}</p>
                                     </div>
                                     <p className="text-[11pt] italic text-gray-700">{edu.institution}</p>
                                 </div>

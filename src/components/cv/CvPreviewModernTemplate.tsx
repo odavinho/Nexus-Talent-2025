@@ -45,11 +45,11 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.workExperience.map((exp, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-[12pt] font-bold text-gray-900">{exp.role}</h4>
+                                            <h4 className="font-headline text-[13pt] font-bold text-gray-900">{exp.role}</h4>
                                             <p className="text-xs font-medium text-gray-500">{exp.period}</p>
                                         </div>
                                         <p className="text-[11pt] font-medium text-primary">{exp.company}</p>
-                                        {exp.description && <p className="mt-2 text-xs text-gray-600 text-justify">{exp.description}</p>}
+                                        {exp.description && <p className="mt-2 text-[11pt] text-gray-600 text-justify">{exp.description}</p>}
                                     </div>
                                 ))}
                            </div>
@@ -63,7 +63,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                                 {data.academicHistory.map((edu, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-baseline">
-                                            <h4 className="font-headline text-[12pt] font-bold text-gray-900">{edu.degree}</h4>
+                                            <h4 className="font-headline text-[13pt] font-bold text-gray-900">{edu.degree}</h4>
                                             <p className="text-xs font-medium text-gray-500">{edu.year}</p>
                                         </div>
                                         <p className="text-[11pt] font-medium text-gray-700">{edu.institution}</p>
@@ -76,10 +76,10 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                 {/* Right Column */}
                 <div className="col-span-4 bg-gray-50 p-8">
                      <div className="space-y-8">
+                        <div className="mb-8"><Logo /></div>
                         <div>
-                            <div className="mb-8"><Logo /></div>
                             <h3 className="section-title-side">Contacto</h3>
-                            <div className="mt-3 space-y-3 text-xs">
+                            <div className="mt-3 space-y-3 text-[11pt]">
                                 {data.email && <div className="flex items-center gap-2"><Mail size={14} className="text-primary" /><span>{data.email}</span></div>}
                                 {data.phoneNumber && <div className="flex items-center gap-2"><Phone size={14} className="text-primary" /><span>{data.phoneNumber}</span></div>}
                                 {data.cidade && <div className="flex items-center gap-2"><MapPin size={14} className="text-primary" /><span>{data.cidade}</span></div>}
@@ -99,7 +99,7 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                         )}
                         <div>
                             <h3 className="section-title-side">Línguas</h3>
-                            <ul className="mt-3 space-y-1 text-xs">
+                            <ul className="mt-3 space-y-1 text-[11pt]">
                                 <li>Português (Nativo)</li>
                                 <li>Inglês (Avançado)</li>
                             </ul>
