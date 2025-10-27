@@ -118,8 +118,8 @@ export default function ProfilePage() {
         if (userProfile) {
             const [firstName, ...lastNameParts] = user?.displayName?.split(' ') || ['', ''];
             form.reset({
-                firstName: userProfile.firstName || firstName,
-                lastName: userProfile.lastName || lastNameParts.join(' '),
+                firstName: userProfile.firstName || firstName || '',
+                lastName: userProfile.lastName || lastNameParts.join(' ') || '',
                 academicTitle: userProfile.academicTitle || '',
                 nationality: userProfile.nationality || '',
                 cidade: userProfile.cidade || '',
@@ -482,8 +482,8 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                                     render={({ field }) => (
                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                             <div className="space-y-0.5">
-                                                <FormLabel>Alertas de Vagas</FormLabel>
-                                                <FormDescription>Receber e-mails sobre novas vagas de emprego que correspondem ao seu perfil.</FormDescription>
+                                                <FormLabel>Alertas de Empregos</FormLabel>
+                                                <FormDescription>Receber e-mails sobre novos empregos que correspondem ao seu perfil.</FormDescription>
                                             </div>
                                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                         </FormItem>
