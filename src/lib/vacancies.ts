@@ -1,4 +1,4 @@
-import type { Vacancy } from './types';
+import type { JobPosting } from './types';
 import { Timestamp } from 'firebase/firestore';
 
 function createTimestamp(dateString: string): Timestamp {
@@ -6,7 +6,7 @@ function createTimestamp(dateString: string): Timestamp {
     return new Timestamp(Math.floor(date.getTime() / 1000), 0);
 }
 
-export let vacancies: Vacancy[] = [
+export let vacancies: JobPosting[] = [
     {
         id: 'dev-frontend-sr',
         title: 'Desenvolvedor Frontend Sênior',

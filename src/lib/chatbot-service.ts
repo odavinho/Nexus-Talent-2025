@@ -1,5 +1,5 @@
 import { getCourses } from './course-service';
-import { getVacancies } from './vacancy-service';
+import { getJobs } from './vacancy-service';
 
 export function searchCourses(query: string) {
     const lowerCaseQuery = query.toLowerCase();
@@ -20,15 +20,15 @@ export function searchCourses(query: string) {
     }));
 }
 
-export function searchVacancies(query: string) {
+export function searchJobs(query: string) {
     const lowerCaseQuery = query.toLowerCase();
-    const allVacancies = getVacancies(); // Get only active vacancies
+    const allJobs = getJobs(); // Get only active jobs
 
-    const filtered = allVacancies.filter(vacancy =>
-        vacancy.title.toLowerCase().includes(lowerCaseQuery) ||
-        vacancy.description.toLowerCase().includes(lowerCaseQuery) ||
-        vacancy.location.toLowerCase().includes(lowerCaseQuery) ||
-        vacancy.category.toLowerCase().includes(lowerCaseQuery)
+    const filtered = allJobs.filter(job =>
+        job.title.toLowerCase().includes(lowerCaseQuery) ||
+        job.description.toLowerCase().includes(lowerCaseQuery) ||
+        job.location.toLowerCase().includes(lowerCaseQuery) ||
+        job.category.toLowerCase().includes(lowerCaseQuery)
     );
     
     return filtered.slice(0, 5).map(v => ({

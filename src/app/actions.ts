@@ -4,7 +4,7 @@
 import { aiResumeAnalysis } from "@/ai/flows/ai-resume-analysis";
 import { personalizedCourseRecommendations } from "@/ai/flows/personalized-course-recommendations";
 import { generateCourseContent, generateCourseImage } from "@/ai/flows/generate-course-content";
-import { generateVacancyContent } from "@/ai/flows/generate-vacancy-content";
+import { generateJobContent } from "@/ai/flows/generate-job-content";
 import { extractProfileFromResume } from "@/ai/flows/extract-profile-from-resume";
 import { generateAssessmentTest } from "@/ai/flows/generate-assessment-test";
 import { generateModuleAssessment } from "@/ai/flows/generate-module-assessment";
@@ -16,7 +16,7 @@ import type {
     AIResumeAnalysisInput, AIResumeAnalysisOutput, 
     PersonalizedCourseRecommendationsInput, PersonalizedCourseRecommendationsOutput,
     GenerateCourseContentInput,
-    GenerateVacancyContentInput, GenerateVacancyContentOutput,
+    GenerateJobContentInput, GenerateJobContentOutput,
     ExtractProfileFromResumeInput, ExtractProfileFromResumeOutput,
     GenerateAssessmentTestInput, GenerateAssessmentTestOutput,
     GenerateModuleAssessmentInput, GenerateModuleAssessmentOutput,
@@ -108,13 +108,13 @@ export async function addCourseAction(course: Omit<Course, 'status'>): Promise<{
 }
 
 
-export async function generateVacancyContentAction(input: GenerateVacancyContentInput): Promise<GenerateVacancyContentOutput> {
+export async function generateJobContentAction(input: GenerateJobContentInput): Promise<GenerateJobContentOutput> {
     try {
-        const output = await generateVacancyContent(input);
+        const output = await generateJobContent(input);
         return output!;
     } catch (error) {
-        console.error("Error in generateVacancyContentAction:", error);
-        throw new Error("Failed to generate vacancy content. Please try again.");
+        console.error("Error in generateJobContentAction:", error);
+        throw new Error("Failed to generate job content. Please try again.");
     }
 }
 

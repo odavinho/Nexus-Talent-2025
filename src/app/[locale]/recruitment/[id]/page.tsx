@@ -1,7 +1,7 @@
 
-import { getVacancyById, getVacancies } from "@/lib/vacancy-service";
+import { getJobById, getJobs } from "@/lib/vacancy-service";
 import { notFound } from "next/navigation";
-import type { Vacancy } from "@/lib/types";
+import type { JobPosting } from "@/lib/types";
 import { type Metadata } from 'next';
 import { VacancyClientPage } from "@/app/recruitment/[id]/page";
 import { Timestamp } from "firebase/firestore";
@@ -16,42 +16,42 @@ const toSerializableDate = (date: Timestamp | Date | undefined): string | null =
 }
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const vacancy = getVacancyById(params.id);
+  const job = getJobById(params.id);
 
-  if (!vacancy) {
+  if (!job) {
     return {
-      title: 'Vaga não encontrada',
-      description: 'A vaga de emprego que você está procurando não existe.',
+      title: 'Emprego não encontrado',
+      description: 'O emprego que você está procurando não existe.',
     };
   }
 
   return {
-    title: `${vacancy.title} | Vagas NexusTalent`,
-    description: vacancy.description.substring(0, 160),
+    title: `${job.title} | Empregos NexusTalent`,
+    description: job.description.substring(0, 160),
   };
 }
 
 export function generateStaticParams() {
-    const vacancies = getVacancies();
-    return vacancies.map((vacancy) => ({
-      id: vacancy.id,
+    const jobs = getJobs();
+    return jobs.map((job) => ({
+      id: job.id,
     }));
 }
 
-export default function VacancyDetailPage({ params }: { params: { id: string } }) {
+export default function JobDetailPage({ params }: { params: { id: string } }) {
   const id = params.id;
-  const vacancy = getVacancyById(id);
+  const job = getJobById(id);
 
-  if (!vacancy) {
+  if (!job) {
     notFound();
   }
 
-  // Create a serializable version of the vacancy object
-  const serializableVacancy = {
-    ...vacancy,
-    postedDate: toSerializableDate(vacancy.postedDate),
-    closingDate: toSerializableDate(vacancy.closingDate),
+  // Create a serializable version of the job object
+  const serializableJob = {
+    ...job,
+    postedDate: toSerializableDate(job.postedDate),
+    closingDate: toSerializableDate(job.closingDate),
   };
 
-  return <VacancyClientPage vacancy={serializableVacancy as any} />;
+  return <VacancyClientPage vacancy={serializableJob as any} />;
 }

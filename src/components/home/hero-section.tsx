@@ -26,7 +26,7 @@ export function HeroSection() {
           Conectando <span className="text-primary">Talentos</span> ao Futuro
         </h1>
         <p className="mt-4 max-w-3xl mx-auto text-xl md:text-2xl text-neutral-200">
-          Sua jornada para o sucesso começa aqui. Explore cursos de ponta e encontre a vaga dos seus sonhos com a NexusTalent.
+          Sua jornada para o sucesso começa aqui. Explore cursos de ponta e encontre o emprego dos seus sonhos com a NexusTalent.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto" asChild>
@@ -36,7 +36,7 @@ export function HeroSection() {
           </Button>
           <Button size="lg" variant="outline" className="bg-transparent border-white hover:bg-white hover:text-black w-full sm:w-auto" asChild>
             <Link href="/recruitment">
-              Ver Vagas Abertas
+              Ver Empregos Abertos
             </Link>
           </Button>
         </div>

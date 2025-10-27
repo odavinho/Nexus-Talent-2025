@@ -12,7 +12,7 @@ import { Footer } from "@/components/layout/footer";
 import { useUser } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import React, { useState } from "react";
-import type { Vacancy } from "@/lib/types";
+import type { JobPosting } from "@/lib/types";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
@@ -21,12 +21,12 @@ import { SimilarVacancies } from "@/components/recruitment/similar-vacancies";
 import { JobAlertSubscription } from "@/components/recruitment/job-alert-subscription";
 
 // The vacancy prop here receives serializable data (dates as strings)
-export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
+export function VacancyClientPage({ vacancy: job }: { vacancy: JobPosting }) {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   const [isApplying, setIsApplying] = useState(false);
-  const category = getCourseCategories().find(c => c.name === vacancy.category) || null;
+  const category = getCourseCategories().find(c => c.name === job.category) || null;
 
   const handleApply = async () => {
     if (!user) {
@@ -43,7 +43,7 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
     setTimeout(() => {
         toast({
             title: "Candidatura Simulada!",
-            description: `A sua candidatura para ${vacancy.title} foi enviada com sucesso (simulação).`,
+            description: `A sua candidatura para ${job.title} foi enviada com sucesso (simulação).`,
         });
         setIsApplying(false);
     }, 1500);
@@ -58,13 +58,13 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
     return date;
   }
 
-  const closingDate = toDate(vacancy.closingDate);
+  const closingDate = toDate(job.closingDate);
 
   const handleShare = () => {
       if(navigator.share) {
           navigator.share({
-              title: vacancy.title,
-              text: `Confira esta vaga na NexusTalent: ${vacancy.title}`,
+              title: job.title,
+              text: `Confira este emprego na NexusTalent: ${job.title}`,
               url: window.location.href,
           })
       } else {
@@ -88,25 +88,25 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2">
               {category && <Badge className="mb-2">{category.name}</Badge>}
-              <h1 className="font-headline text-3xl md:text-4xl font-bold">{vacancy.title}</h1>
+              <h1 className="font-headline text-3xl md:text-4xl font-bold">{job.title}</h1>
               
               <div className="mt-6 prose prose-lg max-w-none text-foreground/90">
-                  <p>{vacancy.description}</p>
+                  <p>{job.description}</p>
                   
-                  {vacancy.responsibilities && vacancy.responsibilities.length > 0 && (
+                  {job.responsibilities && job.responsibilities.length > 0 && (
                     <>
                       <h3 className="font-headline">Responsabilidades:</h3>
                       <ul>
-                        {vacancy.responsibilities.map((item, index) => <li key={index}>{item}</li>)}
+                        {job.responsibilities.map((item, index) => <li key={index}>{item}</li>)}
                       </ul>
                     </>
                   )}
 
-                  {vacancy.requirements && vacancy.requirements.length > 0 && (
+                  {job.requirements && job.requirements.length > 0 && (
                     <>
                       <h3 className="font-headline">Requisitos:</h3>
                       <ul>
-                        {vacancy.requirements.map((item, index) => <li key={index}>{item}</li>)}
+                        {job.requirements.map((item, index) => <li key={index}>{item}</li>)}
                       </ul>
                     </>
                   )}
@@ -122,28 +122,28 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
                           <div className="space-y-4 text-sm">
                               <div className="flex items-center gap-3">
                                   <MapPin className="w-5 h-5 text-muted-foreground" />
-                                  <span><strong>Localização:</strong> {vacancy.location}</span>
+                                  <span><strong>Localização:</strong> {job.location}</span>
                               </div>
                               <div className="flex items-center gap-3">
                                   <Briefcase className="w-5 h-5 text-muted-foreground" />
-                                  <span><strong>Tipo de Contrato:</strong> {vacancy.type}</span>
+                                  <span><strong>Tipo de Contrato:</strong> {job.type}</span>
                               </div>
-                              {vacancy.salaryRange && vacancy.showSalary && (
+                              {job.salaryRange && job.showSalary && (
                                 <div className="flex items-center gap-3">
                                     <Briefcase className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Salário:</strong> {vacancy.salaryRange}</span>
+                                    <span><strong>Salário:</strong> {job.salaryRange}</span>
                                 </div>
                               )}
-                               {vacancy.minExperience && (
+                               {job.minExperience && (
                                 <div className="flex items-center gap-3">
                                     <Award className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Experiência Mínima:</strong> {vacancy.minExperience}</span>
+                                    <span><strong>Experiência Mínima:</strong> {job.minExperience}</span>
                                 </div>
                               )}
-                              {vacancy.minEducationLevel && (
+                              {job.minEducationLevel && (
                                 <div className="flex items-center gap-3">
                                     <GraduationCap className="w-5 h-5 text-muted-foreground" />
-                                    <span><strong>Habilitações Mínimas:</strong> {vacancy.minEducationLevel}</span>
+                                    <span><strong>Habilitações Mínimas:</strong> {job.minEducationLevel}</span>
                                 </div>
                               )}
                               {closingDate && (
@@ -154,11 +154,11 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
                               )}
                           </div>
                           
-                          {vacancy.screeningQuestions && vacancy.screeningQuestions.length > 0 && (
+                          {job.screeningQuestions && job.screeningQuestions.length > 0 && (
                             <div className="mt-6 pt-6 border-t">
                                 <h4 className="font-semibold mb-4 flex items-center gap-2"><HelpCircle size={18}/> Perguntas de Triagem</h4>
                                 <div className="space-y-4">
-                                {vacancy.screeningQuestions.map((q, index) => (
+                                {job.screeningQuestions.map((q, index) => (
                                     <div key={index} className="space-y-2">
                                         <Label htmlFor={`question-${index}`}>{q.question}</Label>
                                         <Textarea id={`question-${index}`} placeholder="Sua resposta..." rows={3} />
@@ -196,7 +196,7 @@ export function VacancyClientPage({ vacancy }: { vacancy: Vacancy }) {
             </div>
           </div>
         </div>
-        <SimilarVacancies currentVacancy={vacancy} />
+        <SimilarVacancies currentJob={job} />
         <JobAlertSubscription />
       </main>
       <Footer />

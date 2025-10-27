@@ -61,24 +61,24 @@ export type GenerateCourseContentInput = z.infer<typeof GenerateCourseContentInp
 export type GenerateCourseContentOutput = z.infer<typeof GenerateCourseContentOutputSchema>;
 
 
-// Schema for Vacancy Content Generation
-export const GenerateVacancyContentInputSchema = z.object({
-    title: z.string().describe("The title of the job vacancy."),
+// Schema for JobPosting Content Generation
+export const GenerateJobContentInputSchema = z.object({
+    title: z.string().describe("The title of the job posting."),
     category: z.string().describe("The category of the job."),
     industry: z.string().describe("The industry for the job."),
     minExperience: z.string().describe("The minimum experience required for the job (e.g., 0-1 ano, 3-5 anos)."),
     demandLevel: z.string().describe("The seniority or demand level for the job (e.g., Júnior, Pleno, Sénior)."),
 });
 
-export const GenerateVacancyContentOutputSchema = z.object({
-    description: z.string().describe("A general summary of the job vacancy."),
+export const GenerateJobContentOutputSchema = z.object({
+    description: z.string().describe("A general summary of the job posting."),
     responsibilities: z.array(z.string()).describe("A list of key responsibilities."),
     requirements: z.array(z.string()).describe("A list of required qualifications and skills."),
     aiScreeningQuestions: z.array(z.string()).describe("A list of 3-5 insightful, open-ended screening questions to help filter candidates."),
 });
 
-export type GenerateVacancyContentInput = z.infer<typeof GenerateVacancyContentInputSchema>;
-export type GenerateVacancyContentOutput = z.infer<typeof GenerateVacancyContentOutputSchema>;
+export type GenerateJobContentInput = z.infer<typeof GenerateJobContentInputSchema>;
+export type GenerateJobContentOutput = z.infer<typeof GenerateJobContentOutputSchema>;
 
 
 // Schema for Extracting Profile from Resume
@@ -121,7 +121,7 @@ const QuestionSchema = z.object({
 });
   
 export const GenerateAssessmentTestInputSchema = z.object({
-    jobDescription: z.string().describe('The full job description for the vacancy.'),
+    jobDescription: z.string().describe('The full job description for the job.'),
     testType: z.enum(['knowledge', 'psychometric']).describe('The type of test to generate.'),
     level: z.enum(['Fácil', 'Médio', 'Difícil']).describe('The difficulty level of the test.'),
     numMultipleChoice: z.coerce.number().describe('The number of multiple-choice questions.'),

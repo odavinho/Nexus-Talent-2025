@@ -47,10 +47,10 @@ const saveTests = (newTests: AssessmentTest[]): void => {
     }
 };
 
-// Function to get all tests for a specific vacancy
-export const getTestsForVacancy = (vacancyId: string): AssessmentTest[] => {
+// Function to get all tests for a specific job
+export const getTestsForJob = (jobId: string): AssessmentTest[] => {
     const allTests = loadTests();
-    return allTests.filter(t => t.vacancyId === vacancyId);
+    return allTests.filter(t => t.jobId === jobId);
 };
 
 // Function to find a single test by ID

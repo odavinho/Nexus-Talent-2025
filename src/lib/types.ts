@@ -53,7 +53,7 @@ export interface Course {
     requiredAnswer: 'sim' | 'nao';
   }
 
-  export interface Vacancy {
+  export interface JobPosting {
     id: string;
     title: string;
     location: string;
@@ -154,7 +154,7 @@ export interface Course {
   
   export interface AssessmentTest {
     id: string;
-    vacancyId: string;
+    jobId: string;
     title: string;
     questions: AssessmentQuestion[];
   }

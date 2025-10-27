@@ -28,7 +28,7 @@ export function RecruitmentSection() {
                                 <div>
                                     <h3 className="text-lg font-semibold font-headline">Para Empresas</h3>
                                     <p className="text-muted-foreground mt-1">
-                                        Anuncie vagas e use nossa IA para analisar currículos e encontrar o match perfeito para sua equipe.
+                                        Anuncie empregos e use nossa IA para analisar currículos e encontrar o match perfeito para sua equipe.
                                     </p>
                                 </div>
                             </div>
@@ -39,7 +39,7 @@ export function RecruitmentSection() {
                                 <div>
                                     <h3 className="text-lg font-semibold font-headline">Para Candidatos</h3>
                                     <p className="text-muted-foreground mt-1">
-                                        Candidate-se às melhores vagas do mercado e receba recomendações de cursos para se destacar.
+                                        Candidate-se aos melhores empregos do mercado e receba recomendações de cursos para se destacar.
                                     </p>
                                 </div>
                             </div>
@@ -47,7 +47,7 @@ export function RecruitmentSection() {
                         <div className="mt-10">
                             <Button size="lg" asChild>
                                 <Link href="/recruitment">
-                                    Ver Vagas Abertas
+                                    Ver Empregos Abertos
                                 </Link>
                             </Button>
                         </div>

@@ -5,7 +5,7 @@ import { Facebook, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 
 const footerLinks = {
-  empregos: [
+  jobs: [
     { href: "/recruitment", label: "Todos os empregos" },
     { href: "#", label: "Empregos em destaque" },
     { href: "#", label: "Candidatura espontânea" },
@@ -56,7 +56,7 @@ export function Footer() {
             <div>
               <h3 className="font-headline text-lg font-medium">Empregos</h3>
               <ul className="mt-4 space-y-2 text-sm">
-                {footerLinks.empregos.map(link => (
+                {footerLinks.jobs.map(link => (
                   <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>

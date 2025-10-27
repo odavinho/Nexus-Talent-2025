@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { getVacancies } from '@/lib/vacancy-service';
+import { getJobs } from '@/lib/vacancy-service';
 import { getCourseCategories } from '@/lib/course-service';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Briefcase, List, LayoutGrid, Bell } from 'lucide-react';
@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import type { Vacancy, CourseCategory } from '@/lib/types';
+import type { JobPosting, CourseCategory } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -34,7 +34,7 @@ const toDate = (date: Timestamp | Date | undefined): Date | null => {
 type ViewMode = 'list' | 'grid';
 
 export function VacancyList() {
-  const [allVacancies, setAllVacancies] = useState<Vacancy[]>([]);
+  const [allJobs, setAllJobs] = useState<JobPosting[]>([]);
   const [courseCategories, setCourseCategories] = useState<CourseCategory[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -45,38 +45,38 @@ export function VacancyList() {
 
 
   useEffect(() => {
-    // Fetch all vacancies, including expired ones, to display them with a badge.
-    setAllVacancies(getVacancies(true)); 
+    // Fetch all jobs, including expired ones, to display them with a badge.
+    setAllJobs(getJobs(true)); 
     setCourseCategories(getCourseCategories());
-    const storedView = localStorage.getItem('vacancy-view-mode') as ViewMode;
+    const storedView = localStorage.getItem('job-view-mode') as ViewMode;
     if (storedView) {
         setViewMode(storedView);
     }
   }, []);
   
   useEffect(() => {
-    localStorage.setItem('vacancy-view-mode', viewMode);
+    localStorage.setItem('job-view-mode', viewMode);
   }, [viewMode]);
 
-  const locations = useMemo(() => ['all', ...new Set(allVacancies.map(v => v.location))], [allVacancies]);
+  const locations = useMemo(() => ['all', ...new Set(allJobs.map(v => v.location))], [allJobs]);
   const contractTypes = useMemo(() => ['all', 'Full-time', 'Part-time', 'Remote'], []);
   const distances = useMemo(() => ['all', '5', '10', '20', '50', '100'], []);
 
 
-  const filteredVacancies = useMemo(() => {
-    return allVacancies.filter(vacancy => {
-      const matchesCategory = selectedCategory === 'all' || vacancy.category === selectedCategory;
-      const matchesLocation = selectedLocation === 'all' || vacancy.location === selectedLocation;
-      const matchesType = selectedType === 'all' || vacancy.type === selectedType;
-      const matchesSearch = vacancy.title.toLowerCase().includes(searchTerm.toLowerCase()) || vacancy.description.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredJobs = useMemo(() => {
+    return allJobs.filter(job => {
+      const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
+      const matchesLocation = selectedLocation === 'all' || job.location === selectedLocation;
+      const matchesType = selectedType === 'all' || job.type === selectedType;
+      const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) || job.description.toLowerCase().includes(searchTerm.toLowerCase());
       // Distance filter is visual only for now
       return matchesCategory && matchesSearch && matchesLocation && matchesType;
     });
-  }, [allVacancies, searchTerm, selectedCategory, selectedLocation, selectedType]);
+  }, [allJobs, searchTerm, selectedCategory, selectedLocation, selectedType]);
 
-  const VacancyCard = ({ vacancy }: { vacancy: Vacancy }) => {
-    const category = courseCategories.find(c => c.name === vacancy.category);
-    const closingDate = toDate(vacancy.closingDate);
+  const JobCard = ({ job }: { job: JobPosting }) => {
+    const category = courseCategories.find(c => c.name === job.category);
+    const closingDate = toDate(job.closingDate);
     const isExpired = closingDate ? closingDate < new Date() : false;
 
     if (viewMode === 'grid') {
@@ -84,17 +84,17 @@ export function VacancyList() {
         <Card className={cn("transition-shadow hover:shadow-md h-full flex flex-col", isExpired && "bg-muted/50")}>
             <CardHeader>
                 {category && <Badge variant="secondary" className='mb-2 self-start'>{category.name}</Badge>}
-                <CardTitle className="font-headline text-xl flex-grow"><Link href={`/recruitment/${vacancy.id}`} className="hover:text-primary">{vacancy.title}</Link></CardTitle>
+                <CardTitle className="font-headline text-xl flex-grow"><Link href={`/recruitment/${job.id}`} className="hover:text-primary">{job.title}</Link></CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col justify-between flex-grow">
                 <div className='space-y-2 mb-4'>
-                    <span className='flex items-center gap-2 text-sm'><MapPin size={14}/> {vacancy.location}</span>
-                    <span className='flex items-center gap-2 text-sm'><Briefcase size={14}/> {vacancy.type}</span>
+                    <span className='flex items-center gap-2 text-sm'><MapPin size={14}/> {job.location}</span>
+                    <span className='flex items-center gap-2 text-sm'><Briefcase size={14}/> {job.type}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     {isExpired && <Badge variant="destructive">Expirado</Badge>}
                     <Button asChild disabled={isExpired} className="w-full">
-                        <Link href={`/recruitment/${vacancy.id}`}>Ver Detalhes</Link>
+                        <Link href={`/recruitment/${job.id}`}>Ver Detalhes</Link>
                     </Button>
                 </div>
             </CardContent>
@@ -108,16 +108,16 @@ export function VacancyList() {
           <div className="p-6 grid md:grid-cols-3 gap-4 items-center">
               <div className="md:col-span-2">
                   {category && <Badge variant="secondary" className='mb-2'>{category.name}</Badge>}
-                  <h3 className="font-headline text-xl font-semibold"><Link href={`/recruitment/${vacancy.id}`} className="hover:text-primary">{vacancy.title}</Link></h3>
+                  <h3 className="font-headline text-xl font-semibold"><Link href={`/recruitment/${job.id}`} className="hover:text-primary">{job.title}</Link></h3>
                   <div className='flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 text-sm text-muted-foreground'>
-                      <span className='flex items-center gap-2'><MapPin size={14}/> {vacancy.location}</span>
-                      <span className='flex items-center gap-2'><Briefcase size={14}/> {vacancy.type}</span>
+                      <span className='flex items-center gap-2'><MapPin size={14}/> {job.location}</span>
+                      <span className='flex items-center gap-2'><Briefcase size={14}/> {job.type}</span>
                   </div>
               </div>
               <div className="flex md:flex-col md:items-end md:justify-center gap-2">
                    {isExpired && <Badge variant="destructive">Expirado</Badge>}
                    <Button asChild disabled={isExpired}>
-                      <Link href={`/recruitment/${vacancy.id}`}>Ver Detalhes</Link>
+                      <Link href={`/recruitment/${job.id}`}>Ver Detalhes</Link>
                    </Button>
               </div>
           </div>
@@ -199,7 +199,7 @@ export function VacancyList() {
       </div>
       
        <div className="flex justify-between items-center mb-6">
-            <p className="text-sm text-muted-foreground">{filteredVacancies.length} empregos encontrados</p>
+            <p className="text-sm text-muted-foreground">{filteredJobs.length} empregos encontrados</p>
             <div className="flex items-center gap-2">
                  <Dialog>
                     <DialogTrigger asChild>
@@ -230,10 +230,10 @@ export function VacancyList() {
         </div>
 
 
-      {filteredVacancies.length > 0 ? (
+      {filteredJobs.length > 0 ? (
         <div className={cn(viewMode === 'list' ? "space-y-4" : "grid sm:grid-cols-2 lg:grid-cols-3 gap-6")}>
-          {filteredVacancies.map(vacancy => (
-            <VacancyCard key={vacancy.id} vacancy={vacancy} />
+          {filteredJobs.map(job => (
+            <JobCard key={job.id} job={job} />
           ))}
         </div>
       ) : (

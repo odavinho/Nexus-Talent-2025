@@ -3,14 +3,14 @@ import { VacancyList } from "@/components/recruitment/vacancy-list";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useEffect } from "react";
-import { getVacancies } from "@/lib/vacancy-service";
+import { getJobs } from "@/lib/vacancy-service";
 import { JobAlertSubscription } from "@/components/recruitment/job-alert-subscription";
 
 
 export default function RecruitmentPage() {
-    // Pre-warm the vacancies data
+    // Pre-warm the jobs data
     useEffect(() => {
-        getVacancies();
+        getJobs();
     }, []);
 
   return (

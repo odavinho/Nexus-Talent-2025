@@ -1,6 +1,6 @@
 'use client';
 
-import type { Application, Vacancy, UserProfile, ApplicationStatus } from '@/lib/types';
+import type { Application, JobPosting, UserProfile, ApplicationStatus } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
@@ -46,7 +46,7 @@ const UserInfo = ({ userId, onUserLoad }: { userId: string, onUserLoad: (user: U
 };
 
 export function ApplicationCard({ application, onStatusChange }: ApplicationCardProps) {
-    const vacancy = vacancies.find(v => v.id === application.jobPostingId);
+    const job = vacancies.find(v => v.id === application.jobPostingId);
     const { toast } = useToast();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
@@ -67,10 +67,10 @@ export function ApplicationCard({ application, onStatusChange }: ApplicationCard
     return (
         <Card className="flex flex-col">
             <CardHeader>
-                 {vacancy && (
+                 {job && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                         <Briefcase size={14} /> 
-                        <span>{vacancy.title}</span>
+                        <span>{job.title}</span>
                     </div>
                 )}
                 <UserInfo userId={application.userId} onUserLoad={setUserProfile} />

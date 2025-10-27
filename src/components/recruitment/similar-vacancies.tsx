@@ -8,28 +8,28 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"
-import type { Vacancy } from '@/lib/types';
-import { getVacancies } from '@/lib/vacancy-service';
+import type { JobPosting } from '@/lib/types';
+import { getJobs } from '@/lib/vacancy-service';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import Link from 'next/link';
 import { MapPin, Briefcase } from 'lucide-react';
 import { Badge } from '../ui/badge';
 
 
-interface SimilarVacanciesProps {
-    currentVacancy: Vacancy;
+interface SimilarJobsProps {
+    currentJob: JobPosting;
 }
 
-export function SimilarVacancies({ currentVacancy }: SimilarVacanciesProps) {
-    const [similarVacancies, setSimilarVacancies] = useState<Vacancy[]>([]);
+export function SimilarVacancies({ currentJob }: SimilarJobsProps) {
+    const [similarJobs, setSimilarJobs] = useState<JobPosting[]>([]);
     
     useEffect(() => {
-        const allVacancies = getVacancies(); // Get active vacancies
-        const related = allVacancies.filter(v => v.category === currentVacancy.category && v.id !== currentVacancy.id).slice(0, 8);
-        setSimilarVacancies(related);
-    }, [currentVacancy]);
+        const allJobs = getJobs(); // Get active jobs
+        const related = allJobs.filter(v => v.category === currentJob.category && v.id !== currentJob.id).slice(0, 8);
+        setSimilarJobs(related);
+    }, [currentJob]);
 
-    if (similarVacancies.length === 0) {
+    if (similarJobs.length === 0) {
         return null;
     }
 
@@ -45,17 +45,17 @@ export function SimilarVacancies({ currentVacancy }: SimilarVacanciesProps) {
                     className="w-full"
                 >
                     <CarouselContent>
-                        {similarVacancies.map((vacancy) => (
-                        <CarouselItem key={vacancy.id} className="md:basis-1/2 lg:basis-1/3">
+                        {similarJobs.map((job) => (
+                        <CarouselItem key={job.id} className="md:basis-1/2 lg:basis-1/3">
                             <div className="p-1">
                                 <Card className="h-full">
                                     <CardHeader>
                                         <CardTitle className="font-headline text-lg line-clamp-2 hover:text-primary">
-                                            <Link href={`/recruitment/${vacancy.id}`}>{vacancy.title}</Link>
+                                            <Link href={`/recruitment/${job.id}`}>{job.title}</Link>
                                         </CardTitle>
                                         <CardDescription className='flex flex-wrap items-center gap-x-3 gap-y-1 pt-1'>
-                                            <span className='flex items-center gap-1.5'><MapPin size={14}/> {vacancy.location}</span>
-                                            <span className='flex items-center gap-1.5'><Briefcase size={14}/> {vacancy.type}</span>
+                                            <span className='flex items-center gap-1.5'><MapPin size={14}/> {job.location}</span>
+                                            <span className='flex items-center gap-1.5'><Briefcase size={14}/> {job.type}</span>
                                         </CardDescription>
                                     </CardHeader>
                                 </Card>
