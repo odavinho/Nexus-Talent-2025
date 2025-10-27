@@ -21,7 +21,7 @@ interface DeleteImageDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   item: ImagePlaceholder;
-  itemType: 'parceiro' | 'certificação';
+  itemType: 'parceiro' | 'certificação' | 'galeria';
   onDeleteSuccess: () => void;
 }
 
@@ -53,7 +53,7 @@ export function DeleteImageDialog({ isOpen, setIsOpen, item, itemType, onDeleteS
         <AlertDialogHeader>
           <AlertDialogTitle>Tem a certeza?</AlertDialogTitle>
           <AlertDialogDescription>
-            Esta ação não pode ser desfeita. Isto irá excluir permanentemente o {itemType} <strong className="font-mono">{item.id}</strong>.
+            Esta ação não pode ser desfeita. Isto irá excluir permanentemente o item de {itemType} <strong className="font-mono">{item.id}</strong>.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

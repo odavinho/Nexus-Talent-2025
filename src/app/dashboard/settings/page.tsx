@@ -1,6 +1,6 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, Building, Award, ArrowLeft, Loader2, Save, ShieldAlert } from "lucide-react";
+import { Star, Building, Award, ArrowLeft, Loader2, Save, ShieldAlert, Image as ImageIcon } from "lucide-react";
 import { EditableImageGrid } from "@/components/dashboard/settings/editable-image-grid";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -205,6 +205,7 @@ export default function SettingsPage() {
 
   const partners = siteData.images.filter(p => p.id.startsWith('partner-'));
   const certifications = siteData.images.filter(p => p.id.startsWith('cert-'));
+  const galleryImages = siteData.images.filter(p => p.id.startsWith('gallery-'));
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -221,6 +222,24 @@ export default function SettingsPage() {
         <div className="space-y-8">
             <SettingsForm siteData={siteData} onFormSubmit={handleFormSubmit} isSaving={isSaving} />
             
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ImageIcon />
+                        Galeria de Fotos
+                    </CardTitle>
+                    <CardDescription className="mt-2">Gerencie as imagens exibidas na página da galeria.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <EditableImageGrid 
+                        items={galleryImages} 
+                        itemType="galeria" 
+                        idPrefix="gallery-" 
+                        onUpdate={(updatedGallery) => handleImageGridUpdate([...partners, ...certifications, ...updatedGallery])}
+                    />
+                </CardContent>
+            </Card>
+
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -234,7 +253,7 @@ export default function SettingsPage() {
                         items={partners} 
                         itemType="parceiro" 
                         idPrefix="partner-" 
-                        onUpdate={(updatedPartners) => handleImageGridUpdate([...certifications, ...updatedPartners])}
+                        onUpdate={(updatedPartners) => handleImageGridUpdate([...certifications, ...galleryImages, ...updatedPartners])}
                     />
                 </CardContent>
             </Card>
@@ -252,7 +271,7 @@ export default function SettingsPage() {
                         items={certifications} 
                         itemType="certificação" 
                         idPrefix="cert-"
-                        onUpdate={(updatedCerts) => handleImageGridUpdate([...partners, ...updatedCerts])}
+                        onUpdate={(updatedCerts) => handleImageGridUpdate([...partners, ...galleryImages, ...updatedCerts])}
                     />
                 </CardContent>
             </Card>

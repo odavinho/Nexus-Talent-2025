@@ -11,8 +11,8 @@ import type { ImagePlaceholder } from '@/lib/site-data';
 
 interface EditableImageGridProps {
   items: ImagePlaceholder[];
-  itemType: 'parceiro' | 'certificação';
-  idPrefix: 'partner-' | 'cert-';
+  itemType: 'parceiro' | 'certificação' | 'galeria';
+  idPrefix: 'partner-' | 'cert-' | 'gallery-';
   onUpdate: (updatedItems: ImagePlaceholder[]) => void;
 }
 

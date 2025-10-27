@@ -26,8 +26,8 @@ interface ImageFormDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   item: ImagePlaceholder | null;
-  itemType: 'parceiro' | 'certificação';
-  idPrefix: 'partner-' | 'cert-';
+  itemType: 'parceiro' | 'certificação' | 'galeria';
+  idPrefix: 'partner-' | 'cert-' | 'gallery-';
   allItems: ImagePlaceholder[];
   onUpdate: (updatedItems: ImagePlaceholder[]) => void;
 }

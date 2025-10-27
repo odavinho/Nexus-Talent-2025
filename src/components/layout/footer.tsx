@@ -31,7 +31,7 @@ const footerLinks = {
     { href: "#", label: "Contactos" },
   ],
   galeria: [
-      { href: "#", label: "Galeria de Fotos" },
+      { href: "/gallery", label: "Galeria de Fotos" },
   ]
 };
 
