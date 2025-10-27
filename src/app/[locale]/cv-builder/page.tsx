@@ -114,39 +114,36 @@ export default function CVBuilderPage() {
     }
   };
   
-  const handleDownloadPdf = async () => {
+const handleDownloadPdf = async () => {
     const element = previewRef.current;
     if (!element) return;
     
     toast({ title: 'A gerar PDF...', description: 'Por favor, aguarde um momento.' });
 
     const canvas = await html2canvas(element, { 
-      scale: 2, // Higher scale for better quality
+      scale: 3, // Increased scale for better quality
       useCORS: true,
-       onclone: (document) => {
+      onclone: (document) => {
+        // Ensure the cloned element for canvas doesn't have dark mode styles
         const clone = document.getElementById('cv-preview-container-for-pdf');
         if (clone) {
             clone.classList.remove('dark');
-             const sidebar = clone.querySelector('#cv-sidebar');
-            if (sidebar) {
-                 (sidebar as HTMLElement).style.backgroundColor = '#f0f9ff';
-            }
         }
       }
     });
     
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, mm, A4
     
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = 297; // A4 height in mm
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    // This ratio scales the image width to fit the PDF page width
-    const ratio = imgWidth / pdfWidth;
-    const finalImgHeight = imgHeight / ratio;
+    // Calculate the ratio to fit the image to the page width
+    const ratio = pdfWidth / imgWidth;
+    const finalImgHeight = imgHeight * ratio;
     
     let heightLeft = finalImgHeight;
     let position = 0;
@@ -272,7 +269,7 @@ export default function CVBuilderPage() {
                 </div>
                 {/* PREVIEW COLUMN */}
                 <div className="lg:col-span-1 lg:sticky top-24">
-                     <div>
+                    <div>
                         <Label className="font-headline text-lg">Escolha um Modelo</Label>
                         <RadioGroup defaultValue={template} onValueChange={(v) => setTemplate(v as CvTemplate)} className="flex gap-2 mt-2">
                            <Label htmlFor="template-europass" className={cn("border-2 rounded-md p-2 cursor-pointer hover:border-primary", template === 'europass' ? 'border-primary' : 'border-border')}>
@@ -290,11 +287,8 @@ export default function CVBuilderPage() {
                            </Label>
                         </RadioGroup>
                     </div>
-                     <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden mt-4">
-                        <div
-                          id="cv-preview-container-for-pdf"
-                          ref={previewRef}
-                        >
+                    <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden mt-4">
+                        <div id="cv-preview-container-for-pdf" ref={previewRef}>
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}

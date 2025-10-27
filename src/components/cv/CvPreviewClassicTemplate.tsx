@@ -18,7 +18,7 @@ type CvData = {
 
 export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
     return (
-        <div className="a4-page bg-white text-gray-800 font-serif leading-relaxed p-10">
+        <div className="a4-page bg-white text-gray-800 font-serif p-6">
              <header className="text-center border-b-2 border-gray-800 pb-4 mb-8 flex justify-between items-center">
                 <div>
                     <h1 className="text-4xl font-bold tracking-wider uppercase">
@@ -33,7 +33,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 </div>
             </header>
             <div className="text-center mb-8">
-                <div className="mt-4 flex justify-center items-center gap-x-6 gap-y-2 text-[11pt] flex-wrap">
+                <div className="mt-4 flex justify-center items-center gap-x-6 gap-y-2 text-sm flex-wrap">
                     {data.email && <div className="flex items-center gap-2"><Mail size={12} /><span>{data.email}</span></div>}
                     {data.phoneNumber && <div className="flex items-center gap-2"><Phone size={12} /><span>{data.phoneNumber}</span></div>}
                     {data.cidade && <div className="flex items-center gap-2"><MapPin size={12} /><span>{data.cidade}</span></div>}
@@ -44,7 +44,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 {data.summary && (
                     <section>
                         <h3 className="section-title-classic">Resumo</h3>
-                        <p className="mt-3 text-[11pt] text-gray-700 text-justify">{data.summary}</p>
+                        <p className="mt-3 text-base text-gray-700 text-justify">{data.summary}</p>
                     </section>
                 )}
 
@@ -55,11 +55,11 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                             {data.workExperience.map((exp, index) => (
                                 <div key={index}>
                                     <div className="flex justify-between items-baseline">
-                                        <h4 className="text-[13pt] font-bold text-gray-900">{exp.role}</h4>
-                                        <p className="text-[11pt] font-medium text-gray-600">{exp.period}</p>
+                                        <h4 className="text-lg font-bold text-gray-900">{exp.role}</h4>
+                                        <p className="text-base font-medium text-gray-600">{exp.period}</p>
                                     </div>
-                                    <p className="text-[11pt] italic text-gray-700">{exp.company}</p>
-                                    {exp.description && <p className="mt-2 text-[11pt] text-gray-600 text-justify">{exp.description}</p>}
+                                    <p className="text-base italic text-gray-700">{exp.company}</p>
+                                    {exp.description && <p className="mt-2 text-base text-gray-600 text-justify">{exp.description}</p>}
                                 </div>
                             ))}
                         </div>
@@ -73,10 +73,10 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                             {data.academicHistory.map((edu, index) => (
                                 <div key={index}>
                                      <div className="flex justify-between items-baseline">
-                                        <h4 className="text-[13pt] font-bold text-gray-900">{edu.degree}</h4>
-                                        <p className="text-[11pt] font-medium text-gray-600">{edu.year}</p>
+                                        <h4 className="text-lg font-bold text-gray-900">{edu.degree}</h4>
+                                        <p className="text-base font-medium text-gray-600">{edu.year}</p>
                                     </div>
-                                    <p className="text-[11pt] italic text-gray-700">{edu.institution}</p>
+                                    <p className="text-base italic text-gray-700">{edu.institution}</p>
                                 </div>
                             ))}
                         </div>
@@ -86,7 +86,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                 {data.skills && data.skills.length > 0 && (
                     <section>
                         <h3 className="section-title-classic">Competências</h3>
-                        <p className="mt-3 text-[11pt] text-gray-700 text-justify">
+                        <p className="mt-3 text-base text-gray-700 text-justify">
                             {data.skills.map(s => s.value).filter(Boolean).join(' • ')}
                         </p>
                     </section>
@@ -98,6 +98,7 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                     width: 210mm;
                     min-height: 297mm;
                     font-family: 'Times New Roman', serif;
+                    line-height: 1.5;
                 }
                 .section-title-classic {
                     font-size: 13pt;
@@ -111,6 +112,9 @@ export const CvPreviewClassicTemplate = ({ data }: { data: CvData }) => {
                     padding: 4px 0;
                 }
                 .text-4xl { font-size: 28pt !important; }
+                .text-lg { font-size: 13pt !important; }
+                .text-base { font-size: 11pt !important; }
+                .text-sm { font-size: 11pt !important; }
             `}</style>
         </div>
     );

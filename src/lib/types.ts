@@ -165,5 +165,3 @@ export interface Course {
     buttonText: string;
     buttonLink: string;
   }
-
-
