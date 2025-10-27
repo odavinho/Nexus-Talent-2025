@@ -87,8 +87,8 @@ export default function StudentDashboardPage() {
     ];
 
     const activeApplications = [
-        { id: 1, jobId: 'dev-frontend-sr', title: 'Desenvolvedor Frontend Sênior', status: 'Em análise' },
-        { id: 2, jobId: 'gestor-projetos-ti', title: 'Gestor de Projetos de TI', status: 'Entrevista agendada' },
+        { id: 'student2_dev-frontend-sr', jobId: 'dev-frontend-sr', title: 'Desenvolvedor Frontend Sênior', status: 'Entrevista' },
+        { id: 'student1_dev-frontend-sr', jobId: 'dev-frontend-sr', title: 'Desenvolvedor Frontend Sênior', status: 'Em análise' },
     ];
     
 
@@ -120,7 +120,7 @@ export default function StudentDashboardPage() {
                                             <p className="text-sm text-primary">{app.status}</p>
                                         </div>
                                         <Button asChild variant="outline" size="sm">
-                                            <Link href={`/recruitment/${app.jobId}`}>Ver Detalhes</Link>
+                                            <Link href={`/dashboard/student/applications/${app.id}`}>Ver Detalhes</Link>
                                         </Button>
                                     </div>
                                 ))}
