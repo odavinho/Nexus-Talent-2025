@@ -1,12 +1,12 @@
 'use client';
 
-import { useUser, useStorage } from '@/firebase';
+import { useUser, useStorage, useAuth } from '@/firebase';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wand2, PlusCircle, Trash2, Edit, User, Briefcase, GraduationCap, Award, Link as LinkIcon, FileText, Download, ArrowLeft, Save } from 'lucide-react';
+import { Loader2, Wand2, PlusCircle, Trash2, Edit, User, Briefcase, GraduationCap, Award, Link as LinkIcon, FileText, Download, ArrowLeft, Save, KeyRound, Camera } from 'lucide-react';
 import type { UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,10 +17,12 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { extractProfileFromResumeAction } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
-import { users as mockUsers, updateUser } from '@/lib/users'; // Import updateUser
+import { users as mockUsers, updateUser } from '@/lib/users';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
@@ -36,6 +38,8 @@ const profileSchema = z.object({
     academicTitle: z.string().min(3, 'O título académico é obrigatório.'),
     nationality: z.string().min(3, 'A nacionalidade é obrigatória.'),
     cidade: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    profilePictureUrl: z.string().optional(),
     yearsOfExperience: z.coerce.number().min(0, 'Os anos de experiência devem ser um número positivo.'),
     functionalArea: z.string().min(3, 'A área funcional é obrigatória.'),
     skills: z.string().describe("Competências separadas por vírgula").optional(),
@@ -66,14 +70,13 @@ export default function ProfilePage() {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     
-    // Use local state for profile data instead of Firestore
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [isProfileLoading, setIsProfileLoading] = useState(true);
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            firstName: '', lastName: '', academicTitle: '', nationality: '',
+            firstName: '', lastName: '', academicTitle: '', nationality: '', phoneNumber: '',
             yearsOfExperience: 0, functionalArea: '', skills: '', resumeUrl: '',
             academicHistory: [], workExperience: [],
             receivesNotifications: true, receivesJobAlerts: true,
@@ -82,33 +85,31 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!isUserLoading && user) {
-            // Find mock user profile by UID
             const mockUserProfile = mockUsers.find(u => u.id === user.uid);
             
             if (mockUserProfile) {
                 setUserProfile(mockUserProfile);
-                // --- REDIRECTION LOGIC ---
                 if (mockUserProfile.userType !== 'student') {
                     const targetDashboard = mockUserProfile.userType === 'recruiter' ? '/dashboard/recruiter/company-profile' : `/dashboard/${mockUserProfile.userType}`;
                     router.replace(targetDashboard);
-                    return; // Stop further processing
+                    return; 
                 }
             } else if (user) {
-                // If no profile exists for this student user, create a basic one
                  const newStudentProfile: UserProfile = {
                     id: user.uid,
                     email: user.email || '',
                     firstName: user.displayName?.split(' ')[0] || '',
                     lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
                     userType: 'student',
+                    profilePictureUrl: user.photoURL || '',
                 };
-                updateUser(user.uid, newStudentProfile); // Add to our mock DB
+                updateUser(user.uid, newStudentProfile); 
                 setUserProfile(newStudentProfile);
-                setIsEditing(true); // Force edit mode for new profiles
+                setIsEditing(true); 
             }
 
         } else if (!isUserLoading && !user) {
-            router.replace('/login'); // Not logged in, go to login
+            router.replace('/login');
         }
         setIsProfileLoading(false);
     }, [user, isUserLoading, router]);
@@ -122,6 +123,8 @@ export default function ProfilePage() {
                 academicTitle: userProfile.academicTitle || '',
                 nationality: userProfile.nationality || '',
                 cidade: userProfile.cidade || '',
+                phoneNumber: userProfile.phoneNumber || '',
+                profilePictureUrl: userProfile.profilePictureUrl || user?.photoURL || '',
                 yearsOfExperience: userProfile.yearsOfExperience || 0,
                 functionalArea: userProfile.functionalArea || '',
                 skills: Array.isArray(userProfile.skills) ? userProfile.skills.join(', ') : '',
@@ -141,41 +144,37 @@ export default function ProfilePage() {
             return;
         }
 
-        form.control.handleSubmit(async () => {
-            const finalData = {
-                ...data,
-                skills: data.skills ? data.skills.split(',').map(s => s.trim()).filter(s => s) : [],
-            };
-    
-            const profileToSave: UserProfile = {
-                ...userProfile, 
-                ...finalData,   
-                id: userProfile.id,
-                email: userProfile.email,
-                userType: userProfile.userType || 'student',
-            };
-    
-            try {
-                // Use the new updateUser function
-                const updatedProfile = updateUser(profileToSave.id, profileToSave);
-                if (updatedProfile) {
-                    setUserProfile(updatedProfile); // Update local state
-                    toast({ title: 'Sucesso!', description: 'O seu perfil foi atualizado.' });
-                    setIsEditing(false);
-                } else {
-                    throw new Error("Não foi possível encontrar o perfil para atualizar.");
-                }
-            } catch (error) {
-                 toast({ title: 'Erro', description: error instanceof Error ? error.message : 'Falha ao salvar o perfil.' });
+        const finalData = {
+            ...data,
+            skills: data.skills ? data.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+        };
+
+        const profileToSave: UserProfile = {
+            ...userProfile, 
+            ...finalData,   
+            id: userProfile.id,
+            email: userProfile.email,
+            userType: userProfile.userType || 'student',
+        };
+
+        try {
+            const updatedProfile = updateUser(profileToSave.id, profileToSave);
+            if (updatedProfile) {
+                setUserProfile(updatedProfile); 
+                toast({ title: 'Sucesso!', description: 'O seu perfil foi atualizado.' });
+                setIsEditing(false);
+            } else {
+                throw new Error("Não foi possível encontrar o perfil para atualizar.");
             }
-        })();
+        } catch (error) {
+             toast({ title: 'Erro', description: error instanceof Error ? error.message : 'Falha ao salvar o perfil.' });
+        }
     };
     
     if (isUserLoading || isProfileLoading || !userProfile) {
         return <ProfileSkeleton />;
     }
     
-    // Only render if it's a student and has finished loading/redirection checks
     if (!isEditing) {
         return <ProfileView profile={userProfile} onEdit={() => setIsEditing(true)} />;
     }
@@ -185,6 +184,8 @@ export default function ProfilePage() {
 
 function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => void }) {
     const router = useRouter();
+    const getInitials = (firstName: string, lastName: string) => `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <Button variant="outline" onClick={() => router.back()} className="mb-6">
@@ -192,10 +193,16 @@ function ProfileView({ profile, onEdit }: { profile: UserProfile; onEdit: () => 
                 Voltar
             </Button>
              <div className="flex justify-between items-start">
-                <div>
-                    <h1 className="font-headline text-4xl font-bold">{profile.firstName} {profile.lastName}</h1>
-                    <p className="text-muted-foreground text-xl mt-1">{profile.academicTitle}</p>
-                    <p className="text-muted-foreground text-sm mt-2">{profile.functionalArea}  &middot; {profile.yearsOfExperience} anos de experiência</p>
+                <div className="flex items-center gap-4">
+                     <Avatar className="h-24 w-24 border-2 border-primary">
+                        <AvatarImage src={profile.profilePictureUrl} />
+                        <AvatarFallback>{getInitials(profile.firstName, profile.lastName)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <h1 className="font-headline text-4xl font-bold">{profile.firstName} {profile.lastName}</h1>
+                        <p className="text-muted-foreground text-xl mt-1">{profile.academicTitle}</p>
+                        <p className="text-muted-foreground text-sm mt-2">{profile.functionalArea}  &middot; {profile.yearsOfExperience} anos de experiência</p>
+                    </div>
                 </div>
                 <Button onClick={onEdit}><Edit className="mr-2 h-4 w-4" /> Editar Perfil</Button>
             </div>
@@ -272,6 +279,10 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
     const { toast } = useToast();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [cvFile, setCvFile] = useState<File | null>(null);
+    const auth = useAuth();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const getInitials = (firstName: string, lastName: string) => `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
     
     const { fields: academicFields, append: appendAcademic, remove: removeAcademic } = useFieldArray({
         control: form.control, name: "academicHistory"
@@ -287,6 +298,18 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
             setCvFile(file);
         }
     };
+    
+    const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            try {
+                const dataUri = await fileToDataUri(file);
+                form.setValue('profilePictureUrl', dataUri, { shouldDirty: true });
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar a imagem.' });
+            }
+        }
+    };
 
     const handleAnalyzeAndFill = async () => {
          if (!cvFile) {
@@ -297,15 +320,23 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
         try {
             const resumeDataUri = await fileToDataUri(cvFile);
             const result = await extractProfileFromResumeAction({ resumeDataUri });
-
-            // Fill the form with extracted data
             form.reset({ ...form.getValues(), ...result, skills: result.skills?.join(', ') || '' });
-
             toast({ title: 'Perfil preenchido!', description: 'Os dados do seu CV foram preenchidos. Por favor, reveja e salve as alterações.' });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erro na Análise', description: error instanceof Error ? error.message : 'Não foi possível analisar o CV.' });
         } finally {
             setIsAnalyzing(false);
+        }
+    };
+
+    const handlePasswordReset = async () => {
+        if (auth.currentUser?.email) {
+            try {
+                await sendPasswordResetEmail(auth, auth.currentUser.email);
+                toast({ title: 'E-mail Enviado', description: 'Verifique a sua caixa de entrada para redefinir a palavra-passe.' });
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível enviar o e-mail de redefinição.' });
+            }
         }
     };
     
@@ -333,11 +364,32 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <div>
-                            <h3 className="font-headline text-xl mb-4">Informação Pessoal</h3>
+                         <div>
+                            <h3 className="font-headline text-xl mb-4">Informação Pessoal e de Contacto</h3>
                             <div className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="profilePictureUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Foto de Perfil</FormLabel>
+                                            <div className="flex items-center gap-4">
+                                                <Avatar className="h-24 w-24">
+                                                    <AvatarImage src={field.value} />
+                                                    <AvatarFallback>{getInitials(form.getValues('firstName'), form.getValues('lastName'))}</AvatarFallback>
+                                                </Avatar>
+                                                <Button type="button" onClick={() => fileInputRef.current?.click()}>
+                                                    <Camera className="mr-2 h-4 w-4" /> Alterar Foto
+                                                </Button>
+                                                <FormControl>
+                                                    <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleProfilePicChange} />
+                                                </FormControl>
+                                            </div>
+                                        </FormItem>
+                                    )}
+                                />
                                 <div className="grid md:grid-cols-2 gap-6"><FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Apelido</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>
-                                <div className="grid md:grid-cols-2 gap-6"><FormField control={form.control} name="nationality" render={({ field }) => (<FormItem><FormLabel>Nacionalidade</FormLabel><FormControl><Input placeholder="Ex: Angolana" {...field} /></FormControl><FormMessage /></FormItem>)} /></div>
+                                <div className="grid md:grid-cols-2 gap-6"><FormField control={form.control} name="nationality" render={({ field }) => (<FormItem><FormLabel>Nacionalidade</FormLabel><FormControl><Input placeholder="Ex: Angolana" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Telefone</FormLabel><FormControl><Input placeholder="+244..." {...field} /></FormControl><FormMessage /></FormItem>)} /></div>
                             </div>
                         </div>
                         <Separator />
@@ -393,6 +445,19 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                                      <FormField control={form.control} name="cidade" render={({ field }) => (<FormItem><FormLabel>Região Preferencial</FormLabel><FormControl><Input placeholder="Ex: Aveiro" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
                             </div>
+                        </div>
+                        <Separator />
+                         <div>
+                            <h3 className="font-headline text-xl mb-4">Acesso e Segurança</h3>
+                            <Card className="p-4 bg-secondary/50">
+                                 <FormLabel>Palavra-passe</FormLabel>
+                                 <p className="text-sm text-muted-foreground mt-2 mb-4">
+                                     Para sua segurança, não guardamos a sua palavra-passe. Se precisar de a alterar, enviaremos um link seguro para o seu e-mail.
+                                 </p>
+                                 <Button type="button" variant="outline" onClick={handlePasswordReset}>
+                                    <KeyRound className="mr-2 h-4 w-4" /> Enviar E-mail de Redefinição
+                                 </Button>
+                            </Card>
                         </div>
                         <Separator />
                         <div>
