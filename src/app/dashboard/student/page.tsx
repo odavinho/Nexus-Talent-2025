@@ -8,8 +8,72 @@ import { Progress } from "@/components/ui/progress";
 import { CourseRecommendations } from "@/components/dashboard/course-recommendations";
 import { CertificateGenerator } from "@/components/student/certificate-generator";
 import { WishlistCourses } from "@/components/student/wishlist-courses";
+import { useUser } from "@/firebase";
+import { users } from "@/lib/users";
+import { getVacancies } from "@/lib/vacancy-service";
+import type { Vacancy, UserProfile } from "@/lib/types";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Component for Job Recommendations
+const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }) => {
+    const [recommendedJobs, setRecommendedJobs] = useState<Vacancy[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (userProfile?.academicTitle) {
+            const allVacancies = getVacancies();
+            const recommendations = allVacancies
+                .filter(v => v.title.toLowerCase().includes(userProfile.academicTitle!.toLowerCase().split(' ')[0]))
+                .slice(0, 3);
+            setRecommendedJobs(recommendations);
+        }
+        setIsLoading(false);
+    }, [userProfile]);
+
+    if (isLoading) {
+        return <Skeleton className="h-24 w-full" />;
+    }
+    
+    if (!userProfile?.academicTitle) {
+         return (
+            <>
+                <p className="text-muted-foreground text-sm mb-4">Ainda não definiu as suas preferências de emprego.</p>
+                <Button asChild variant="outline" className="w-full">
+                    <Link href="/dashboard/student/profile"><Settings className="mr-2 h-4 w-4"/>Definir Preferências</Link>
+                </Button>
+            </>
+        )
+    }
+
+    if (recommendedJobs.length === 0) {
+        return <p className="text-muted-foreground text-sm">Nenhuma vaga encontrada para o seu perfil no momento.</p>
+    }
+
+    return (
+        <div className="space-y-2">
+            {recommendedJobs.map(job => (
+                <Link href={`/recruitment/${job.id}`} key={job.id} className="block p-2 border rounded-md hover:bg-secondary">
+                    <p className="font-semibold text-sm">{job.title}</p>
+                    <p className="text-xs text-muted-foreground">{job.location}</p>
+                </Link>
+            ))}
+        </div>
+    );
+};
+
 
 export default function StudentDashboardPage() {
+    const { user, isUserLoading } = useUser();
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+    useEffect(() => {
+        if (user) {
+            const profile = users.find(u => u.id === user.uid);
+            setUserProfile(profile || null);
+        }
+    }, [user]);
+    
     // Mock data for enrolled courses
     const enrolledCourses = [
         { id: 'TA-001', name: 'Técnicas de Apresentação', progress: 75, grade: null, format: 'Online' },
@@ -122,18 +186,15 @@ export default function StudentDashboardPage() {
                                 <Briefcase />
                                 Oportunidades de Emprego
                             </CardTitle>
-                             <CardDescription>Receba sugestões de empregos com base nas suas preferências.</CardDescription>
+                             <CardDescription>Receba sugestões de empregos com base no seu perfil.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <p className="text-muted-foreground text-sm mb-4">Ainda não definiu as suas preferências de emprego.</p>
-                             <div className="flex flex-col gap-2">
-                                 <Button asChild className="w-full">
-                                    <Link href="#">Ver Empregos Sugeridos</Link>
+                             <JobRecommendations userProfile={userProfile} />
+                             <div className="flex flex-col gap-2 mt-4">
+                                 <Button asChild className="w-full" variant="default">
+                                    <Link href="/recruitment">Ver Mais Vagas</Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
-                                    <Link href="#"><Settings className="mr-2 h-4 w-4"/>Definir Preferências</Link>
-                                </Button>
-                                 <Button asChild variant="outline" className="w-full">
                                     <Link href="#"><Bell className="mr-2 h-4 w-4"/>Gerir Alertas</Link>
                                 </Button>
                              </div>

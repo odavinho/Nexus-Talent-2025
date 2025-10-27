@@ -319,7 +319,7 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                     <div className="flex gap-4 items-center">
                         <Input id="cv-upload" type="file" accept=".pdf,.doc,.docx" className="max-w-xs" onChange={handleFileChange} />
                         <Button variant="outline" onClick={handleAnalyzeAndFill} disabled={isAnalyzing}>
-                            {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Analisar e Preencher
+                            {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />} Filtrar Dados e Preencher
                         </Button>
                     </div>
                 </div>
