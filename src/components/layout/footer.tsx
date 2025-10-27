@@ -30,6 +30,9 @@ const footerLinks = {
     { href: "#", label: "Onde estamos" },
     { href: "#", label: "Contactos" },
   ],
+  galeria: [
+      { href: "#", label: "Galeria de Fotos" },
+  ]
 };
 
 
@@ -52,7 +55,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className='col-span-1 md:col-span-3 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8'>
+          <div className='col-span-1 md:col-span-3 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8'>
             <div>
               <h3 className="font-headline text-lg font-medium">Empregos</h3>
               <ul className="mt-4 space-y-2 text-sm">
@@ -81,6 +84,14 @@ export function Footer() {
               <h3 className="font-headline text-lg font-medium">Sobre Nós</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 {footerLinks.sobreNos.map(link => (
+                  <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-headline text-lg font-medium">Galeria</h3>
+              <ul className="mt-4 space-y-2 text-sm">
+                {footerLinks.galeria.map(link => (
                   <li key={`${link.href}-${link.label}`}><Link href={link.href} className="text-muted-foreground hover:text-primary">{link.label}</Link></li>
                 ))}
               </ul>
