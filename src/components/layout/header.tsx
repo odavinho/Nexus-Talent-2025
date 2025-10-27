@@ -96,7 +96,7 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-             <Link href="/courses" passHref>
+             <Link href="/courses" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   {t('courses')}
                 </NavigationMenuLink>
@@ -134,14 +134,14 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
             </NavigationMenuContent>
           </NavigationMenuItem>
            <NavigationMenuItem>
-             <Link href="/about" passHref>
+             <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   {t('about')}
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
            <NavigationMenuItem>
-             <Link href="/blog" passHref>
+             <Link href="/blog" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   {t('blog')}
                 </NavigationMenuLink>
