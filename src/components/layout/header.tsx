@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -96,9 +97,9 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-             <Link href="/courses" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {t('courses')}
+              <Link href="/courses" legacyBehavior passHref>
+                <NavigationMenuLink asChild>
+                    <a className={navigationMenuTriggerStyle()}>{t('courses')}</a>
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
@@ -135,15 +136,15 @@ const NavLinks = ({ closeMenu }: { closeMenu?: () => void }) => {
           </NavigationMenuItem>
            <NavigationMenuItem>
              <Link href="/about" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {t('about')}
+                <NavigationMenuLink asChild>
+                    <a className={navigationMenuTriggerStyle()}>{t('about')}</a>
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
            <NavigationMenuItem>
              <Link href="/blog" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {t('blog')}
+                <NavigationMenuLink asChild>
+                    <a className={navigationMenuTriggerStyle()}>{t('blog')}</a>
                 </NavigationMenuLink>
               </Link>
           </NavigationMenuItem>
