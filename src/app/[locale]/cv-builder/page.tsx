@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Header } from '@/components/layout/header';
@@ -135,8 +136,8 @@ const handleDownloadPdf = async () => {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, mm, A4
     
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = 297; // A4 height in mm
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
@@ -150,14 +151,14 @@ const handleDownloadPdf = async () => {
     
     // Add the first page
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
-    heightLeft -= pdfHeight;
+    heightLeft -= pageHeight;
 
     // Add new pages if content overflows
     while (heightLeft > 0) {
-        position -= pdfHeight;
+        position -= pageHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, finalImgHeight);
-        heightLeft -= pdfHeight;
+        heightLeft -= pageHeight;
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -287,11 +288,15 @@ const handleDownloadPdf = async () => {
                            </Label>
                         </RadioGroup>
                     </div>
-                    <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden mt-4">
-                        <div id="cv-preview-container-for-pdf" ref={previewRef}>
-                           {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
-                           {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
-                           {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
+                    <div className="w-full mt-4 bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div className="aspect-[210/297] w-full">
+                            <div className="w-[210mm] origin-top-left" style={{ transform: 'scale(calc(100% / 793.7px))' }}>
+                                <div id="cv-preview-container-for-pdf" ref={previewRef}>
+                                    {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
+                                    {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
+                                    {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
