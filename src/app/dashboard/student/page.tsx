@@ -23,8 +23,10 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
     useEffect(() => {
         if (userProfile?.academicTitle) {
             const allVacancies = getVacancies();
+            // Simple recommendation: filter jobs where the title includes the first word of the user's academic title
+            const searchTerm = userProfile.academicTitle.split(' ')[0].toLowerCase();
             const recommendations = allVacancies
-                .filter(v => v.title.toLowerCase().includes(userProfile.academicTitle!.toLowerCase().split(' ')[0]))
+                .filter(v => v.title.toLowerCase().includes(searchTerm))
                 .slice(0, 3);
             setRecommendedJobs(recommendations);
         }
