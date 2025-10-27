@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Award, UserCircle, Download, Heart, Briefcase, Settings, Bell } from "lucide-react";
+import { BookOpen, Award, UserCircle, Download, Heart, Briefcase, Settings, Bell, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -14,6 +14,7 @@ import { getJobs } from "@/lib/vacancy-service";
 import type { JobPosting, UserProfile } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WishlistJobs } from "@/components/student/wishlist-jobs";
 
 // Component for Job Recommendations
 const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }) => {
@@ -85,8 +86,8 @@ export default function StudentDashboardPage() {
     ];
 
     const activeApplications = [
-        { id: 1, title: 'Desenvolvedor Frontend Sênior', status: 'Em análise' },
-        { id: 2, title: 'Gestor de Projetos de TI', status: 'Entrevista agendada' },
+        { id: 1, jobId: 'dev-frontend-sr', title: 'Desenvolvedor Frontend Sênior', status: 'Em análise' },
+        { id: 2, jobId: 'gestor-projetos-ti', title: 'Gestor de Projetos de TI', status: 'Entrevista agendada' },
     ];
     
 
@@ -117,7 +118,9 @@ export default function StudentDashboardPage() {
                                             <p className="font-semibold">{app.title}</p>
                                             <p className="text-sm text-primary">{app.status}</p>
                                         </div>
-                                        <Button variant="outline" size="sm">Ver Detalhes</Button>
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/recruitment/${app.jobId}`}>Ver Detalhes</Link>
+                                        </Button>
                                     </div>
                                 ))}
                                 </div>
@@ -156,7 +159,7 @@ export default function StudentDashboardPage() {
                     </Card>
                     
                     <WishlistCourses />
-                    
+                    <WishlistJobs />
                     <CourseRecommendations />
                     
                 </div>
@@ -179,6 +182,21 @@ export default function StudentDashboardPage() {
                                     <Link href="/cv-builder">Construtor de CV</Link>
                                 </Button>
                              </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <MessageSquare />
+                                Mensagens com Recrutadores
+                            </CardTitle>
+                            <CardDescription>Veja as suas conversas com recrutadores aqui.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button asChild className="w-full">
+                                <Link href="/dashboard/student/conversations">Ver Mensagens</Link>
+                            </Button>
                         </CardContent>
                     </Card>
 

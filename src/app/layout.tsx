@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { WishlistProvider } from '@/hooks/use-wishlist.tsx';
+import { JobWishlistProvider } from '@/hooks/use-job-wishlist';
 import { Chatbot } from '@/components/shared/chatbot';
 
 export const metadata: Metadata = {
@@ -29,9 +30,11 @@ export default async function RootLayout({
       <body className={cn('font-body antialiased bg-background min-h-screen flex flex-col')}>
         <FirebaseClientProvider>
           <WishlistProvider>
-            {children}
-            <Chatbot />
-            <Toaster />
+            <JobWishlistProvider>
+              {children}
+              <Chatbot />
+              <Toaster />
+            </JobWishlistProvider>
           </WishlistProvider>
         </FirebaseClientProvider>
       </body>

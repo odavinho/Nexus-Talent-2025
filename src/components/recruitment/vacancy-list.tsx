@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { getJobs } from '@/lib/vacancy-service';
 import { getCourseCategories } from '@/lib/course-service';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, Briefcase, List, LayoutGrid, Bell } from 'lucide-react';
+import { Search, MapPin, Briefcase, List, LayoutGrid, Bell, Heart } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -21,6 +21,7 @@ import { Timestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { JobAlertSubscription } from './job-alert-subscription';
+import { useJobWishlist } from '@/hooks/use-job-wishlist';
 
 
 const toDate = (date: Timestamp | Date | undefined): Date | null => {
@@ -78,10 +79,26 @@ export function VacancyList() {
     const category = courseCategories.find(c => c.name === job.category);
     const closingDate = toDate(job.closingDate);
     const isExpired = closingDate ? closingDate < new Date() : false;
+    const { wishlist, toggleWishlist } = useJobWishlist();
+    const isInWishlist = wishlist.includes(job.id);
+
+    const handleWishlistClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWishlist(job.id);
+    }
 
     if (viewMode === 'grid') {
       return (
-        <Card className={cn("transition-shadow hover:shadow-md h-full flex flex-col", isExpired && "bg-muted/50")}>
+        <Card className={cn("transition-shadow hover:shadow-md h-full flex flex-col group relative", isExpired && "bg-muted/50")}>
+            <Button 
+                variant="secondary" 
+                size="icon" 
+                className="absolute top-3 right-3 z-10 rounded-full h-8 w-8"
+                onClick={handleWishlistClick}
+            >
+                <Heart className={cn("h-4 w-4", isInWishlist ? 'fill-red-500 text-red-500' : 'text-muted-foreground')} />
+            </Button>
             <CardHeader>
                 {category && <Badge variant="secondary" className='mb-2 self-start'>{category.name}</Badge>}
                 <CardTitle className="font-headline text-xl flex-grow"><Link href={`/recruitment/${job.id}`} className="hover:text-primary">{job.title}</Link></CardTitle>
