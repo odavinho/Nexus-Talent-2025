@@ -290,7 +290,12 @@ export default function CVBuilderPage() {
                         </RadioGroup>
                     </div>
                      <div className="w-full aspect-[210/297] bg-white rounded-lg shadow-md overflow-hidden">
-                        <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm] min-h-[297mm] transform origin-top-left -translate-x-[35%] -translate-y-[35%] scale-[0.3] sm:scale-[0.45] sm:-translate-x-[25%] sm:-translate-y-[25%] md:scale-[0.35] md:-translate-x-[32.5%] md:-translate-y-[32.5%] lg:scale-[0.55] lg:-translate-x-[22.5%] lg:-translate-y-[22.5%]">
+                        <div 
+                          id="cv-preview-container-for-pdf"
+                          ref={previewRef}
+                          className="w-[210mm] min-h-[297mm] origin-top-left"
+                          style={{ transform: 'scale(0.55)', transformOrigin: 'top left', marginLeft: '-22.5%', marginTop: '-22.5%' }}
+                        >
                            {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                            {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                            {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
