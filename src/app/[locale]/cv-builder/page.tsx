@@ -37,6 +37,7 @@ const cvSchema = z.object({
   email: z.string().email('Email inválido.'),
   cidade: z.string().optional(),
   summary: z.string().optional(),
+  profilePictureUrl: z.string().optional(),
   workExperience: z.array(z.object({
     role: z.string().min(1, 'Função é obrigatória.'),
     company: z.string().min(1, 'Empresa é obrigatória.'),
@@ -87,6 +88,7 @@ export default function CVBuilderPage() {
           setProfile(userProfile);
           form.reset({
             ...userProfile,
+            profilePictureUrl: userProfile.profilePictureUrl || user?.photoURL || '',
             skills: userProfile.skills?.map(s => ({ value: s }))
           });
         }
@@ -139,8 +141,7 @@ const handleDownloadPdf = async () => {
     const a4Height = 297;
     const margin = 15; // 1.5 cm
     const usableWidth = a4Width - (margin * 2);
-    const usableHeight = a4Height - (margin * 2);
-
+    
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
@@ -151,13 +152,13 @@ const handleDownloadPdf = async () => {
     let position = margin;
     
     pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-    heightLeft -= usableHeight;
+    heightLeft -= (a4Height - margin * 2);
 
     while (heightLeft > 0) {
         position = heightLeft - imgHeight + margin;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight);
-        heightLeft -= usableHeight;
+        heightLeft -= (a4Height - margin * 2);
     }
     
     pdf.save(`${(profile?.firstName || 'cv')}_${(profile?.lastName || 'nexustalent')}.pdf`);
@@ -288,9 +289,9 @@ const handleDownloadPdf = async () => {
                         </RadioGroup>
                     </div>
                     <div className="w-full mt-4 bg-white shadow-lg rounded-lg overflow-hidden">
-                       <div className="aspect-[210/297] w-full">
-                            <div className="origin-top-left transform scale-[0.35] sm:scale-[0.5] md:scale-[0.6] lg:scale-100">
-                                <div id="cv-preview-container-for-pdf" ref={previewRef} className="w-[210mm]">
+                       <div className="w-full overflow-hidden aspect-[210/297] relative">
+                            <div id="cv-preview-container-for-pdf" ref={previewRef} className="absolute top-0 left-0 origin-top-left transform scale-[0.4] sm:scale-[0.55] md:scale-[0.6] lg:scale-100">
+                                <div className="w-[210mm]">
                                     {template === 'europass' && <CvPreviewTemplate data={watchedData} />}
                                     {template === 'modern' && <CvPreviewModernTemplate data={watchedData} />}
                                     {template === 'classic' && <CvPreviewClassicTemplate data={watchedData} />}
@@ -306,4 +307,3 @@ const handleDownloadPdf = async () => {
     </>
   );
 }
-

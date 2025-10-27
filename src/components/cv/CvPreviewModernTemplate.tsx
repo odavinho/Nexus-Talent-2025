@@ -1,7 +1,9 @@
+
 'use client';
 
 import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 import { Logo } from "../shared/logo";
+import Image from "next/image";
 
 type CvData = {
     firstName?: string;
@@ -11,10 +13,13 @@ type CvData = {
     email?: string;
     cidade?: string;
     summary?: string;
+    profilePictureUrl?: string;
     workExperience?: { role: string; company: string; period: string; description?: string }[];
     academicHistory?: { degree: string; institution: string; year?: string }[];
     skills?: { value: string }[];
 }
+
+const getInitials = (firstName?: string, lastName?: string) => `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
 
 export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
     return (
@@ -76,7 +81,11 @@ export const CvPreviewModernTemplate = ({ data }: { data: CvData }) => {
                 {/* Right Column */}
                 <div className="col-span-4 bg-gray-50 p-8">
                      <div className="space-y-8">
-                        <div className="mb-8"><Logo /></div>
+                        {data.profilePictureUrl && (
+                            <div className="relative w-32 h-32 rounded-full mx-auto overflow-hidden border-4 border-white shadow-lg">
+                                <Image src={data.profilePictureUrl} alt="Foto de Perfil" fill className="object-cover" />
+                            </div>
+                        )}
                         <div>
                             <h3 className="section-title-side">Contacto</h3>
                             <div className="mt-3 space-y-3 cv-secondary-details">
