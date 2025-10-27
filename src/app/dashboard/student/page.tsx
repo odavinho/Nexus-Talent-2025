@@ -21,12 +21,12 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (userProfile?.academicTitle) {
+        if (userProfile?.functionalArea) {
             const allVacancies = getVacancies();
-            // Simple recommendation: filter jobs where the title includes the first word of the user's academic title
-            const searchTerm = userProfile.academicTitle.split(' ')[0].toLowerCase();
+            // Simple recommendation: filter jobs where the category includes the user's functional area
+            const searchTerm = userProfile.functionalArea.toLowerCase();
             const recommendations = allVacancies
-                .filter(v => v.title.toLowerCase().includes(searchTerm))
+                .filter(v => v.category.toLowerCase().includes(searchTerm) || (v.location && userProfile.cidade && v.location.toLowerCase().includes(userProfile.cidade.toLowerCase())))
                 .slice(0, 3);
             setRecommendedJobs(recommendations);
         }
@@ -37,7 +37,7 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
         return <Skeleton className="h-24 w-full" />;
     }
     
-    if (!userProfile?.academicTitle) {
+    if (!userProfile?.functionalArea) {
          return (
             <>
                 <p className="text-muted-foreground text-sm mb-4">Ainda não definiu as suas preferências de emprego.</p>
@@ -49,7 +49,7 @@ const JobRecommendations = ({ userProfile }: { userProfile: UserProfile | null }
     }
 
     if (recommendedJobs.length === 0) {
-        return <p className="text-muted-foreground text-sm">Nenhuma vaga encontrada para o seu perfil no momento.</p>
+        return <p className="text-muted-foreground text-sm">Nenhuma vaga encontrada para as suas preferências no momento.</p>
     }
 
     return (
@@ -188,7 +188,7 @@ export default function StudentDashboardPage() {
                                 <Briefcase />
                                 Oportunidades de Emprego
                             </CardTitle>
-                             <CardDescription>Receba sugestões de empregos com base no seu perfil.</CardDescription>
+                             <CardDescription>Receba sugestões de empregos com base nas suas preferências.</CardDescription>
                         </CardHeader>
                         <CardContent>
                              <JobRecommendations userProfile={userProfile} />
@@ -197,7 +197,7 @@ export default function StudentDashboardPage() {
                                     <Link href="/recruitment">Ver Mais Vagas</Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
-                                    <Link href="#"><Bell className="mr-2 h-4 w-4"/>Gerir Alertas</Link>
+                                    <Link href="/recruitment"><Bell className="mr-2 h-4 w-4"/>Criar Alertas</Link>
                                 </Button>
                              </div>
                         </CardContent>

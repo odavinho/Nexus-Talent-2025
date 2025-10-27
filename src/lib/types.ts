@@ -137,6 +137,8 @@ export interface Course {
     academicHistory?: AcademicHistory[];
     workExperience?: WorkExperience[];
     certifications?: Certification[];
+    // Job Preferences
+    preferredContractType?: 'any' | 'Full-time' | 'Part-time' | 'Remote';
     // Notification preferences
     receivesNotifications?: boolean;
     receivesJobAlerts?: boolean;
@@ -163,4 +165,5 @@ export interface Course {
     buttonText: string;
     buttonLink: string;
   }
+
 

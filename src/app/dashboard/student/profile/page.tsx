@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { users as mockUsers, updateUser } from '@/lib/users'; // Import updateUser
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const fileToDataUri = (file: File) => new Promise<string>((resolve, reject) => {
@@ -34,6 +35,7 @@ const profileSchema = z.object({
     lastName: z.string().min(1, 'O apelido é obrigatório.'),
     academicTitle: z.string().min(3, 'O título académico é obrigatório.'),
     nationality: z.string().min(3, 'A nacionalidade é obrigatória.'),
+    cidade: z.string().optional(),
     yearsOfExperience: z.coerce.number().min(0, 'Os anos de experiência devem ser um número positivo.'),
     functionalArea: z.string().min(3, 'A área funcional é obrigatória.'),
     skills: z.string().describe("Competências separadas por vírgula").optional(),
@@ -49,6 +51,9 @@ const profileSchema = z.object({
         period: z.string().min(1, "Período é obrigatória"),
         description: z.string().optional(),
     })).optional(),
+    // Job Preferences
+    preferredContractType: z.string().optional(),
+    // Communication Preferences
     receivesNotifications: z.boolean().optional(),
     receivesJobAlerts: z.boolean().optional(),
 });
@@ -116,12 +121,14 @@ export default function ProfilePage() {
                 lastName: userProfile.lastName || lastNameParts.join(' '),
                 academicTitle: userProfile.academicTitle || '',
                 nationality: userProfile.nationality || '',
+                cidade: userProfile.cidade || '',
                 yearsOfExperience: userProfile.yearsOfExperience || 0,
                 functionalArea: userProfile.functionalArea || '',
                 skills: Array.isArray(userProfile.skills) ? userProfile.skills.join(', ') : '',
                 resumeUrl: userProfile.resumeUrl || '',
                 academicHistory: userProfile.academicHistory || [],
                 workExperience: userProfile.workExperience || [],
+                preferredContractType: userProfile.preferredContractType || 'any',
                 receivesNotifications: userProfile.receivesNotifications !== false,
                 receivesJobAlerts: userProfile.receivesJobAlerts !== false,
             });
@@ -359,6 +366,32 @@ function ProfileForm({ form, onSubmit, isSubmitting, onCancel }: { form: any; on
                             <div className="space-y-6">
                                 <FormField control={form.control} name="resumeUrl" render={({ field }) => (<FormItem><FormLabel>URL do Currículo (opcional)</FormLabel><FormControl><Input placeholder="https://exemplo.com/meu-cv.pdf" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="skills" render={({ field }) => (<FormItem><FormLabel>Principais Competências</FormLabel><FormControl><Textarea placeholder="Ex: React, Gestão de Projetos, Liderança,..." rows={3} {...field} /></FormControl><FormDescription>Separe as competências por vírgulas.</FormDescription><FormMessage /></FormItem>)} />
+                            </div>
+                        </div>
+                        <Separator />
+                         <div>
+                            <h3 className="font-headline text-xl mb-4">Preferências de Emprego</h3>
+                             <p className="text-sm text-muted-foreground mb-4">Todas as tuas preferências em relação ao teu próximo emprego, numa visão geral.</p>
+                            <div className="space-y-6">
+                                 <FormField control={form.control} name="functionalArea" render={({ field }) => ( <FormItem><FormLabel>Indústrias Preferenciais</FormLabel><FormControl><Input placeholder="Ex: Administrativa e Secretariado, Trabalho, etc" {...field} /></FormControl><FormDescription>Separe as indústrias por vírgulas.</FormDescription><FormMessage /></FormItem>)} />
+                                <div className="grid md:grid-cols-2 gap-6">
+                                     <FormField control={form.control} name="preferredContractType" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tipo de Contrato</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl><SelectTrigger><SelectValue placeholder="Qualquer tipo"/></SelectTrigger></FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Qualquer tipo</SelectItem>
+                                                    <SelectItem value="Full-time">Full-time</SelectItem>
+                                                    <SelectItem value="Part-time">Part-time</SelectItem>
+                                                    <SelectItem value="Remote">Remoto</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                     )} />
+                                     <FormField control={form.control} name="cidade" render={({ field }) => (<FormItem><FormLabel>Região Preferencial</FormLabel><FormControl><Input placeholder="Ex: Aveiro" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
                             </div>
                         </div>
                         <Separator />

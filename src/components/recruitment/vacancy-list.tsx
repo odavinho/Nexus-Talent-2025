@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { getVacancies } from '@/lib/vacancy-service';
 import { getCourseCategories } from '@/lib/course-service';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, Briefcase, List, LayoutGrid } from 'lucide-react';
+import { Search, MapPin, Briefcase, List, LayoutGrid, Bell } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,6 +19,8 @@ import Link from 'next/link';
 import type { Vacancy, CourseCategory } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { JobAlertSubscription } from './job-alert-subscription';
 
 
 const toDate = (date: Timestamp | Date | undefined): Date | null => {
@@ -199,6 +201,25 @@ export function VacancyList() {
        <div className="flex justify-between items-center mb-6">
             <p className="text-sm text-muted-foreground">{filteredVacancies.length} empregos encontrados</p>
             <div className="flex items-center gap-2">
+                 <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline">
+                            <Bell className="mr-2 h-4 w-4" />
+                            Criar Alerta de Emprego
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Criar Alerta de Emprego</DialogTitle>
+                            <DialogDescription>
+                                Para criares um alerta por e-mail, faz a tua pesquisa de emprego através do nosso motor de busca. Podes aperfeiçoá-lo com os critérios à tua escolha. Uma vez seleccionados os teus critérios, clica em "criar um alerta de e-mail". Um pop-up irá então permitir-te guardar a tua pesquisa como um alerta por e-mail.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                           <JobAlertSubscription />
+                        </div>
+                    </DialogContent>
+                </Dialog>
                 <Button variant={viewMode === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setViewMode('list')}>
                     <List className="h-5 w-5" />
                 </Button>
